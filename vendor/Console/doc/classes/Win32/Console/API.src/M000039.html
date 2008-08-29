@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    constant (Win32::Console::API)
+
+  -->
+<html>
+<head>
+	<title>constant (Win32::Console::API)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 137</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">constant</span>(<span class="ruby-identifier">t</span>)
+        <span class="ruby-keyword kw">begin</span>
+          <span class="ruby-identifier">eval</span> <span class="ruby-node">&quot;return Win32::Console::Constants::#{t}&quot;</span>
+        <span class="ruby-keyword kw">rescue</span>
+          <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    ScrollConsoleScreenBuffer (Win32::Console::API)
+
+  -->
+<html>
+<head>
+	<title>ScrollConsoleScreenBuffer (Win32::Console::API)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 432</span>
+     <span class="ruby-keyword kw">def</span> <span class="ruby-constant">ScrollConsoleScreenBuffer</span>( <span class="ruby-identifier">hConsoleOutput</span>, 
+                                    <span class="ruby-identifier">left1</span>, <span class="ruby-identifier">top1</span>, <span class="ruby-identifier">right1</span>, <span class="ruby-identifier">bottom1</span>,
+                                    <span class="ruby-identifier">col</span>, <span class="ruby-identifier">row</span>, <span class="ruby-identifier">char</span>, <span class="ruby-identifier">attr</span>,
+                                    <span class="ruby-identifier">left2</span>, <span class="ruby-identifier">top2</span>, <span class="ruby-identifier">right2</span>, <span class="ruby-identifier">bottom2</span> )
+       <span class="ruby-keyword kw">if</span> @<span class="ruby-ivar">@m_ScrollConsoleScreenBuffer</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>
+          @<span class="ruby-ivar">@m_ScrollConsoleScreenBuffer</span> = <span class="ruby-constant">Win32API</span>.<span class="ruby-identifier">new</span>( <span class="ruby-value str">&quot;kernel32&quot;</span>, <span class="ruby-value str">&quot;ScrollConsoleScreenBuffer&quot;</span>, [<span class="ruby-value str">'l'</span>, <span class="ruby-value str">'p'</span>, <span class="ruby-value str">'p'</span>, <span class="ruby-value str">'l'</span>, <span class="ruby-value str">'p'</span>], <span class="ruby-value str">'l'</span> )
+       <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">lpScrollRectangle</span> = [<span class="ruby-identifier">left1</span>, <span class="ruby-identifier">top1</span>, <span class="ruby-identifier">right1</span>, <span class="ruby-identifier">bottom1</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-value str">'ssss'</span>)
+        <span class="ruby-identifier">lpClipRectangle</span>   = [<span class="ruby-identifier">left2</span>, <span class="ruby-identifier">top2</span>, <span class="ruby-identifier">right2</span>, <span class="ruby-identifier">bottom2</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-value str">'ssss'</span>)
+        <span class="ruby-identifier">dwDestinationOrigin</span> = (<span class="ruby-identifier">row</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">16</span>) <span class="ruby-operator">+</span> <span class="ruby-identifier">col</span>
+        <span class="ruby-identifier">lpFill</span> = [<span class="ruby-identifier">char</span>, <span class="ruby-identifier">attr</span>].<span class="ruby-identifier">pack</span>(<span class="ruby-value str">'ss'</span>)
+       @<span class="ruby-ivar">@m_ScrollConsoleScreenBuffer</span>.<span class="ruby-identifier">call</span>( <span class="ruby-identifier">hConsoleOutput</span>, <span class="ruby-identifier">lpScrollRectangle</span>,
+                                           <span class="ruby-identifier">lpClipRectangle</span>, 
+                                           <span class="ruby-identifier">dwDestinationOrigin</span>, <span class="ruby-identifier">lpFill</span> )
+     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

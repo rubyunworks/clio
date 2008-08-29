@@ -1,0 +1,4 @@
+name=clio
+version=0.01
+libpath=lib;lib/clio
+default=clio.rb

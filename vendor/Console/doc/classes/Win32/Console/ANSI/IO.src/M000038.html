@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    write (Win32::Console::ANSI::IO)
+
+  -->
+<html>
+<head>
+	<title>write (Win32::Console::ANSI::IO)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console/ANSI.rb, line 276</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">write</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">s</span>)
+          <span class="ruby-identifier">s</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">_PrintString</span>(<span class="ruby-identifier">x</span>)
+          }
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

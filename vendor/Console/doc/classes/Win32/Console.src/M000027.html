@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    FillChar (Win32::Console)
+
+  -->
+<html>
+<head>
+	<title>FillChar (Win32::Console)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 831</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-constant">FillChar</span>(<span class="ruby-identifier">char</span>, <span class="ruby-identifier">number</span>, <span class="ruby-identifier">col</span> = <span class="ruby-value">-1</span>, <span class="ruby-identifier">row</span> = <span class="ruby-value">-1</span>)
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
+        <span class="ruby-identifier">d</span>, <span class="ruby-identifier">d</span>, <span class="ruby-identifier">curr_col</span>, <span class="ruby-identifier">curr_row</span> = <span class="ruby-constant">API</span>.<span class="ruby-constant">GetConsoleScreenBufferInfo</span>(<span class="ruby-ivar">@handle</span>)
+        <span class="ruby-identifier">col</span> = <span class="ruby-identifier">curr_col</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">col</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
+        <span class="ruby-identifier">row</span> = <span class="ruby-identifier">curr_row</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">row</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">0</span>
+      <span class="ruby-keyword kw">end</span>
+      <span class="ruby-constant">API</span>.<span class="ruby-constant">FillConsoleOutputCharacter</span>(<span class="ruby-ivar">@handle</span>, <span class="ruby-identifier">char</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">number</span>, <span class="ruby-identifier">col</span>, <span class="ruby-identifier">row</span>)
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

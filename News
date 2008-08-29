@@ -1,0 +1,10 @@
+= Release Notes
+
+== 0.0.1 // 2008-08-29
+
+This is the initial release of Clio. While useable,
+it is still largely APLHA code. The API is still
+in flux and needs a lot more testing before it
+gets an okay for general use.
+
+

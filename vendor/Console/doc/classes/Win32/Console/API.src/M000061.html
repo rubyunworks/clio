@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    ReadConsoleOutput (Win32::Console::API)
+
+  -->
+<html>
+<head>
+	<title>ReadConsoleOutput (Win32::Console::API)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 391</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-constant">ReadConsoleOutput</span>( <span class="ruby-identifier">hConsoleOutput</span>, <span class="ruby-identifier">lpBuffer</span>, <span class="ruby-identifier">cols</span>, <span class="ruby-identifier">rows</span>,
+                            <span class="ruby-identifier">bufx</span>, <span class="ruby-identifier">bufy</span>, <span class="ruby-identifier">left</span>, <span class="ruby-identifier">top</span>, <span class="ruby-identifier">right</span>, <span class="ruby-identifier">bottom</span> )
+        <span class="ruby-keyword kw">if</span> @<span class="ruby-ivar">@m_ReadConsoleOutput</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>
+          @<span class="ruby-ivar">@m_ReadConsoleOutput</span> = <span class="ruby-constant">Win32API</span>.<span class="ruby-identifier">new</span>( <span class="ruby-value str">&quot;kernel32&quot;</span>, 
+                                               <span class="ruby-value str">&quot;ReadConsoleOutput&quot;</span>, 
+                                               [<span class="ruby-value str">'l'</span>, <span class="ruby-value str">'p'</span>, <span class="ruby-value str">'l'</span>, <span class="ruby-value str">'l'</span>, <span class="ruby-value str">'p'</span>], <span class="ruby-value str">'l'</span> )
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">dwBufferSize</span>  = <span class="ruby-identifier">cols</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">rows</span> <span class="ruby-operator">*</span> <span class="ruby-value">4</span>
+        <span class="ruby-identifier">lpBuffer</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">dwBufferSize</span>
+        <span class="ruby-identifier">dwBufferCoord</span> = (<span class="ruby-identifier">bufy</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value">16</span>) <span class="ruby-operator">+</span> <span class="ruby-identifier">bufx</span>
+        <span class="ruby-identifier">lpReadRegion</span>  = [ <span class="ruby-identifier">left</span>, <span class="ruby-identifier">top</span>, <span class="ruby-identifier">right</span>, <span class="ruby-identifier">bottom</span> ].<span class="ruby-identifier">pack</span>(<span class="ruby-value str">'ssss'</span>)
+        @<span class="ruby-ivar">@m_ReadConsoleOutput</span>.<span class="ruby-identifier">call</span>( <span class="ruby-identifier">hConsoleOutput</span>, <span class="ruby-identifier">lpBuffer</span>, <span class="ruby-identifier">dwBufferSize</span>, 
+                                   <span class="ruby-identifier">dwBufferCoord</span>, <span class="ruby-identifier">lpReadRegion</span> )
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,26 @@
+---
+
+syntax: {}
+
+autotools: ~
+
+testunit: {}
+
+stats: {}
+
+notes: {}
+
+rdoc:
+  template: jamis
+  inline: true
+
+ridoc: {}
+
+gem: {}
+
+rubyforge:
+  #groupid: ???
+#  publishmap:
+#    admin/web: .
+#    doc/rdoc: rdoc
+

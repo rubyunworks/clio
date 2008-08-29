@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    _PrintString (Win32::Console::ANSI::IO)
+
+  -->
+<html>
+<head>
+	<title>_PrintString (Win32::Console::ANSI::IO)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console/ANSI.rb, line 68</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_PrintString</span>(<span class="ruby-identifier">s</span>)
+          <span class="ruby-keyword kw">while</span> <span class="ruby-identifier">s</span> <span class="ruby-operator">!=</span> <span class="ruby-value str">''</span>
+            <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">sub!</span>( <span class="ruby-regexp re">/([^\e]*)?\e([\[\(])([0-9\;\=]*)([a-zA-Z@])(.*)/s</span>,<span class="ruby-value str">'\5'</span>)
+              <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Write</span>((<span class="ruby-identifier">_conv</span>(<span class="ruby-value str">&quot;#$1&quot;</span>)))
+              <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">$2</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'['</span>
+                <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">$4</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'m'</span>        <span class="ruby-comment cmt"># ESC[#;#;....;#m Set display attributes</span>
+                  <span class="ruby-identifier">attributs</span> = <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">';'</span>)
+                  <span class="ruby-identifier">attributs</span>.<span class="ruby-identifier">push</span>(<span class="ruby-keyword kw">nil</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">attributs</span>  <span class="ruby-comment cmt"># ESC[m == ESC[;m ==...==ESC[0m</span>
+                  <span class="ruby-keyword kw">for</span> <span class="ruby-identifier">attr</span> <span class="ruby-keyword kw">in</span> <span class="ruby-identifier">attributs</span>
+                    <span class="ruby-identifier">atv</span> = <span class="ruby-identifier">attr</span>.<span class="ruby-identifier">to_i</span>
+                    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+                        <span class="ruby-ivar">@bold</span> = <span class="ruby-value">1</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">21</span>
+                        <span class="ruby-ivar">@bold</span> = <span class="ruby-keyword kw">nil</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">4</span>
+                        <span class="ruby-ivar">@underline</span> = <span class="ruby-value">1</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">24</span>
+                        <span class="ruby-ivar">@underline</span> = <span class="ruby-keyword kw">nil</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">7</span>
+                        <span class="ruby-ivar">@revideo</span> = <span class="ruby-value">1</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">27</span>
+                        <span class="ruby-ivar">@revideo</span> = <span class="ruby-keyword kw">nil</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">8</span>
+                        <span class="ruby-ivar">@concealed</span> = <span class="ruby-value">1</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">==</span> <span class="ruby-value">28</span>
+                        <span class="ruby-ivar">@concealed</span> = <span class="ruby-keyword kw">nil</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-value">30</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-value">37</span>
+                        <span class="ruby-ivar">@foreground</span> = <span class="ruby-identifier">atv</span> <span class="ruby-operator">-</span> <span class="ruby-value">30</span>
+                      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">&gt;=</span><span class="ruby-value">40</span> <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">atv</span> <span class="ruby-operator">&lt;=</span><span class="ruby-value">47</span>
+                        <span class="ruby-ivar">@background</span> = <span class="ruby-identifier">atv</span> <span class="ruby-operator">-</span> <span class="ruby-value">40</span>
+                      <span class="ruby-keyword kw">end</span>
+                    <span class="ruby-keyword kw">else</span>                              <span class="ruby-comment cmt"># ESC[0m reset</span>
+                      <span class="ruby-ivar">@foreground</span> = <span class="ruby-value">7</span>
+                      <span class="ruby-ivar">@background</span> = <span class="ruby-value">0</span>
+                      <span class="ruby-ivar">@bold</span> = 
+                      <span class="ruby-ivar">@underline</span> = 
+                      <span class="ruby-ivar">@revideo</span> = 
+                      <span class="ruby-ivar">@concealed</span> = <span class="ruby-keyword kw">nil</span>
+                    <span class="ruby-keyword kw">end</span>
+                  <span class="ruby-keyword kw">end</span>
+
+                  <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@revideo</span>
+                    <span class="ruby-identifier">attribut</span> = @<span class="ruby-ivar">@color</span>[<span class="ruby-value">40</span><span class="ruby-operator">+</span><span class="ruby-ivar">@foreground</span>] <span class="ruby-operator">|</span> 
+                      @<span class="ruby-ivar">@color</span>[<span class="ruby-value">30</span><span class="ruby-operator">+</span><span class="ruby-ivar">@background</span>]
+                  <span class="ruby-keyword kw">else</span>
+                    <span class="ruby-identifier">attribut</span> = @<span class="ruby-ivar">@color</span>[<span class="ruby-value">30</span><span class="ruby-operator">+</span><span class="ruby-ivar">@foreground</span>] <span class="ruby-operator">|</span> 
+                      @<span class="ruby-ivar">@color</span>[<span class="ruby-value">40</span><span class="ruby-operator">+</span><span class="ruby-ivar">@background</span>]
+                  <span class="ruby-keyword kw">end</span>
+                  <span class="ruby-identifier">attribut</span> <span class="ruby-operator">|=</span> <span class="ruby-constant">FOREGROUND_INTENSITY</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@bold</span>
+                  <span class="ruby-identifier">attribut</span> <span class="ruby-operator">|=</span> <span class="ruby-constant">BACKGROUND_INTENSITY</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@underline</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Attr</span>(<span class="ruby-identifier">attribut</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'J'</span>
+                  <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">$3</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span>  <span class="ruby-comment cmt"># ESC[0J from cursor to end of display</span>
+                    <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                    <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> ((<span class="ruby-identifier">info</span>[<span class="ruby-value">1</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>)<span class="ruby-operator">*</span><span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">+</span><span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">WriteChar</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'1'</span> <span class="ruby-comment cmt"># ESC[1J erase from start to cursor.</span>
+                    <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                    <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>]<span class="ruby-operator">*</span><span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">+</span><span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">WriteChar</span>(<span class="ruby-identifier">s</span>, <span class="ruby-value">0</span>, <span class="ruby-value">0</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'2'</span> <span class="ruby-comment cmt"># ESC[2J Clear screen and home cursor</span>
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cls</span>()
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-value">0</span>, <span class="ruby-value">0</span>)
+                  <span class="ruby-keyword kw">else</span>
+                    <span class="ruby-constant">STDERR</span>.<span class="ruby-identifier">print</span> <span class="ruby-value str">&quot;\e#$2#$3#$4&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-constant">DEBUG</span> <span class="ruby-comment cmt"># if ESC-code not implemented</span>
+                  <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'K'</span>
+                  <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                  <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">$3</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span>                  <span class="ruby-comment cmt"># ESC[0K Clear to end of line</span>
+                    <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">info</span>[<span class="ruby-value">7</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Write</span>(<span class="ruby-identifier">s</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">$3</span><span class="ruby-operator">==</span><span class="ruby-value str">'1'</span>   <span class="ruby-comment cmt"># ESC[1K Clear from start of line to cursor</span>
+                    <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span><span class="ruby-operator">*</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>)
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">WriteChar</span>(<span class="ruby-identifier">s</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">$3</span><span class="ruby-operator">==</span><span class="ruby-value str">'2'</span>   <span class="ruby-comment cmt"># ESC[2K Clear whole line.</span>
+                    <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span><span class="ruby-operator">*</span> <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">WriteChar</span>(<span class="ruby-identifier">s</span>, <span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                    <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-keyword kw">end</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'L'</span>  <span class="ruby-comment cmt"># ESC[#L Insert # blank lines.</span>
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>  <span class="ruby-comment cmt"># ESC[L == ESC[1L</span>
+                  <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Scroll</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">1</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>,
+                              <span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">n</span>.<span class="ruby-identifier">to_i</span>,
+                               <span class="ruby-value str">' '</span>[<span class="ruby-value">0</span>], <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Attr</span>(),
+                               <span class="ruby-value">0</span>, <span class="ruby-value">0</span>, <span class="ruby-value">10000</span>, <span class="ruby-value">10000</span>)
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'M'</span>   <span class="ruby-comment cmt"># ESC[#M Delete # line.</span>
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>  <span class="ruby-comment cmt"># ESC[M == ESC[1M</span>
+                  <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>();
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Scroll</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>]<span class="ruby-operator">+</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">1</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>,
+                              <span class="ruby-value">0</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>],
+                              <span class="ruby-value str">' '</span>[<span class="ruby-value">0</span>], <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Attr</span>(),
+                              <span class="ruby-value">0</span>, <span class="ruby-value">0</span>, <span class="ruby-value">10000</span>, <span class="ruby-value">10000</span>)
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'P'</span>   <span class="ruby-comment cmt"># ESC[#P Delete # characters.</span>
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>  <span class="ruby-comment cmt"># ESC[P == ESC[1P</span>
+                  <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>] <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-identifier">n</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Scroll</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>] , <span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>],
+                              <span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>],
+                              <span class="ruby-value str">' '</span>[<span class="ruby-value">0</span>], <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Attr</span>(),
+                              <span class="ruby-value">0</span>, <span class="ruby-value">0</span>, <span class="ruby-value">10000</span>, <span class="ruby-value">10000</span>)
+                  <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">n</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Write</span>(<span class="ruby-identifier">s</span>)
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'@'</span>      <span class="ruby-comment cmt"># ESC[#@ Insert # blank Characters</span>
+                  <span class="ruby-identifier">s</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>
+                  <span class="ruby-identifier">info</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Info</span>()
+                  <span class="ruby-identifier">s</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">ReadChar</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">7</span>]<span class="ruby-operator">-</span><span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>, <span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                  <span class="ruby-identifier">s</span> = <span class="ruby-identifier">s</span>[<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-operator">-</span>(<span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>)]
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Write</span>(<span class="ruby-identifier">s</span>);
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">info</span>[<span class="ruby-value">2</span>], <span class="ruby-identifier">info</span>[<span class="ruby-value">3</span>])
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'A'</span>     <span class="ruby-comment cmt"># ESC[#A Moves cursor up # lines</span>
+                  (<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>) = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[A == ESC[1A</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span><span class="ruby-operator">-</span><span class="ruby-identifier">n</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'B'</span>    <span class="ruby-comment cmt"># ESC[#B Moves cursor down # lines</span>
+                  (<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>) = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[B == ESC[1B</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'C'</span>    <span class="ruby-comment cmt"># ESC[#C Moves cursor forward # spaces</span>
+                  (<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>) = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[C == ESC[1C</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">y</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'D'</span>    <span class="ruby-comment cmt"># ESC[#D Moves cursor back # spaces</span>
+                  (<span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span>) = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[D == ESC[1D</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span><span class="ruby-operator">-</span><span class="ruby-identifier">n</span>, <span class="ruby-identifier">y</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'E'</span>    <span class="ruby-comment cmt"># ESC[#E Moves cursor down # lines, column 1.</span>
+                  <span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[E == ESC[1E</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">y</span><span class="ruby-operator">+</span><span class="ruby-identifier">n</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'F'</span>    <span class="ruby-comment cmt"># ESC[#F Moves cursor up # lines, column 1.</span>
+                  <span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[F == ESC[1F</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-value">0</span>, <span class="ruby-identifier">y</span><span class="ruby-operator">-</span><span class="ruby-identifier">n</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'G'</span>   <span class="ruby-comment cmt"># ESC[#G Moves cursor column # in current row.</span>
+                  <span class="ruby-identifier">x</span>, <span class="ruby-identifier">y</span> = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                  <span class="ruby-identifier">n</span> = <span class="ruby-identifier">$3</span> <span class="ruby-operator">==</span> <span class="ruby-value str">''</span><span class="ruby-operator">?</span> <span class="ruby-value">1</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">to_i</span>;  <span class="ruby-comment cmt"># ESC[G == ESC[1G</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">n</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">y</span>)
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'f'</span> <span class="ruby-comment cmt"># ESC[#;#f Moves cursor to line #, column #</span>
+                  <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span> = <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">';'</span>)
+                  <span class="ruby-identifier">x</span> = <span class="ruby-value">1</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">x</span>    <span class="ruby-comment cmt"># ESC[;5H == ESC[1;5H ...etc</span>
+                  <span class="ruby-identifier">y</span> = <span class="ruby-value">1</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">y</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span>.<span class="ruby-identifier">to_i</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">y</span>.<span class="ruby-identifier">to_i</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>) <span class="ruby-comment cmt"># origin (0,0) in DOS console</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'H'</span> <span class="ruby-comment cmt"># ESC[#;#H  Moves cursor to line #, column #</span>
+                  <span class="ruby-identifier">y</span>, <span class="ruby-identifier">x</span> = <span class="ruby-identifier">$3</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">';'</span>)
+                  <span class="ruby-identifier">x</span> = <span class="ruby-value">1</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">x</span>    <span class="ruby-comment cmt"># ESC[;5H == ESC[1;5H ...etc</span>
+                  <span class="ruby-identifier">y</span> = <span class="ruby-value">1</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">y</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-identifier">x</span>.<span class="ruby-identifier">to_i</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>, <span class="ruby-identifier">y</span>.<span class="ruby-identifier">to_i</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>) <span class="ruby-comment cmt"># origin (0,0) in DOS console</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'s'</span>       <span class="ruby-comment cmt"># ESC[s Saves cursor position for recall later</span>
+                  (<span class="ruby-ivar">@x</span>, <span class="ruby-ivar">@y</span>) = <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>()
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'u'</span>       <span class="ruby-comment cmt"># ESC[u Return to saved cursor position</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Cursor</span>(<span class="ruby-ivar">@x</span>, <span class="ruby-ivar">@y</span>)
+                <span class="ruby-keyword kw">else</span>
+                  <span class="ruby-constant">STDERR</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;\e#$2#$3#$4 not implemented&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-constant">DEBUG</span>  <span class="ruby-comment cmt"># ESC-code not implemented</span>
+                <span class="ruby-keyword kw">end</span>
+              <span class="ruby-keyword kw">else</span>
+                <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">$4</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'U'</span>     <span class="ruby-comment cmt"># ESC(U no mapping</span>
+                  <span class="ruby-ivar">@conv</span> = <span class="ruby-keyword kw">nil</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'K'</span>     <span class="ruby-comment cmt"># ESC(K mapping if it exist</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">OutputCP</span>(<span class="ruby-constant">OEM</span>)      <span class="ruby-comment cmt"># restore original codepage</span>
+                  <span class="ruby-ivar">@conv</span> = <span class="ruby-value">1</span>
+                <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'X'</span>     <span class="ruby-comment cmt"># ESC(#X codepage **EXPERIMENTAL**</span>
+                  <span class="ruby-ivar">@conv</span> = <span class="ruby-keyword kw">nil</span>
+                  <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">OutputCP</span>(<span class="ruby-identifier">$3</span>)
+                <span class="ruby-keyword kw">else</span>
+                  <span class="ruby-constant">STDERR</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;\e#$2#$3#$4 not implemented&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-constant">DEBUG</span> <span class="ruby-comment cmt"># ESC-code not implemented</span>
+                <span class="ruby-keyword kw">end</span>
+              <span class="ruby-keyword kw">end</span>
+            <span class="ruby-keyword kw">else</span>
+              <span class="ruby-ivar">@Out</span>.<span class="ruby-constant">Write</span>(<span class="ruby-identifier">_conv</span>(<span class="ruby-identifier">s</span>.<span class="ruby-identifier">dup</span>))
+              <span class="ruby-identifier">s</span>=<span class="ruby-value str">''</span>
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

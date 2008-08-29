@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    AllocConsole (Win32::Console::API)
+
+  -->
+<html>
+<head>
+	<title>AllocConsole (Win32::Console::API)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 146</span>
+     <span class="ruby-keyword kw">def</span> <span class="ruby-constant">AllocConsole</span>()
+       <span class="ruby-keyword kw">if</span> @<span class="ruby-ivar">@m_AllocConsole</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>
+          @<span class="ruby-ivar">@m_AllocConsole</span> = <span class="ruby-constant">Win32API</span>.<span class="ruby-identifier">new</span>( <span class="ruby-value str">&quot;kernel32&quot;</span>, <span class="ruby-value str">&quot;AllocConsole&quot;</span>, 
+                                          [], <span class="ruby-value str">'l'</span> )
+       <span class="ruby-keyword kw">end</span>
+       @<span class="ruby-ivar">@m_AllocConsole</span>.<span class="ruby-identifier">call</span>()
+     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

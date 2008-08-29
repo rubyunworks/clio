@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    new (Win32::Console)
+
+  -->
+<html>
+<head>
+	<title>new (Win32::Console)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 616</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>( <span class="ruby-identifier">t</span> = <span class="ruby-keyword kw">nil</span> )
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">t</span> <span class="ruby-keyword kw">and</span> ( <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-constant">STD_INPUT_HANDLE</span> <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-constant">STD_OUTPUT_HANDLE</span> <span class="ruby-keyword kw">or</span>
+                 <span class="ruby-identifier">t</span> <span class="ruby-operator">==</span> <span class="ruby-constant">STD_ERROR_HANDLE</span> )
+        <span class="ruby-ivar">@handle</span> = <span class="ruby-constant">API</span>.<span class="ruby-constant">GetStdHandle</span>( <span class="ruby-identifier">t</span> )
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">param1</span> = <span class="ruby-constant">GENERIC_READ</span>    <span class="ruby-operator">|</span> <span class="ruby-constant">GENERIC_WRITE</span>
+        <span class="ruby-identifier">param2</span> = <span class="ruby-constant">FILE_SHARE_READ</span> <span class="ruby-operator">|</span> <span class="ruby-constant">FILE_SHARE_WRITE</span>
+        <span class="ruby-ivar">@handle</span> = <span class="ruby-constant">API</span>.<span class="ruby-constant">CreateConsoleScreenBuffer</span>( <span class="ruby-identifier">param1</span>, <span class="ruby-identifier">param2</span>, 
+                                                 <span class="ruby-constant">CONSOLE_TEXTMODE_BUFFER</span> )
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

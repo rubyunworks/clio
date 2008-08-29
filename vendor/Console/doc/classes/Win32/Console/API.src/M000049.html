@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    GetConsoleMode (Win32::Console::API)
+
+  -->
+<html>
+<head>
+	<title>GetConsoleMode (Win32::Console::API)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 237</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-constant">GetConsoleMode</span>( <span class="ruby-identifier">hConsoleHandle</span> )
+        <span class="ruby-keyword kw">if</span> @<span class="ruby-ivar">@m_GetConsoleMode</span> <span class="ruby-operator">==</span> <span class="ruby-keyword kw">nil</span>
+          @<span class="ruby-ivar">@m_GetConsoleMode</span> = <span class="ruby-constant">Win32API</span>.<span class="ruby-identifier">new</span>( <span class="ruby-value str">&quot;kernel32&quot;</span>, <span class="ruby-value str">&quot;GetConsoleMode&quot;</span>, 
+                                            [<span class="ruby-value str">'l'</span>, <span class="ruby-value str">'p'</span>], <span class="ruby-value str">'l'</span> )
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">lpMode</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> <span class="ruby-value">4</span>
+        @<span class="ruby-ivar">@m_GetConsoleMode</span>.<span class="ruby-identifier">call</span>( <span class="ruby-identifier">hConsoleHandle</span>, <span class="ruby-identifier">lpMode</span> )
+        <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">lpMode</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-value str">'L'</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    ReadRect (Win32::Console)
+
+  -->
+<html>
+<head>
+	<title>ReadRect (Win32::Console)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console.rb, line 697</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-constant">ReadRect</span>( <span class="ruby-identifier">left</span>, <span class="ruby-identifier">top</span>, <span class="ruby-identifier">right</span>, <span class="ruby-identifier">bottom</span> )
+      <span class="ruby-identifier">col</span> = <span class="ruby-identifier">right</span>  <span class="ruby-operator">-</span> <span class="ruby-identifier">left</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+      <span class="ruby-identifier">row</span> = <span class="ruby-identifier">bottom</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">top</span>  <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+      <span class="ruby-identifier">size</span> = <span class="ruby-identifier">col</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">row</span>
+      <span class="ruby-identifier">buffer</span> = <span class="ruby-value str">' '</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">size</span> <span class="ruby-operator">*</span> <span class="ruby-value">4</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-constant">API</span>.<span class="ruby-constant">ReadConsoleOutput</span>( <span class="ruby-ivar">@handle</span>, <span class="ruby-identifier">buffer</span>, <span class="ruby-identifier">col</span>, <span class="ruby-identifier">row</span>, <span class="ruby-value">0</span>, <span class="ruby-value">0</span>, 
+                               <span class="ruby-identifier">left</span>, <span class="ruby-identifier">top</span>, <span class="ruby-identifier">right</span>, <span class="ruby-identifier">bottom</span> )
+        <span class="ruby-comment cmt">#return buffer.unpack('US'*size)  # for unicode</span>
+        <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">buffer</span>.<span class="ruby-identifier">unpack</span>(<span class="ruby-value str">'axS'</span><span class="ruby-operator">*</span><span class="ruby-identifier">size</span>)  <span class="ruby-comment cmt"># for ascii</span>
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">nil</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,52 @@
+= Clio
+
+  http://clio.rubyforge.org
+
+
+== INTRODUCTION
+
+Clio is a great way to build commandline tools.
+Clio provides a variety of ways to handle command
+options parsing, to suit almost any perfered
+style, and provides a very rich and and easy to
+use library for generating console output.
+
+
+== RELEASE NOTES
+
+Please see NEWS file.
+
+
+== RECENT CHANGES
+
+Please see CHANGES file.
+
+
+== INSTALL
+
+To install with RubyGems simply open a console and type:
+
+  $ gem install clio
+
+Direct installation requires Ruby Setup.rb package.
+See http://setup.rubyforge.rb. Then download the 
+Clio .tgz package and type:
+
+  $ tar -xvzf clio-x.y.z.tgz
+  $ cd clio-x.y.z
+  $ sudo setup.rb
+
+
+== USAGE
+
+For the moment, please see the RDoc API.
+
+
+== LICENSE
+
+Copyright (c) 2008 FIX
+
+This program is ditributed unser the terms of the GPLv3 license.
+
+See LICENSE file for details.
+

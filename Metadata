@@ -1,0 +1,17 @@
+name        : clio
+version     : 0.0.1
+status      : BETA
+license     : LGPLv3
+author      : 7rans <transfire_@_gmail.com>
+
+title       : Clio
+summary     : Clio makes commandline intefaces easy.
+
+homepage    : http://clio.rubyforge.org
+repository  : git://rubyforge.org/clio.git
+
+created     : Fri Aug 08 23:09:48 -0400 2008
+
+require     :
+  - [facets, >= 2.4.4]
+

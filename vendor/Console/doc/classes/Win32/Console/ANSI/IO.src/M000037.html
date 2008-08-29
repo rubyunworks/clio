@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<!--
+
+    _conv (Win32::Console::ANSI::IO)
+
+  -->
+<html>
+<head>
+	<title>_conv (Win32::Console::ANSI::IO)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<link rel="stylesheet" href="http://www.FaerieMUD.org/stylesheets/rdoc.css" type="text/css" />
+</head>
+<body>
+	<pre><span class="ruby-comment cmt"># File lib\Win32/Console/ANSI.rb, line 254</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">_conv</span>(<span class="ruby-identifier">s</span>)
+          <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@concealed</span>
+            <span class="ruby-identifier">s</span>.<span class="ruby-identifier">gsub!</span>( <span class="ruby-regexp re">/\S/</span>,<span class="ruby-value str">' '</span>)
+          <span class="ruby-keyword kw">elsif</span> <span class="ruby-ivar">@conv</span>
+            <span class="ruby-keyword kw">if</span> <span class="ruby-constant">EncodeOk</span>
+              <span class="ruby-identifier">from_to</span>(<span class="ruby-identifier">s</span>, <span class="ruby-identifier">cpANSI</span>, <span class="ruby-identifier">cpOEM</span>)
+            <span class="ruby-keyword kw">elsif</span> @<span class="ruby-ivar">@cp</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'cp1252cp850'</span>      <span class="ruby-comment cmt"># WinLatin1 --&gt; DOSLatin1</span>
+              <span class="ruby-identifier">s</span>.<span class="ruby-identifier">tr!</span>(<span class="ruby-value str">&quot;€‚ƒ„…†‡ˆ‰Š‹Ž‘’“”•–—˜™š›žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ&quot;</span>,<span class="ruby-value str">&quot;???Ÿ??????????????????????????ÿ­½œÏ¾Ýõù¸¦®ªð©îøñýüïæôú÷û§¯¬«ó¨·µ¶ÇŽ’€ÔÒÓÞÖ×ØÑ¥ãàâå™žëéêšíèá… ƒÆ„†‘‡Š‚ˆ‰¡Œ‹Ð¤•¢“ä”ö›—£–ìç˜&quot;</span>)
+            <span class="ruby-keyword kw">elsif</span> @<span class="ruby-ivar">@cp</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'cp1252cp437'</span>      <span class="ruby-comment cmt"># WinLatin1 --&gt; DOSLatinUS</span>
+              <span class="ruby-identifier">s</span>.<span class="ruby-identifier">tr!</span>(<span class="ruby-value str">&quot;€‚ƒ„…†‡ˆ‰Š‹Ž‘’“”•–—˜™š›žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ&quot;</span>, <span class="ruby-value str">&quot;??????????????????????????????ÿ­›œ?????¦®ª???øñý??æ?ú??§¯¬«?¨????Ž’€????????¥????™?????š??á… ƒ?„†‘‡Š‚ˆ‰¡Œ‹?¤•¢“?”ö?—£–??˜&quot;</span>)
+            <span class="ruby-keyword kw">elsif</span> @<span class="ruby-ivar">@cp</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'cp1250cp852'</span>      <span class="ruby-comment cmt"># WinLatin2 --&gt; DOSLatin2</span>
+              <span class="ruby-identifier">s</span>.<span class="ruby-identifier">tr!</span>(<span class="ruby-value str">&quot;€‚ƒ„…†‡ˆ‰Š‹Ž‘’“”•–—˜™š›žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ&quot;</span>,
+              <span class="ruby-value str">&quot;??????????æ?›¦??????????ç?œ§«ÿóôÏ¤?õù?¸®ªð?½ø?òˆï???÷¥­¯•ñ–¾èµ¶ÆŽ‘€¬¨Ó·Ö×ÒÑãÕàâŠ™žüÞéëšíÝáê ƒÇ„’†‡Ÿ‚©‰Ø¡ŒÔÐäå¢“‹”öý…£ûìîú&quot;</span> )
+            <span class="ruby-keyword kw">elsif</span> @<span class="ruby-ivar">@cp</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'cp1251cp855'</span>      <span class="ruby-comment cmt"># WinCyrillic --&gt; DOSCyrillic</span>
+              <span class="ruby-identifier">s</span>.<span class="ruby-identifier">tr!</span>(<span class="ruby-value str">&quot;€‚ƒ„…†‡ˆ‰Š‹Ž‘’“”•–—˜™š›žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ&quot;</span>,
+              <span class="ruby-value str">&quot;ƒ?‚??????‘?—•›€??????????–”šÿ™˜Ï??ý…?‡®?ð???‹Š????„ï†¯Ž‰ˆŒ¡£ì­§©êô¸¾ÇÑÓÕ×Ýâäæè«¶¥üöúŸòîøà ¢ë¬¦¨éó·½ÆÐÒÔÖØáãåçªµ¤ûõùžñí÷œÞ&quot;</span>)
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">s</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

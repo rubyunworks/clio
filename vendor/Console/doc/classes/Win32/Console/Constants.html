@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>Module: Win32::Console::Constants</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+	<script type="text/javascript">
+	// <![CDATA[
+
+	function popupCode( url ) {
+		window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+	}
+
+	function toggleCode( id ) {
+		if ( document.getElementById )
+			elem = document.getElementById( id );
+		else if ( document.all )
+			elem = eval( "document.all." + id );
+		else
+			return false;
+
+		elemStyle = elem.style;
+		
+		if ( elemStyle.display != "block" ) {
+			elemStyle.display = "block"
+		} else {
+			elemStyle.display = "none"
+		}
+
+		return true;
+	}
+	
+	// Make codeblocks hidden by default
+	document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+	
+	// ]]>
+	</script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <h1>Win32::Console::Constants <sup class="type-note">(Module)</sup></h1>
+        <table class="header-table">
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib\Win32/Console_rb.html">
+                lib\Win32/Console.rb
+                </a>
+				<br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+	<div id="bodyContent">
+
+
+	<div id="contextContent">
+
+
+
+
+		<div id="constants-list">
+			<h2 class="section-bar">Constants</h2>
+
+			<div class="name-list">
+				<table summary="Constants">
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">STD_INPUT_HANDLE</td>
+					<td>=</td>
+					<td class="context-item-value">0xFFFFFFF6</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">STD_OUTPUT_HANDLE</td>
+					<td>=</td>
+					<td class="context-item-value">0xFFFFFFF5</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">STD_ERROR_HANDLE</td>
+					<td>=</td>
+					<td class="context-item-value">0xFFFFFFF4</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">INVALID_HANDLE_VALUE</td>
+					<td>=</td>
+					<td class="context-item-value">0xFFFFFFFF</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">GENERIC_READ</td>
+					<td>=</td>
+					<td class="context-item-value">0x80000000</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">GENERIC_WRITE</td>
+					<td>=</td>
+					<td class="context-item-value">0x40000000</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FILE_SHARE_READ</td>
+					<td>=</td>
+					<td class="context-item-value">0x00000001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FILE_SHARE_WRITE</td>
+					<td>=</td>
+					<td class="context-item-value">0x00000002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CONSOLE_TEXTMODE_BUFFER</td>
+					<td>=</td>
+					<td class="context-item-value">0x00000001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FOREGROUND_BLUE</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FOREGROUND_GREEN</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FOREGROUND_RED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FOREGROUND_INTENSITY</td>
+					<td>=</td>
+					<td class="context-item-value">0x0008</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">BACKGROUND_BLUE</td>
+					<td>=</td>
+					<td class="context-item-value">0x0010</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">BACKGROUND_GREEN</td>
+					<td>=</td>
+					<td class="context-item-value">0x0020</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">BACKGROUND_RED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0040</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">BACKGROUND_INTENSITY</td>
+					<td>=</td>
+					<td class="context-item-value">0x0080</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_PROCESSED_INPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_LINE_INPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_ECHO_INPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_WINDOW_INPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0008</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_MOUSE_INPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0010</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_PROCESSED_OUTPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENABLE_WRAP_AT_EOL_OUTPUT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">KEY_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">MOUSE_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">WINDOW_BUFFER_SIZE_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">MENU_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0008</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FOCUS_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0010</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CAPSLOCK_ON</td>
+					<td>=</td>
+					<td class="context-item-value">0x0080</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">ENHANCED_KEY</td>
+					<td>=</td>
+					<td class="context-item-value">0x0100</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">NUMLOCK_ON</td>
+					<td>=</td>
+					<td class="context-item-value">0x0020</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">SHIFT_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0010</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">LEFT_CTRL_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0008</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">RIGHT_CTRL_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">LEFT_ALT_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">RIGHT_ALT_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">SCROLLLOCK_ON</td>
+					<td>=</td>
+					<td class="context-item-value">0x0040</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">MOUSE_WHEELED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">DOUBLE_CLICK</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">MOUSE_MOVED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FROM_LEFT_1ST_BUTTON_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FROM_LEFT_2ND_BUTTON_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0004</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FROM_LEFT_3RD_BUTTON_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0008</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">FROM_LEFT_4TH_BUTTON_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0010</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">RIGHTMOST_BUTTON_PRESSED</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CTRL_C_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0000</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CTRL_BREAK_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0001</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CTRL_CLOSE_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0002</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CTRL_LOGOFF_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0005</td>
+				</tr>
+				<tr class="top-aligned-row context-row">
+					<td class="context-item-name">CTRL_SHUTDOWN_EVENT</td>
+					<td>=</td>
+					<td class="context-item-value">0x0006</td>
+				</tr>
+				</table>
+			</div>
+		</div>
+
+
+
+			
+
+	</div>
+
+
+
+		<!-- if includes -->
+
+
+		<!-- if method_list -->
+
+
+	</div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

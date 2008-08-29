@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>File: Console_ANSI.rdoc</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+	<script type="text/javascript">
+	// <![CDATA[
+
+	function popupCode( url ) {
+		window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+	}
+
+	function toggleCode( id ) {
+		if ( document.getElementById )
+			elem = document.getElementById( id );
+		else if ( document.all )
+			elem = eval( "document.all." + id );
+		else
+			return false;
+
+		elemStyle = elem.style;
+		
+		if ( elemStyle.display != "block" ) {
+			elemStyle.display = "block"
+		} else {
+			elemStyle.display = "none"
+		}
+
+		return true;
+	}
+	
+	// Make codeblocks hidden by default
+	document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+	
+	// ]]>
+	</script>
+
+</head>
+<body>
+
+
+
+	<div id="fileHeader">
+		<h1>Console_ANSI.rdoc</h1>
+		<table class="header-table">
+		<tr class="top-aligned-row">
+			<td><strong>Path:</strong></td>
+			<td>Console_ANSI.rdoc
+			</td>
+		</tr>
+		<tr class="top-aligned-row">
+			<td><strong>Last Update:</strong></td>
+			<td>Sat Jan 17 14:24:46 Hora est. de Sudamérica E. 2004</td>
+		</tr>
+		</table>
+	</div>
+  <!-- banner header -->
+
+	<div id="bodyContent">
+
+
+	<div id="contextContent">
+
+		<div id="description">
+			<h1>NAME</h1>
+<p>
+Win32::Console::ANSI - Perl extension to emulate ANSI console on <a
+href="../classes/Win32.html">Win32</a> system.
+</p>
+<h1>SYNOPSIS</h1>
+<pre>
+  require &quot;Win32::Console::ANSI&quot;
+
+  puts &quot;\e[1;34mThis text is bold blue.\e[0m&quot;
+  puts &quot;This text is normal.&quot;&quot;
+  puts &quot;\e[33;45;1mBold yellow on magenta.\e[0m&quot;
+  puts &quot;This text is normal.&quot;
+</pre>
+<p>
+With the Term::ANSIColor module one increases the readability:
+</p>
+<pre>
+  require &quot;Win32::Console::ANSI&quot;
+  require &quot;Term::ANSIColor&quot;
+
+  puts color 'bold blue'
+  puts &quot;This text is bold blue.&quot;
+  puts color 'reset'
+  puts &quot;This text is normal.&quot;
+  puts colored (&quot;Bold yellow on magenta.&quot;, 'bold yellow on_magenta')
+  puts &quot;This text is normal.&quot;
+</pre>
+<p>
+And even more with Term::ANSIScreen:
+</p>
+<pre>
+  require &quot;Win32::Console::ANSI;
+  require &quot;Term::ANSIScreen qw/:color :cursor :screen/;
+
+  locate 1, 1; puts &quot;@ This is (1,1)&quot;, savepos;
+  puts locate(24,60), &quot;@ This is (24,60)&quot;; loadpos;
+  puts down(2), clline, &quot;@ This is (3,16)&quot;;
+  setscroll 1, 20;
+  color 'black on white'; clline;
+  puts &quot;This line is black on white.&quot;;
+  puts color 'reset'; puts &quot;This text is normal.&quot;;
+  puts colored (&quot;This text is bold blue.&quot;, 'bold blue');
+  puts &quot;This text is normal.&quot;;
+  puts colored ['bold blue'], &quot;This text is bold blue.&quot;;
+  puts &quot;This text is normal.&quot;;
+</pre>
+<h1>DESCRIPTION</h1>
+<p>
+Windows NT/2000/XP does not support ANSI escape sequences in <a
+href="../classes/Win32.html">Win32</a> Console applications. This module
+emulates an ANSI console for the script which uses it.
+</p>
+<h2>Escape sequences for Cursor Movement</h2>
+<pre>
+   * \e[#A
+
+     CUU: CUrsor Up: Moves the cursor up by the specified number of lines without
+     changing columns. If the cursor is already on the top line, this sequence
+     is ignored. \e[A is equivalent to \e[1A.
+
+   * \e[#B
+
+     CUD: CUrsor Down: Moves the cursor down by the specified number of lines
+     without changing columns. If the cursor is already on the bottom line,
+     this sequence is ignored. \e[B is equivalent to \e[1B.
+
+   * \e[#C
+
+     CUF: CUrsor Forward: Moves the cursor forward by the specified number of
+     columns without changing lines. If the cursor is already in the
+     rightmost column, this sequence is ignored. \e[C is equivalent to \e[1C.
+
+   * \e[#D
+
+      CUB: CUrsor Backward: Moves the cursor back by the specified number of
+      columns without changing lines. If the cursor is already in the leftmost
+      column, this sequence is ignored. \e[D is equivalent to \e[1D.
+
+   * \e[#E
+
+      CNL: Cursor Next Line: Moves the cursor down the indicated # of rows, to
+      column 1. \e[E is equivalent to \e[1E.
+
+   * \e[#F
+
+      CPL: Cursor Preceding Line: Moves the cursor up the indicated # of rows,
+      to column 1. \e[F is equivalent to \e[1F.
+
+   * \e[#G
+
+      CHA: Cursor Horizontal Absolute: Moves the cursor to indicated column in
+      current row. \e[G is equivalent to \e[1G.
+
+   * \e[#;#H
+
+      CUP: CUrsor Position: Moves the cursor to the specified position. The first #
+      specifies the line number, the second # specifies the column.
+      If you do not specify a position, the cursor moves to the
+      home position: the upper-left corner of the screen (line 1, column 1).
+
+   * \e[#;#f
+
+      HVP: Horizontal and Vertical Position.
+      Works the same way as the preceding escape sequence.
+
+   * \e[s
+
+      SCP: Save Cursor Position: Saves the current cursor position. You can move
+      the cursor to the saved cursor position by using the Restore Cursor
+      Position sequence.
+
+   * \e[u
+
+      RCP: Restore Cursor Position: Returns the cursor to the position stored
+      by the Save Cursor Position sequence.
+</pre>
+<h2>Escape sequences for Display Edition</h2>
+<pre>
+   * \e[#J
+
+      ED: Erase Display:
+
+         * \e[0J
+
+            Clears the screen from cursor to end of display. The cursor position is unchanged.
+
+         * \e[1J
+
+            Clears the screen from start to cursor. The cursor position is unchanged.
+
+          * \e[2J
+
+            Clears the screen and moves the cursor to the home position (line 1, column 1).
+
+       \e[J is equivalent to \e[0J. (Some terminal/emulators respond to \e[J as if
+       it were \e[2J. Here, the default is 0; it's the norm)
+
+   * \e[#K
+
+      EL: Erase Line:
+
+   * \e[0K
+
+      Clears all characters from the cursor position to the end of the line
+      (including the character at the cursor position).
+      The cursor position is unchanged.
+
+   * \e[1K
+
+      Clears all characters from start of line to the cursor position.
+      (including the character at the cursor position).
+      The cursor position is unchanged.
+
+   * \e[2K
+
+      Clears all characters of the whole line.
+      The cursor position is unchanged.
+
+      \e[K is equivalent to \e[0K.
+
+   * \e[#L
+
+      IL: Insert Lines: The cursor line and all lines below it move down # lines,
+      leaving blank space. The cursor position is unchanged. The bottommost #
+      lines are lost. \e[L is equivalent to \e[1L.
+
+   * \e[#M
+
+      DL: Delete Line: The block of # lines at and below the cursor are  deleted;
+      all  lines below  them  move up # lines to fill in the gap, leaving # blank
+      lines at the bottom of the screen.  The cursor position is unchanged.
+      \e[M is equivalent to \e[1M.
+
+   * \e#\@
+
+      ICH: Insert CHaracter: The cursor character and all characters to the right
+      of it move right # columns, leaving behind blank space.
+      The cursor position is unchanged. The rightmost # characters on the line are lost.
+
+   * \e[#P
+
+      DCH: Delete CHaracter: The block of # characters at and to the right of the
+      cursor are deleted; all characters to the right of it move left # columns,
+      leaving behind blank space. The cursor position is unchanged.
+      \e[P is equivalent to \e[1P.
+</pre>
+<h2>Escape sequences for Set Graphics Rendition</h2>
+<pre>
+   * \e[#;...;#m
+
+      SGM: Set Graphics Mode: Calls the graphics functions specified by the
+      following values. These specified functions remain active until the next
+      occurrence of this escape sequence. Graphics mode changes the colors and
+      attributes of text (such as bold and underline) displayed on the
+      screen.
+
+      * Text attributes
+
+       0    All attributes off
+       1    Bold on
+       4    Underscore on
+       7    Reverse video on
+       8    Concealed on
+
+       21   Bold off
+       24   Underscore off
+       27   Reverse video off
+       28   Concealed off
+
+      * Foreground colors
+
+       30    Black
+       31    Red
+       32    Green
+       33    Yellow
+       34    Blue
+       35    Magenta
+       36    Cyan
+       37    White
+
+      * Background colors
+
+       40    Black
+       41    Red
+       42    Green
+       43    Yellow
+       44    Blue
+       45    Magenta
+       46    Cyan
+       47    White
+
+     \e[m is equivalent to \e0m.
+</pre>
+<h2>Escape sequences for Select Character Set</h2>
+<pre>
+   * \e(U
+
+      Select null mapping - straight to character from the codepage of the console.
+
+   * \e(K
+
+      Select Windows to DOS mapping, if the corresponding map exist; no effect
+      otherwise. This is the default mapping (if the map exist, of course). It's
+      useful becarequire &quot;one types the script with a Windows-based editor (using a
+      Windows codepage) and the script prints its messages on the console using
+      another codepage: without translation, the characters with a code greatest
+      than 127 are different and the printed messages may be not readable.
+
+      The conversion is done by the module Encode if it is installed (it's a
+      standard module with Perl5.8, not ruby). Otherwise, the conversion is limited to the
+      following couples:
+
+         WinLatin1 (cp1252)  to DOSLatin1  (cp850)
+         WinLatin1 (cp1252)  to DOSLatinUS (cp437)
+         WinLatin2 (cp1250)  to DOSLatin2  (cp852)
+         WinCyrillic(cp1251) to DOSCyrillic (cp855)
+
+   * \e(#X
+
+      This escape sequence is I&lt;not&gt; standard! It's an experimental one, just for
+      fun :-)
+
+      If &lt;i&gt;and only if&lt;/i&gt; the console uses an Unicode police, it is possible to
+      change its codepage with this escape sequence. No effect with an ordinary
+      &quot;Raster Font&quot;. (For Windows NT/2000/XP the currently available Unicode
+      console font is the Lucida Console TrueType font.)
+      # is the number of the codepage needed, 855 for cp855 for instance.
+</pre>
+<h1>LIMITATIONS</h1>
+<pre>
+   * Due to DOS-console limitations, the blink mode (text attributes 5 and 25) is not implemented.
+</pre>
+<h1>SEE ALSO</h1>
+<p>
+<b>Win32::Console</b>, <b>Term::ANSIColor</b>, <b>Term::ANSIScreen</b>.
+</p>
+<h1>AUTHOR</h1>
+<p>
+J-L Morel jl_morel@bribes.org
+</p>
+<p>
+Home page: <a
+href="http://www.bribes.org/perl/wANSIConsole.html">www.bribes.org/perl/wANSIConsole.html</a>
+</p>
+<p>
+Gonzalo Garramuño GGarramuno@aol.com Ruby port
+</p>
+<h1>CREDITS</h1>
+<p>
+Render unto Cæsar the things which are Cæsar&#8217;s&#8230;
+</p>
+<p>
+This module requires the module Win32::Console. Thanks to Aldo Calpini.
+</p>
+<p>
+The method used to overload the print function is due to Matt Sergeant (see
+his module Win32::ASP).
+</p>
+<h1>COPYRIGHT</h1>
+<p>
+Copyright &#169; 2004 Gonzalo Garramuño. All rights reserved. Copyright
+&#169; 2003 J-L Morel. All rights reserved.
+</p>
+<p>
+This program is free software; you can redistribute it and/or modify it
+under the terms of the Artistic License.
+</p>
+
+		</div>
+
+
+
+
+
+
+			
+
+	</div>
+
+
+
+		<!-- if includes -->
+
+
+		<!-- if method_list -->
+
+
+	</div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
