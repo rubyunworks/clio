@@ -6,7 +6,7 @@ autotools: ~
 
 testunit: {}
 
-stats: {}
+basicstats: {}
 
 notes: {}
 
