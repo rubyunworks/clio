@@ -1,9 +1,9 @@
 require 'test/unit'
-require 'clio/command'
+require 'clio/multicommand'
 
 class TestCommand < Test::Unit::TestCase
 
-  ExampleCommand < CLIO::QuickCommand
+  class ExampleCommand < Clio::MultiCommand
 
     def setup
       @check = {}
