@@ -19,7 +19,8 @@ ridoc: {}
 gem: {}
 
 rubyforge:
-  #groupid: ???
+  unixname: clio
+  groupid: 6913
 #  publishmap:
 #    admin/web: .
 #    doc/rdoc: rdoc
