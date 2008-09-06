@@ -1,147 +1,165 @@
-#require 'facets/rope'
 require 'clio/ansicode'
-require 'facets/string/mask'
+require 'clio/layout/split'
 
 module Clio
 
-  # = Clio String class.
-  #
+  def self.string(str)
+    String.new(str)
+  end
+
+  ###
   class String
 
-    ESC_RE = /\e\[[0-9]*\w/
-
-  private
-
-    def initialize(text, ansi=nil)
-      @text = text.to_s
-      @ansi = ansi || text.to_s
-    end
-
-  public
-
     attr :text
+    attr :marks
 
-    attr :ansi
-
-    #
-    def to_s   ; ansi ; end
-
-    #def to_str ; text ; end
-
-    #
-    def +(append)
-      case append
-      when Symbol
-        t = text
-        a = ansi + ANSICode.send(append)
-      when self.class
-        t = text + append.text
-        a = ansi + append.ansi
-      else
-        t = text + append
-        a = ansi + append
-      end
-      self.class.new(t, a)
+    def initialize(text=nil, marks=nil)
+      @text  = text  || ''
+      @marks = marks || Hash.new{ |h,k| h[k]=[] }
     end
 
-    #
-    def <<(append)
-      case append
-      when Symbol
-        @ansi << ANSICode.send(append)
-      when self.class
-        @text << append.text
-        @ansi << append.ansi
-      else
-        @text << append
-        @ansi << append
+    def to_s
+      s = text.dup
+      m = marks.sort{ |a,b| b[0] <=> a[0] }
+      m.each do |index, codes|
+        codes.each do |code|
+          s.insert(index, ANSICode.send(code))
+        end
       end
+      s
     end
 
-    #
     def size ; text.size ; end
-    alias_method(:length, :size)
 
-    # Give the string a color.
-    def color(ansicolor=nil)
-      self.class.new(text, ANSICode.send(ansicolor){ansi})
+    ###
+    def color!(ansicolor)
+      marks[0] << ansicolor
+      marks[size] << :clear
     end
 
-    # Give the string a color.
-    def color!(ansicolor=nil)
-      @ansi = ANSICode.send(ansicolor){ansi}
+    ###
+    def color(ansicolor)
+      m = marks.dup
+      m[0] << ansicolor
+      m[size] << :clear
+      self.class.new(text, m)
     end
 
-    #--
-    # TODO: No doubt the delegation will need to be made more robust.
-    #++
+    ###
+    def upcase  ; self.class.new(text.upcase, marks) ; end
+    def upcase! ; text.upcase! ; end
 
-    INPLACE_DELEGATE_METHODS = /(\[\]=|replace|!$)/
-    EXCLUDE_DELEGATE_METHODS = /(split|^to_)/
+    ###
+    def downcase  ; self.class.new(text.upcase, marks) ; end
+    def downcase! ; text.upcase! ; end
 
-    # Delegate to underlying text/ansi.
-    def method_missing(s, *a, &b)
-      case s.to_s
-      when EXCLUDE_DELEGATE_METHODS
-        super
-      when INPLACE_DELEGATE_METHODS
-        text.send(s, *a, &b)
-        m = ansi.to_mask
-        e = ansi.to_mask(ESC_RE)
-        n = (e - m)
-        e.instance_delegate.send(s,*a, &b)
-        r = e + n
-        @ansi = r.to_s
+    ###
+    def +(other)
+      case other
+      when String
+        ntext  = text + other.text
+        nmarks = marks.dup
+        other.marks.each{ |i, c| m[i] << c }
       else
-        apply(s, *a, &b)
+        ntext  = text + other.to_s
+        nmarks = marks.dup
+      end
+      self.class.new(ntext, nmarks)
+    end
+
+    def |(other)
+      Split.new(self, other)
+    end
+
+    def lr(other, options={})
+      Split(self, other, options)
+    end
+
+    ### slice
+    def slice(*args)
+      if args.size == 2
+        index, len = *args
+        endex  = index+len
+        new_text  = text[index, len]
+        new_marks = {}
+        marks.each do |i, v|
+          new_marks[i] = v if i >= index && i < endex
+        end
+        self.class.new(new_text, new_marks)
+      elsif args.size == 1
+        rng = args.first
+        case rng
+        when Range
+          index, endex = rng.begin, rng.end
+          new_text  = text[rng]
+          new_marks = {}
+          marks.each do |i, v|
+            new_marks[i] = v if i >= index && i < endex
+          end
+          self.class.new(new_text, new_marks)
+        else
+          self.class.new(text[rng,1], {rng=>marks[rng]})
+        end
+      else
+        raise ArgumentError
       end
     end
 
-  private
-
-    #
-    def apply(s, *a, &b)
-      t = text.send(s, *a, &b)
-      m = ansi.to_mask
-      e = ansi.to_mask(ESC_RE)
-      n = (e - m)
-      x = e.apply(s,*a, &b)
-      r = x + n
-      self.class.new(t, r.to_s)
-    end
+    alias_method :[], :slice
 
   end
 
 end
 
 
-=begin SPECIFICATION
+__END__
 
-  require 'quarry/spec'
 
-  Quarry.spec "Clio::String" do
+require 'quarry/spec'
 
-    s1 = Clio::String.new("Hi how are you.")
-    s2 = Clio::String.new("Fine thanks.")
+Quarry.spec "Clio::String" do
 
-    verify "color" do
-      r = s1.color(:red)
-      e = Clio::ANSICode.red(s1.text)
-      e.assert == r.to_s
-    end
+  s1 = "Hi how are you."
+  s2 = "Fine thanks."
 
-    verify "non-in-place delegation" do
-      r = s1.upcase
-      e = s1.text.upcase
-      e.assert == r.to_s
-    end
+  c1 = Clio.string("Hi how are you.")
+  c2 = Clio.string("Fine thanks.")
 
-    verify "string addition" do
-      r = s1 + s2
-      e = s1.text + s2.text
-    end
-
+  verify "color" do
+    r = c1.color(:red)
+    e = Clio::ANSICode.red(s1)
+    e.assert == r.to_s
   end
 
-=end
+  verify "non-in-place delegation" do
+    r = c1.upcase
+    e = s1.upcase
+    e.assert == r.to_s
+  end
+
+  verify "string addition" do
+    r = c1 + c2
+    e = s1 + s2
+    e.assert == r.to_s
+  end
+
+  verify "string single index" do
+    r = c1[0]
+    e = s1[0,1]
+    e.assert == r.to_s
+  end
+
+  verify "string size index" do
+    r = c1[0,3]
+    e = s1[0,3]
+    e.assert == r.to_s
+  end
+
+  verify "string range index" do
+    r = c1[0..3]
+    e = s1[0..3]
+    e.assert == r.to_s
+  end
+
+end
 

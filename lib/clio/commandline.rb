@@ -1,6 +1,6 @@
 require 'shellwords'
 require 'facets/kernel/object_class'
-require 'facets/array/index'
+require 'facets/array/indexable'
 
 module Clio
   ### = Commandline
@@ -203,7 +203,7 @@ module Clio
     ### Parse a flag option.
     def option_word_flag(name)
       o = "--#{name}"
-      i = @argv.index{ |e| e =~ /^#{o}[=]?/ }
+      i = @argv.index_of{ |e| e =~ /^#{o}[=]?/ }
       return false unless i
       raise ArgumentError if @argv[i] =~ /=/
       @argv.delete_at(i)
@@ -213,7 +213,7 @@ module Clio
     ### Parse a value option.
     def option_word_value(name)
       o = "--#{name}"
-      i = @argv.index{ |e| e =~ /^#{o}[=]?/ }
+      i = @argv.index_of{ |e| e =~ /^#{o}[=]?/ }
       return false unless i
 
       if @argv[i] =~ /=/
@@ -236,7 +236,7 @@ module Clio
     ### Parse a single letter flag option.
     def option_letter_flag(letter)
       o = letter
-      i = @argv.index{ |e| e =~ /[-][^-]\w*(#{o})\w*$/ }
+      i = @argv.index_of{ |e| e =~ /[-][^-]\w*(#{o})\w*$/ }
       if i
         @argv[i] = @argv[i].gsub(o.to_s,'')
         true
@@ -247,7 +247,7 @@ module Clio
     ### Parse a single letter value option.
     def option_letter_value(letter)
       o = letter
-      i = @argv.index{ |e| e =~ /[-]\w*#{o}(\=|$)/ }
+      i = @argv.index_of{ |e| e =~ /[-]\w*#{o}(\=|$)/ }
       return nil unless i
       if @argv[i] =~ /=/
         rest, val = argv[i].split('=')

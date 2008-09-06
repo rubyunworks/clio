@@ -1,19 +1,3 @@
-# = Console Utilities
-#
-# ConsoleUtils provides methods that are
-# generally useful in the context of
-# creating console output.
-#
-# = Authors
-#
-# * Thomas Sawyer
-#
-# == Copying
-#
-# Copyright (c) 2006,2007 Thomas Sawyer
-# Ruby/GPL
-
-
 module Clio
 
   # = Termninal
