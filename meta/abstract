@@ -1,0 +1,3 @@
+Clio makes commandline interfaces easy.
+It provides both commandline parsing
+as well as console output routines.
