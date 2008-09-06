@@ -16,7 +16,10 @@ rdoc:
 
 ridoc: {}
 
-gem: {}
+gem:
+  exclude:
+    - doc/rdoc
+    - doc/ri
 
 rubyforge:
   unixname: clio

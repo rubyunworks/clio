@@ -3,19 +3,19 @@ require 'clio/command'
 
 class TestCommand < Test::Unit::TestCase
 
-  ExampleCommand < CLIO::QuickCommand
+  class ExampleCommand < ::Clio::Command
 
     def setup
       @check = {}
     end
 
     # No arguments and no options.
-    def a
+    def _a
       @check['a'] = true
     end
 
-    # Takes only options.
-    def b(opts)
+    # Takes only option.
+    def _b(opts)
       @check['b'] = opts
     end
 
@@ -26,14 +26,16 @@ class TestCommand < Test::Unit::TestCase
     # opt 'a', :bolean, 'example option a'
 
     # Takes one argument and options.
-    def d(args, opts)
-      @check['d'] = [args, opts]
+    def call(args, opts)
+      @check['args'] = args
+      @check['opts'] = opts
     end
 
-    def e(args, opts)
-      opts.has_only! %w{a b c}    
-    end
+  end
 
+
+  def test_one
+    assert(true)
   end
 
 end
