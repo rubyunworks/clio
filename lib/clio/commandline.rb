@@ -1,275 +1,241 @@
 require 'shellwords'
-require 'facets/kernel/object_class'
+#require 'facets/kernel/object_class'
 require 'facets/array/indexable'
 
 module Clio
-  ### = Commandline
-  ###
-  ### What a strange thing is the Clio Commandline.
-  ### An entity unknown until put upon.
-  ###
-  ###   cmd = Clio::Commandline.new("--force copy --file try.rb")
-  ###   cmd.option_alias(:f?, :force?)
-  ###   cmd.option_alias(:o, :file)
-  ###
-  ###   cmd.file   #=> 'try.rb'
-  ###   cmd.force? #=> true
-  ###   cmd.o      #=> 'try.rb'
-  ###   cmd.f?     #=> true
-  ###
-  ### TODO: Allow option setter methods (?)
-  ### TODO: Allow a hash as argument to initialize (?)
+
+  # = Commandline
+  #
+  # Clio Commandline is a very versitile command line parser.
+  # A Commandline can be used either declaritively, defining usage
+  # and help information upfront; or lazily, whereby information
+  # about usage is built-up as the commandline actually gets usde in
+  # one's program; or you can use a mixture of the two.
+  #
+  # Underlying all useage is a fluent interface for decalaring
+  # a commandline's structure. Here is an example of using this
+  # DSL directly.
+  #
+  #   cli = Clio::Commandline.new
+  #   cli.usage.cmd(:document).help('generate documentation')
+  #   cli.usage.cmd(:document).opt(:output, :o).type('FILE')
+  #   cli.usage.cmd(:document).opt(:output).help('output directory')
+  #   cli.usage.opt(:verbose, :V).help('verbose output')
+  #   cli.usage.opt(:quiet, :q).help('run silently').xor(:V)
+  #
+  # The example defines a subcommand 'document' that can take an
+  # 'output' option, and two mutually excluive universal options,
+  # 'verbose' and 'quiet', with respective one-letter aliases.
+  #
+  # As you might expect the fluent notation can be broken down into
+  # block notation.
+  #
+  #   cli = Clio::Commandline.new
+  #   cli.usage do
+  #     command(:document) do
+  #       help('generate documentation')
+  #       option(:output, :o) do
+  #         type('FILE')
+  #         help('output directory')
+  #       end
+  #     end
+  #     option(:verbose, :V) do
+  #       help('verbose output')
+  #     end
+  #     option(:quiet, :q) do
+  #       help('run silently')
+  #       xor(:V)
+  #     end
+  #   end
+  #
+  # While the block notation is DRY and easier to read, the fluent
+  # notation is important because it allows the Commandline object
+  # to passed around and modified as need be.
+  #
+  # Commandline's usage DSL is a bit verbose. So Commandline
+  # provides a shorthand notation for declaring usage to simplify
+  # the process.
+  #
+  #   cli.usage do
+  #     cmd('document', 'generate documentation') do
+  #       opt('--output=FILE -o', 'output directory')
+  #     end
+  #     opt('--verbose -V', 'verbose output') | 
+  #     opt('--quiet -q'  , 'run silently')
+  #   end
+  #
+  # Notice the use of '|'. This allows us to define mutual exclusion
+  # without resorting to #xor as was done in the first example.
+  #
+  #--
+  # Commandline offers one additional alternative in the form of an
+  # array structure:
+  #
+  #   cli.usage[
+  #     [ 'document', '--output=FILE -o' ],
+  #     [ '--verbose -V', '--quiet -q' ], '--force'
+  #   ]
+  #
+  #    cli['document']['--output=FILE -o']
+  #    cli['--verbose -V','--quiet -q']['--force']
+  #
+  # As you can see this is very concise, but it does not allow for
+  # help information. So in this case help information has to be 
+  # specified separately.
+  #
+  #   cli.usage.help[
+  #     ['document'  , 'generate documentation'],
+  #     ['validate'  , 'run tests or specifications'],
+  #     ['--verbose' , 'verbose output'], 
+  #     ['--quiet'   , 'run siltently' ]
+  #   ]
+  #
+  #   cli.usage.cmd('document').help[
+  #     ['--output', 'output directory']
+  #   ]
+  #++
+  #
+  # The Commandline class allows you to declare as little or as
+  # much of the commandline interface upfront as is suitable to
+  # your application. When using the commandline object, if not
+  # already defined, options will be lazily created. For example:
+  #
+  #   cli = Clio::Commandline.new('--force')
+  #   cli.force?  #=> true
+  #
+  # Commandline sees that you expect a '--force' flag to be an
+  # acceptable option. So it will call cli.usage.option('force')
+  # behind the scenes before trying to determine the actual value
+  # per the content of the command line. You can add aliases as
+  # parameters to this call as well.
+  #
+  #   cli = Clio::Commandline.new('-f')
+  #   cli.force?(:f)  #=> true
+  #
+  # Once set, you do not need to specify the alias again:
+  #
+  #   cli.force?      #=> true
+  #
+  # With the exception of help information, this means you can
+  # generally just use a commandline as needed without having
+  # to declare anything upfront.
+  #
+  # Lastly, Commandline  provides a simple means to cache usage
+  # information to a configuration file, which can then be used
+  # again the next time the same command is used. This allows
+  # Commandline to provide high-performane tab completion.
+  #
+  # == Coming Soon
+  #
+  # In the future Commandline will be able to generate Manpage
+  # templates.
+  #
+  #--
+  # TODO: Allow option setter methods (?)
+  # TODO: Allow a hash as argument to initialize (?)
+  #++
+
   class Commandline
-    instance_methods.each{ |m| private m if m !~ /^(__|instance_|object_|send$|inspect$)/ }
+    require 'clio/commandline/usage'
+    require 'clio/commandline/parser'
 
-    ### Splits a raw command line into two smaller
-    ### ones. The first including only options
-    ### upto the first non-option argument. This
-    ### makes quick work of separating a subcommand
-    ### from the options for a main command.
-    # TODO: Rename this method.
-    def self.gerrymander(argv=ARGV)
-      if String===argv
-        argv = Shellwords.shellwords(argv)
-      end
-      sub = argv.find{ |x| x !~ /^[-]/ }
-      idx = argv.index(sub)
-      opts = argv[0...idx]
-      scmd = argv[idx..-1]
-      return opts, scmd
+    def initialize(argv=nil)
+      @parser = Parser.new(argv)
     end
 
-    ### Define an option attibute.
-    ### While commandline can be used without
-    ### pre-declartion of support options
-    ### doding so allows for creating option
-    ### aliases. Eg. --quiet and -q.
-    def self.attr(name, *aliases)
-      (@predefined_options ||= []) << [name, *aliases]
-
-      name = name.to_s
-      if name =~ /\?$/
-        key = name.chomp('?')
-        #attr_writer name
-        module_eval "def #{key}?; @#{key} ; end"
-        aliases.each do |alt|
-          alt = alt.to_s.chomp('?')
-          alias_method("#{alt}?", "#{key}?")
-          #alias_method("#{alt}=", "#{name}=")
-        end
-      else
-        attr_reader name
-        #module_eval "def #{name}; self[:#{name}] ; end"
-        aliases.each do |alt|
-          #alt = alt.to_s.chomp('?')  # TODO: raise error ?
-          alias_method("#{alt}" , "#{name}")
-          #alias_method("#{alt}=", "#{name}=")
-        end
-      end
+    def parser
+      @parser      
     end
 
-    ### Returns a list of all pre-defined options.
-    ### It does this by seaching class ancestry
-    ### for instance_methods until it reaches the
-    ### Commandline base class.
-    ### TODO: Rename #runmodes method.
-    ### TODO: Robust enough? Use an Inheritor instead?
-    def self.predefined_options
-      @predefined_options ||= []
-      ancestor = ancestors[1]
-      if ancestor > ::Clio::Commandline
-        @predefined_options
-      else
-        @predefined_options | ancestor.predefined_options
-      end
+    def usage(name=$0, &block)
+      @usage ||= Usage.new(name)
+      @usage.instance_eval(&block) if block
+      @usage
     end
 
-  public
-
-    ### This method provides the centralized means 
-    ### of accessing the options and arguments on
-    ### the commandline.
-    def [](index)
-      case index
-      when Integer
-        @arguments[index] ||= (
-          args = @argv.select{ |e| e !~ /^-/ }
-          val = args[index]
-          @argv.delete(args[index])
-          val
-        )
-      else
-        return send(index) if respond_to?(index)
-        key = index.to_s.chomp('?')
-        val = option_parse(index)
-        instance_variable_set("@#{key}", val)
-        (class << self; self; end).class_eval %{
-           def #{index}; @#{key}; end
-        }
-        return val
-      end
+    #
+    def to_s
+      usage.to_s
     end
 
-    def shift!
-      args = @argv.select{ |e| e !~ /^-/ }
-      val = args.first
-      @argv.delete(val)
-      val
+    #
+    def to_s_help
+      usage.to_s_help
     end
 
-    ### Define an option alias. This adds en entry to 
-    ### the aliases hash, pointing new to a list of
-    ### all aliases and the first entry on th list
-    ### being the master key.
-    def option_alias(new, old)
-      self[old]
-      key = old.to_s.chomp('?')
-      val = option_parse(new)
-      instance_variable_set("@#{key}", val) if val
-      (class << self; self; end).class_eval do
-        alias_method new, old
-      end
-    end
+    #
+    def method_missing(s, *a, &b)
 
-    ### Access to the underlying commandline "ARGV".
-    ### This will show what is yet to be processed.
-    def instance_delegate ; @argv ; end
+      usage.option(s, *a, &b)
 
-    ### Returns a hash of all options parsed.
-    def instance_options
-      h = {}
-      ivs = instance_variables - ['@arguments','@argv']
-      ivs.each do |iv|
-        val = instance_variable_get(iv)
-        h[iv.sub('@','').to_sym] = val if val
-      end
-      h
-    end
-
-    ### Returns a list of all arguments parsed.
-    def instance_arguments
-      @arguments
-    end
-
-  private
-
-    ### New Commandline. Takse a single argument
-    ### which can be a "shell" string, or an array
-    ### of shell arguments, like ARGV. If none
-    ### is given it defaults to ARGV.
-    def initialize(argv=ARGV)
-      case argv
-      when String
-        @argv = Shellwords.shellwords(argv)
-      #when Hash
-      #  argv.each{ |k,v| send("#{k}=", v) }
-      else
-        @argv = argv.dup
-      end
-      @arguments = []
-
-      # parse predefined options attributes.
-      object_class.predefined_options.each do |modes|
-        key = modes.first.to_s.chomp('?')
-        modes.reverse.each do |i|
-          val = option_parse(i)
-          instance_variable_set("@#{key}", val) if val
-        end
-      end
-    end
-
-    ### Routes to #[].
-    def method_missing(name, *args)
-      super unless args.empty?
-      case name.to_s
-      when /\=$/
-        super
-      else
-        self[name]
-      end
-    end
-
-    def option_parse(index)
-      index = index.to_s
-      name  = index.chomp('?')
-      key   = name.to_sym
-
-      kind = name.size == 1 ? 'letter' : 'word'
-      flag = index =~ /\?$/ ? 'flag'   : 'value'
-
-      send("option_#{kind}_#{flag}", key)
-    end
-
-    ### Parse a flag option.
-    def option_word_flag(name)
-      o = "--#{name}"
-      i = @argv.index_of{ |e| e =~ /^#{o}[=]?/ }
-      return false unless i
-      raise ArgumentError if @argv[i] =~ /=/
-      @argv.delete_at(i)
-      return true
-    end
-
-    ### Parse a value option.
-    def option_word_value(name)
-      o = "--#{name}"
-      i = @argv.index_of{ |e| e =~ /^#{o}[=]?/ }
-      return false unless i
-
-      if @argv[i] =~ /=/
-        key, val = *@argv[i].split('=')
-        argv[i] = nil
-      else
-        case @argv[i+1]
-        when nil, /^-/
-          raise ArgumentError
-        else
-          key = @argv[i]
-          val = @argv[i+1]
-          @argv.delete_at(i) # do it twice
-          @argv.delete_at(i)
-        end
-      end
-      return val
-    end
-
-    ### Parse a single letter flag option.
-    def option_letter_flag(letter)
-      o = letter
-      i = @argv.index_of{ |e| e =~ /[-][^-]\w*(#{o})\w*$/ }
-      if i
-        @argv[i] = @argv[i].gsub(o.to_s,'')
-        true
-      end
-      false
-    end
-
-    ### Parse a single letter value option.
-    def option_letter_value(letter)
-      o = letter
-      i = @argv.index_of{ |e| e =~ /[-]\w*#{o}(\=|$)/ }
-      return nil unless i
-      if @argv[i] =~ /=/
-        rest, val = argv[i].split('=')
-        @argv[i] = rest
-      else
-        case @argv[i+1]
-        when nil, /^-/
-          raise ArgumentError
-        else
-          val = @argv[i+1]
-          new = @argv[i].gsub(o.to_s,'')
-          if new == '-'
-            @argv.delete_at(i)
-          else
-            @argv[i] = new
-          end
-          @argv.delete_at(i+1)
-        end
-      end
-      return val    
+      parser.__send__(s, *a)
     end
 
   end
+
 end
+
+
+
+
+
+
+
+
+
+=begin demo
+
+  cli = Clio::Commandline.new
+
+  cli.usage do
+    command(:document) do
+      help('generate documentation')
+      option(:output, :o) do
+        type('FILE')
+        help('output directory')
+      end
+    end
+    option(:verbose, :V) do
+      help('verbose output')
+    end
+    option(:quiet, :q) do
+      help('run silently')
+      xor(:V)
+    end
+  end
+
+  cli = Clio::Commandline.new('--verbose')
+
+  cli.usage do
+    cmd(:document, 'generate documentation') do
+      opt('--output=FILE -o', 'output directory')
+    end
+    opt('--verbose -V', 'verbose output')
+    opt('--quiet -q', 'run silently')
+  end
+
+#  cli.usage %{
+#    document                generate documentation
+#        -o --output=FILE    output directory
+#    -V --verbose            verbose output
+#    -q --quiet              run silently
+#  }
+
+  #p cline.verbose?(:V)
+  #p cline.force?(:f)
+  #p cline.document.output='FILE'
+
+  p cli
+  puts
+  puts cli.to_s_help
+
+=end
+
+#cli[['--verbose', '-V'],['--quiet', '-q']] \
+#   ['--force'] \
+#   ['document']['--output=FILE', '-o']
+
+
+
+
 
