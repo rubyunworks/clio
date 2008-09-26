@@ -26,8 +26,8 @@ class TC_Commandline_Aliases < Test::Unit::TestCase
 
   def setup
     @cmd = Clio::Commandline.new("--force copy --file try.rb")
-    @cmd.option_alias(:f?, :force?)
-    @cmd.option_alias(:o, :file)
+    @cmd.force?(:f)
+    @cmd.file(:o)
   end
 
   def test_flag_option
@@ -44,7 +44,7 @@ class TC_Commandline_Aliases < Test::Unit::TestCase
 
 end
 
-
+=begin
 class TC_Commandline_Subclass < Test::Unit::TestCase
 
   class SCommandline < Clio::Commandline
@@ -80,4 +80,5 @@ class TC_Commandline_Subclass < Test::Unit::TestCase
   end
 
 end
+=end
 

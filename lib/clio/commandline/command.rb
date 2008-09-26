@@ -14,6 +14,7 @@ module Clio
       attr :commands
       attr :options
       #attr :modes     # common options
+      attr :option_aliases
       attr :help
 
       #
@@ -22,6 +23,7 @@ module Clio
         @commands  = {}
         @arguments = {}
         @options   = {}
+        @option_aliases = {}
         #@modes    = {}
         @help      = ''
 
@@ -45,10 +47,22 @@ module Clio
       #   option(:output, :o)
       #
       def option(name, *aliases)
-        name = name.to_s
-        name = name.gsub(/^[-]+/, '')
-        name = name.to_sym
-        @options[name] ||= Option.new(self, name, *aliases)
+        key  = clean_option_name(name)
+        name = name.to_s.gsub(/^[-]+/, '')
+
+        opt = @options[key] ||= Option.new(self, name, *aliases)
+
+        aliases.each do |a|
+          a = clean_option_name(a)
+          @option_aliases[a] = opt 
+        end
+
+        opt
+      end
+
+      #
+      def option?(name)
+        options[clean_option_name(name)]
       end
 
       #
@@ -179,6 +193,14 @@ module Clio
       #def &(*rest)
       #  [self, *rest]
       #end
+
+    private
+
+      def clean_option_name(name)
+        name = name.to_s
+        name = name.gsub(/^[-]+/, '')
+        return name.chomp('?').to_sym
+      end
 
     end #class Command
 

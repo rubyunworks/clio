@@ -25,6 +25,47 @@ module Clio
       #  return opts, scmd
       #end
 
+    private
+
+      ### New Commandline. Takes a single argument
+      ### which can be a "shell" string, or an array
+      ### of shell arguments, like ARGV. If none
+      ### is given it defaults to ARGV.
+      def initialize(usage, argv=nil)
+        @usage = usage
+
+        argv ||= ARGV
+        case argv
+        when String
+          @argv = Shellwords.shellwords(argv)
+        #when Hash
+        #  argv.each{ |k,v| send("#{k}=", v) }
+        else
+          @argv = argv.dup
+        end
+
+        @arguments = []
+
+        # parse predefined options attributes.
+        #object_class.predefined_options.each do |modes|
+        #  key = modes.first.to_s.chomp('?')
+        #  modes.reverse.each do |i|
+        #    val = option_parse(i)
+        #    instance_variable_set("@#{key}", val) if val
+        #  end
+        #end
+      end
+
+      ### Routes to #option!.
+      def method_missing(name, *args)
+        case name.to_s
+        when /\=$/
+          super
+        else
+          option!(name, *args)
+        end
+      end
+
     public
 
       ### This method provides the centralized means 
@@ -44,13 +85,13 @@ module Clio
         end
       end
 
-      def option!(index, *aliases)
-        return send(index) if respond_to?(index)
-        key = index.to_s.chomp('?')
-        val = option_parse(index)
+      def option!(name, *aliases)
+        return send(name) if respond_to?(name)
+        key = name.to_s.chomp('?')
+        val = option_parse(name)
         instance_variable_set("@#{key}", val)
         (class << self; self; end).class_eval %{
-           def #{index}; @#{key}; end
+           def #{name}; @#{key}; end
         }
         return val
       end
@@ -94,44 +135,6 @@ module Clio
       ### Returns a list of all arguments parsed.
       def instance_arguments
         @arguments
-      end
-
-    private
-
-      ### New Commandline. Takes a single argument
-      ### which can be a "shell" string, or an array
-      ### of shell arguments, like ARGV. If none
-      ### is given it defaults to ARGV.
-      def initialize(argv=nil)
-        argv ||= ARGV
-        case argv
-        when String
-          @argv = Shellwords.shellwords(argv)
-        #when Hash
-        #  argv.each{ |k,v| send("#{k}=", v) }
-        else
-          @argv = argv.dup
-        end
-        @arguments = []
-
-        # parse predefined options attributes.
-        #object_class.predefined_options.each do |modes|
-        #  key = modes.first.to_s.chomp('?')
-        #  modes.reverse.each do |i|
-        #    val = option_parse(i)
-        #    instance_variable_set("@#{key}", val) if val
-        #  end
-        #end
-      end
-
-      ### Routes to #option!.
-      def method_missing(name, *args)
-        case name.to_s
-        when /\=$/
-          super
-        else
-          option!(name, *args)
-        end
       end
 
       ### Parse an option.

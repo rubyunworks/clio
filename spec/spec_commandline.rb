@@ -6,7 +6,7 @@ $DEBUG   = true
 
 Quarry.spec "Commandline" do
 
-  before do
+  given do
     @cmd = Clio::Commandline.new('--verbose')
     $0 = 'test'
   end
@@ -26,19 +26,33 @@ Quarry.spec "Commandline" do
     @cmd.to_s.assert == 'test [--verbose]'
   end
 
+  it "handles a toplevel switch option with aliases using #option" do
+    @cmd.usage.option(:verbose?, :V)
+    @cmd.to_s.assert == 'test [--verbose | -V]'
+  end
+
   it "handles a toplevel option using method_missing" do
     @cmd.verbose?
     @cmd.to_s.assert == 'test [--verbose]'
   end
 
-  it "handles a toplevel switch option with aliases using #option" do
+  it "handles a toplevel option with aliases using method_missing" do
     @cmd.verbose?(:V)
     @cmd.to_s.assert == 'test [--verbose | -V]'
   end
 
-  it "handles a toplevel option with aliases using method_missing" do
-    @cmd.verbose?(:V)
-    @cmd.to_s.assert == 'test [--verbose | -V]'
+  it "returns a toplevel option value" do
+    @cmd.verbose?(:V).assert == true
+  end
+
+end
+
+
+Quarry.spec "Commandline with Short Option" do
+
+  given do
+    @cmd = Clio::Commandline.new('-V')
+    $0 = 'test'
   end
 
   it "returns a toplevel option value" do

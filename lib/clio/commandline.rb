@@ -137,14 +137,14 @@ module Clio
 
   class Commandline
     require 'clio/commandline/usage'
-    require 'clio/commandline/parser'
+    require 'clio/commandline/parse'
 
     def initialize(argv=nil)
-      @parser = Parser.new(argv)
+      @argv = argv
     end
 
-    def parser
-      @parser      
+    def parse
+      @parser ||= Parse.new(usage, @argv)
     end
 
     def usage(name=$0, &block)
@@ -165,11 +165,22 @@ module Clio
 
     #
     def method_missing(s, *a, &b)
-
-      usage.option(s, *a, &b)
-
-      parser.__send__(s, *a)
+      #usage.option(s, *a, &b)
+      parse.__send__(s, *a)
     end
+
+    #def valid?
+    #  usage.options.each do |o|
+    #    parser.option!(o.name)
+    #  end
+    #
+    #  if usage.commands.empty?
+    #  else
+    #    cmd = usage.command[parser[0].to_sym]
+    #    return false unless cmd
+    #    
+    #  end
+    #end
 
   end
 

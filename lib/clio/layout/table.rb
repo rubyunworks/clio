@@ -2,7 +2,11 @@ require 'clio/layout'
 
 module Clio
 
-  ###
+  ### = Table
+  ### Currently the table layout class is very
+  ### simplistic. Ultimately it will support
+  ### headers, footers, and a varity of border
+  ### options.
   class Table < Layout
 
     attr :rows
@@ -12,6 +16,12 @@ module Clio
     end
 
     def row(*cells, &block)
+      @rows << cells
+      instance_eval(&block)
+    end
+
+    def cell(acell)
+      (@rows.last ||= []) << acell
     end
 
     def to_s
@@ -22,8 +32,8 @@ module Clio
     end
 
     ###
-    class Row
-    end
+    #class Row
+    #end
 
   end
 

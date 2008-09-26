@@ -12,20 +12,32 @@ module Clio
         @parent   = parent
         @flag     = (name.to_s[-1,1] == '?')
         @name     = name.to_s.chomp('?').to_sym
-        @aliases  = aliases.collect{ |s| s.to_s.sub(/^[-]+/, '').to_sym }
+        @aliases  = []
         @help     = ''
         @type     = nil
         @multiple = false
         @exclude  = []
+
+        aliases.each{ |a| alia(a) }
       end
 
       attr :name
       attr :aliases
 
+      def flag? ; @flag ; end
+
       def help(string=nil)
         return @help unless string
         @help.replace(string.to_s)
         self
+      end
+
+      def alia(name)
+        name = name.to_s
+        name = name.sub(/^[-]+/, '')
+        name = name.chomp('?')
+        name = name.to_sym 
+        @aliases << name
       end
 
       def type(string=nil)
@@ -65,9 +77,24 @@ module Clio
         end
         s.join(' | ')
       end
-    end
 
-  end #class Option
+      ### Parse an option.
+      ###
+      ### Commandline arguments (argv) are passed into this method
+      ### and are changed in placed as they are parsed.
+      def parse(argv)
+        f = flag ? 'flag' : 'value'
+        r = []
+        [name, *aliases].each do |n|
+          k = n.to_s.size == 1 ? 'letter' : 'word'
+          r << send("parse_#{f}_#{k}", argv, n)
+        end
+        return r.first
+      end
+
+    end #class Option
+
+  end #class Commandline
 
 end #module Clio
 
