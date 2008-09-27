@@ -82,15 +82,15 @@ module Clio
       ###
       ### Commandline arguments (argv) are passed into this method
       ### and are changed in placed as they are parsed.
-      def parse(argv)
-        f = flag ? 'flag' : 'value'
-        r = []
-        [name, *aliases].each do |n|
-          k = n.to_s.size == 1 ? 'letter' : 'word'
-          r << send("parse_#{f}_#{k}", argv, n)
-        end
-        return r.first
-      end
+      #def parse(argv)
+      #  f = flag ? 'flag' : 'value'
+      #  r = []
+      #  [name, *aliases].each do |n|
+      #    k = n.to_s.size == 1 ? 'letter' : 'word'
+      #    r << send("parse_#{f}_#{k}", argv, n)
+      #  end
+      #  return r.first
+      #end
 
     end #class Option
 
