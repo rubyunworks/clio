@@ -17,11 +17,11 @@ module Clio
   # DSL directly.
   #
   #   cli = Clio::Commandline.new
-  #   cli.usage.cmd(:document).help('generate documentation')
-  #   cli.usage.cmd(:document).opt(:output, :o).type('FILE')
-  #   cli.usage.cmd(:document).opt(:output).help('output directory')
-  #   cli.usage.opt(:verbose, :V).help('verbose output')
-  #   cli.usage.opt(:quiet, :q).help('run silently').xor(:V)
+  #   cli.usage.command(:document).help('generate documentation')
+  #   cli.usage.command(:document).opion(:output, :o).type('FILE')
+  #   cli.usage.cmd(:document).option(:output).help('output directory')
+  #   cli.usage.option(:verbose, :V).help('verbose output')
+  #   cli.usage.option(:quiet, :q).help('run silently').xor(:V)
   #
   # The example defines a subcommand 'document' that can take an
   # 'output' option, and two mutually excluive universal options,
@@ -48,13 +48,14 @@ module Clio
   #     end
   #   end
   #
-  # While the block notation is DRY and easier to read, the fluent
-  # notation is important because it allows the Commandline object
-  # to passed around and modified as need be.
+  # Clearly block notation is DRY and much easier to read, but the
+  # fluent notation is important to have because it allows the
+  # Commandline object to passed around and modified as needed.
   #
   # Commandline's usage DSL is a bit verbose. So Commandline
   # provides a shorthand notation for declaring usage to simplify
-  # the process.
+  # the process, which is esspecially useful when the usage
+  # is static.
   #
   #   cli.usage do
   #     cmd('document', 'generate documentation') do
@@ -121,7 +122,7 @@ module Clio
   # to declare anything upfront.
   #
   # Lastly, Commandline  provides a simple means to cache usage
-  # information to a configuration file, which can then be used
+  # information to a configuration file, which then can be used
   # again the next time the same command is used. This allows
   # Commandline to provide high-performane tab completion.
   #
@@ -139,14 +140,26 @@ module Clio
     require 'clio/commandline/usage'
     require 'clio/commandline/parse'
 
+    #
+    instance_methods.each do |m|
+      private m if m !~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/
+    end
+
+    #
     def initialize(argv=nil)
-      @argv = argv
+      @argv = if String === argv
+        Shellwords.shellwords(argv)
+      else
+        argv || ARGV
+      end
     end
 
+    #
     def parse
-      @parser ||= Parse.new(usage, @argv)
+      @parse ||= Parse.new(usage, @argv)
     end
 
+    #
     def usage(name=$0, &block)
       @usage ||= Usage.new(name)
       @usage.instance_eval(&block) if block
@@ -163,10 +176,37 @@ module Clio
       usage.to_s_help
     end
 
+    # Method missing provide passive usage and parsing.
     #
-    def method_missing(s, *a, &b)
-      #usage.option(s, *a, &b)
-      parse.__send__(s, *a)
+    # TODO: This reparses the commandline after every usage
+    #       change. Is there a way to do partial parsing instead?
+    def method_missing(s, *a)
+      begin
+        s = s.to_s
+        case s
+        when /[=]$/
+          n = s.chomp('=')
+          usage.option(n).type(*a)
+          parse.parse
+          res = options[n.to_sym]
+        when /[!]$/
+          n = s.chomp('!')
+          cmd = usage.commands[n.to_sym] || usage.command(n, *a)
+          res = parse.parse
+        when /[?]$/
+          n = s.chomp('?')
+          usage.option(s, *a)
+          parse.parse
+          res = options[n.to_sym]
+        else
+          usage.option(s, *a)
+          parse.parse
+          res = options[s.to_sym]
+        end
+      rescue Error => e
+        res = nil
+      end
+      return res
     end
 
     #def valid?
@@ -188,13 +228,7 @@ end
 
 
 
-
-
-
-
-
-
-=begin demo
+=begin demo 1
 
   cli = Clio::Commandline.new
 
@@ -211,9 +245,17 @@ end
     end
     option(:quiet, :q) do
       help('run silently')
-      xor(:V)
+      xor(:verbose)
     end
   end
+
+  #p cli
+  puts
+  puts cli.to_s_help
+
+=end
+
+=begin demo 2
 
   cli = Clio::Commandline.new('--verbose')
 
@@ -224,6 +266,10 @@ end
     opt('--verbose -V', 'verbose output')
     opt('--quiet -q', 'run silently')
   end
+
+=end
+
+=begin demo 3
 
 #  cli.usage %{
 #    document                generate documentation
@@ -245,8 +291,4 @@ end
 #cli[['--verbose', '-V'],['--quiet', '-q']] \
 #   ['--force'] \
 #   ['document']['--output=FILE', '-o']
-
-
-
-
 
