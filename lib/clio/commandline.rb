@@ -146,24 +146,76 @@ module Clio
     end
 
     #
-    def initialize(argv=nil)
+    def initialize(argv=nil, opts={}, &block)
       @argv = if String === argv
         Shellwords.shellwords(argv)
       else
         argv || ARGV
       end
+      @usage = opts[:usage] if opts[:usage]
+      usage(&block) if block
     end
 
     #
     def parse
-      @parse ||= Parse.new(usage, @argv)
+      parser.parse
     end
 
     #
-    def usage(name=$0, &block)
-      @usage ||= Usage.new(name)
+    def usage(name=nil, &block)
+      @usage ||= Main.new(name)
       @usage.instance_eval(&block) if block
       @usage
+    end
+
+    #
+    def parser
+      @parser ||= Parse.new(usage, @argv)
+    end
+
+    #
+    def [](i)
+      #parser.parse
+      parser[i]
+    end
+
+    #
+    def commands
+      #parser.parse
+      parser.commands
+    end
+
+    #
+    def command
+      #parser.parse
+      parser.command
+    end
+
+    #
+    def arguments
+      #parser.parse
+      parser.arguments
+    end
+
+    #
+    def switches
+      #parser.parse
+      parser.options
+    end
+
+    alias_method :options, :switches
+
+    # Parameters
+    #
+    #
+    def parameters
+      parser.parameters
+    end
+
+    #
+    def to_a
+      #parser.parse
+      parser.to_a
     end
 
     #
@@ -187,23 +239,22 @@ module Clio
         when /[=]$/
           n = s.chomp('=')
           usage.option(n).type(*a)
-          parse.parse
-          res = options[n.to_sym]
+          #parser.parse
+          res = parser.options[n.to_sym]
         when /[!]$/
           n = s.chomp('!')
           cmd = usage.commands[n.to_sym] || usage.command(n, *a)
-          res = parse.parse
+          res = parser.parse
         when /[?]$/
           n = s.chomp('?')
-          usage.option(s, *a)
-          parse.parse
-          res = options[n.to_sym]
+          u = usage.option(n, *a)
+          res = parser.options[u.key]
         else
           usage.option(s, *a)
-          parse.parse
-          res = options[s.to_sym]
+          #parser.parse
+          res = parser.options[s.to_sym]
         end
-      rescue Error => e
+      rescue ParseError => e
         res = nil
       end
       return res

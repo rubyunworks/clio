@@ -1,0 +1,88 @@
+Basic Commandline Parsing
+=========================
+
+Require commandline library.
+
+  require 'clio/commandline'
+
+Normal Operation
+----------------
+
+Create new commandline object.
+
+    $0 = 'test'
+    @cmd = Clio::Commandline.new('--verbose')
+
+Handles a command definition using #command.
+
+    @cmd.usage.command('foo')
+    @cmd.to_s.assert == 'test foo'
+
+#it "handles a command definition using #[]" do
+#  @cmd.usage['foo']
+#  @cmd.to_s.assert == 'test foo'
+#end
+
+Handles a toplevel switch option using #option.
+
+    @cmd.usage.option('verbose?')
+    @cmd.to_s.assert == 'test [--verbose] foo'
+
+Handles a toplevel switch option with aliases using #option.
+
+    cmd = Clio::Commandline.new('--verbose')
+    cmd.usage.option(:verbose?, :V)
+    cmd.to_s.assert == 'test [--verbose -V]'
+
+
+Method Missing "Auto" Usage
+---------------------------
+
+Handles a toplevel option using method_missing.
+
+    cli = Clio::Commandline.new('--verbose')
+    cli.verbose?
+    cli.to_s.assert == 'test [--verbose]'
+
+Handles a toplevel option with aliases using method_missing.
+
+    cli = Clio::Commandline.new('--verbose')
+    cli.verbose?(:V)
+    cli.to_s.assert == 'test [--verbose -V]'
+
+Returns a toplevel option value"
+
+    cli = Clio::Commandline.new('--verbose')
+    cli.verbose?(:V).assert == true
+
+
+Single Character Option
+-----------------------
+
+Create new Commandline object.
+
+    $0 = 'test'
+    @cmd = Clio::Commandline.new('-V')
+
+Returns a toplevel option value.
+
+    @cmd.verbose?(:V).assert == true
+
+
+Option Literal Shorthand
+------------------------
+
+An option and a subcommand parsed statically.
+
+    $0 = 'test'
+    @cli = Clio::Commandline.new('-V foo')
+    @cli.usage.opt('--verbose -V')
+    @cli.usage.command('foo')
+    @cli.parse
+
+Parses the option correctly.
+
+    @cli.options[:verbose].assert == true
+
+QED.
+
