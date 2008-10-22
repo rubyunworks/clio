@@ -60,7 +60,6 @@ module Clio
     private
 
       # TODO: clean-up parsing
-
       def parse_command(usage, argv)
         options    = {}
         arguments  = []
@@ -73,44 +72,49 @@ module Clio
         until argv.empty?
           use, val = parse_option(usage, argv)
           if use
-            if use.multiple?
+#p "use: #{use.key}, #{val}"
+            if val == '-'
+              parse_errors << [val, use]
+            elsif use.multiple?
               options[use.key] ||= []
               options[use.key] << val
             else
               options[use.key] = val
             end
           elsif arguments.size < usage.arguments.size
-            arguments << argv.shift
+            arg = argv.shift
+#p "arg: #{arg}"
+            arguments << arg
           else
             arg = argv.shift
+#p "cmd: #{arg}"
             use = usage.commands.find{|c| c === arg}
             if use
               parse_command(use, argv)
               break
             else
-              parse_errors << [arg, usage.key]
+              parse_errors << [arg, usage]
               #raise ParseError, "unknown command or argument #{a} for #{usage.key} command"
               break
             end
           end
-        end
-
+        end      
         @signatures.unshift(Signature.new(usage.key, arguments, options))
       end
 
       # Parse greedy options. This function loops thru ARGV and 
       # removes any matching greedy options.
       def parse_greedy(usage, argv)
-        switches = {}
+        options = {}
         d, i = [], 0
         while i < argv.size
           case a = argv[i]
-          when /^[-]/
+          when /^[-].+/
             #res = parse_option(a, i)
             name, val = *a.split('=')
-            use = usage.option?(name)
+            use = usage.greedy_option?(name)
             if use && use.greedy?
-              del << i
+              d << i
               if use.flag?
                 val = val || true
               else
@@ -118,7 +122,7 @@ module Clio
                 i += 1
                 d << i
               end
-              switches[use.name] = val
+              options[use.key] = val
             end
             res = val
           end
@@ -126,12 +130,12 @@ module Clio
         end
         d.each{ |i| argv[i] = nil }
         argv.compact!
-        return switches
+        return options
       end
 
       #
       def parse_option(usage, argv)
-        return if argv.first !~ /(^-|=)/
+        return if argv.first !~ /(^-.+|=)/
         arg = argv.shift
         name, val = *arg.split('=')
         if use = usage.option?(name)
@@ -147,6 +151,8 @@ module Clio
         return use, val
       end
 
+    public
+
       #
       def parse_errors
         @parse_errors ||= []
@@ -156,8 +162,6 @@ module Clio
         parse unless @parsed
         parse_errors.empty?
       end
-
-    public
 
       #def signatures
       #  parse unless parsed?

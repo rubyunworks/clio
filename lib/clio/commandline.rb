@@ -147,23 +147,60 @@ module Clio
 
     #
     def initialize(argv=nil, opts={}, &block)
-      @argv = if String === argv
-        Shellwords.shellwords(argv)
+      argv_set(argv || ARGV)
+
+      if opts[:usage]
+        @usage = opts[:usage]
       else
-        argv || ARGV
+        #@usage = load_cache
       end
-      @usage = opts[:usage] if opts[:usage]
       usage(&block) if block
     end
 
+    # TODO: rename +completion+?
+    # TODO: adding '-' is best idea?
+    def tab_completion(argv=nil)
+      argv_set(argv) if argv
+      @argv << '-'
+      parse
+      @argv.pop
+      parser.parse_errors[0][1].completion.collect{ |s| s.to_s }
+      #@argv.pop if @argv.last == '?'
+      #load_cache
+      #parse
+    end
+
     #
-    def parse
+    def load_cache
+      if usage = Usage.load_cache
+        @usage = usage
+      end
+    end
+
+    #
+    def parse(argv=nil)
+      argv_set(argv) if argv
       parser.parse
     end
 
     #
+    def argv_set(argv)
+      # reset parser
+      @parser = nil
+      # convert to array if string
+      if String===argv
+        argv = Shellwords.shellwords(argv)
+      end
+      # remove anything subsequent to '--'
+      if index = argv.index('--')
+        argv = argv[0...index]
+      end
+      @argv = argv
+    end
+
+    #
     def usage(name=nil, &block)
-      @usage ||= Main.new(name)
+      @usage ||= Usage.new(name)
       @usage.instance_eval(&block) if block
       @usage
     end

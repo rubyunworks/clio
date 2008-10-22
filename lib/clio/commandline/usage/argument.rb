@@ -16,7 +16,7 @@ module Clio
       def initialize(key, parent=nil, &block)
         @key       = key.to_sym
         @parent    = parent
-        @type      = nil
+        @type      = key.to_s.upcase
         @help      = ''
         instance_eval(&block) if block
       end

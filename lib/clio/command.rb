@@ -49,6 +49,11 @@ module Clio
       end
 
       #
+      def swt(label, help, &block)
+        usage.swt(label, help, &block)
+      end
+
+      #
       def arg(label, help, &block)
         usage.arg(label, help, &block)
       end

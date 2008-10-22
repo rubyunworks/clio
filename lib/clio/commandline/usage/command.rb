@@ -57,7 +57,7 @@ module Clio
       #   command('remote','add')
       #
       def command(name, &block)
-        raise "Command (#{key}) cannot have arguments and subcommand." unless arguments.empty?
+        raise "Command cannot have both arguments and subcommands (eg. #{name})." unless arguments.empty?
         key = name.to_s.strip
         if cmd = @commands.find{|c| c === key}
         else
@@ -102,19 +102,51 @@ module Clio
       end
 
       # Define an argument.
+      # Takes a name, optional index and block.
       #
-      def argument(name, &block)
-        raise "Command (#{key}) cannot have arguments and subcommand." unless commands.empty?
-        arg = Argument.new(name, self)
-        arg.instance_eval(&block) if block
-        @arguments << arg
-        arg
+      # Indexing of arguments starts at 1, not 0.
+      #
+      # Examples
+      #
+      #   argument(:path)
+      #   argument(1, :path)
+      #
+      def argument(n1, n2=nil, &block)
+        if Integer===n1
+          index, type = n1, n2
+        else
+          type  = n1
+          index = n2 || (@arguments.size + 1)
+        end
+        index = index - 1
+
+        raise "Command cannot have both arguments (eg. #{type}) and subcommands." unless commands.empty?
+
+        if type || block
+          if arg = @arguments[index]
+            arg.type(type)
+            arg.instance_eval(&block) if block
+          else
+            @arguments[index] = Argument.new(type, self, &block)
+          end
+        end
+
+        return @arguments[index]
       end
 
       #
       def help(string=nil)
         @help.replace(string.to_s) if string
         @help
+      end
+
+      #
+      def completion
+        if commands.empty?
+          arguments.collect{|c| c.key}
+        else
+          commands.collect{|c| c.name}
+        end
       end
 
       # SHORTHAND NOTATION
@@ -172,8 +204,12 @@ module Clio
       #
       #   arg('PIN', 'pin number')
       #
-      def arg(slot, help=nil)
-        argument(slot).help(help)
+      # or
+      #
+      #   arg(1, 'PIN', 'pin number')
+      #
+      def arg(slot, type=nil, help=nil)
+        argument(slot, type).help(help)
       end
 
       # Option defined?
@@ -187,9 +223,9 @@ module Clio
         #nil
       end
 
-      # Option defined?
+      # Greedy Option defined?
       #
-      def switch?(key)
+      def greedy_option?(key)
         switches.find{|o| o === key}
       end
 
