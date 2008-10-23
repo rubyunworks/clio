@@ -1,0 +1,5 @@
+#Handles a command definition using #[].
+#  @cmd.usage['foo']
+#  @cmd.to_s.assert == 'test foo'
+#end
+

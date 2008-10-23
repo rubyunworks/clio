@@ -1,0 +1,37 @@
+Command Definition and Usage Output
+===================================
+
+Require commandline library.
+
+  require 'clio/command'
+
+Create new commandline object.
+
+    $0 = 'test'
+    @cmd = Clio::Command.new('--verbose')
+
+Handles a command definition using #command.
+
+    @cmd.usage.command('foo')
+    @cmd.to_s.assert == 'test foo'
+
+Handles a toplevel switch option using #option.
+
+    @cmd.usage.option('verbose?')
+    @cmd.to_s.assert == 'test [--verbose] foo'
+
+Handles a toplevel switch option with aliases using #option.
+
+    cmd = Clio::Command.new('--verbose')
+    cmd.usage.option(:verbose?, :V)
+    cmd.to_s.assert == 'test [--verbose -V]'
+
+An option and a subcommand parsed statically.
+
+    cmd = Clio::Command.new('-V foo')
+    cmd.usage.opt('--verbose -V')
+    cmd.usage.command('foo')
+    cmd.to_s.assert == 'test [--verbose -V] foo'
+
+QED.
+

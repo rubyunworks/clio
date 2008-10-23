@@ -1,66 +1,48 @@
-Basic Commandline Parsing
-=========================
+Command Parsing
+===============
 
-Require commandline library.
+Usage Parsing
+=============
+
+Require command library.
 
   require 'clio/command'
 
-Normal Operation
-----------------
+A single toplevel option.
 
-Create new commandline object.
+  cmd = Clio::Command.new
+  cmd.usage.option('force')
+  cmd.parse('--force')
+  cmd.options.assert == {:force=>true}
 
-    $0 = 'test'
-    @cmd = Clio::Command.new('--verbose')
+A single toplevel option with an alias.
 
-Handles a command definition using #command.
+  cmd = Clio::Command.new
+  cmd.usage.option('force', 'f')
+  cmd.parse('-f')
+  cmd.options.assert == {:force=>true}
 
-    @cmd.usage.command('foo')
-    @cmd.to_s.assert == 'test foo'
+A subcommand.
 
-#it "handles a command definition using #[]" do
-#  @cmd.usage['foo']
-#  @cmd.to_s.assert == 'test foo'
-#end
+  cmd = Clio::Command.new
+  cmd.usage.command('foo')
+  cmd.parse('foo')
+  cmd.command.assert == 'foo'
+  cmd.commands.assert == ['foo']
 
-Handles a toplevel switch option using #option.
+A subcommand with an option.
 
-    @cmd.usage.option('verbose?')
-    @cmd.to_s.assert == 'test [--verbose] foo'
+  cmd = Clio::Command.new
+  cmd.usage.command('foo')
+  cmd.usage.command('foo').option('verbose')
+  cmd.parse('foo --verbose')
 
-Handles a toplevel switch option with aliases using #option.
+  cmd.command.assert == 'foo'
+  cmd.commands.assert == ['foo']
+  cmd.options.assert == {:verbose=>true}
 
-    cmd = Clio::Command.new('--verbose')
-    cmd.usage.option(:verbose?, :V)
-    cmd.to_s.assert == 'test [--verbose -V]'
-
-
-Single Character Option
------------------------
-
-Create new Commandline object.
-
-    @cmd = Clio::Command.new('-V')
-
-Returns a toplevel option value.
-
-    @cmd.verbose?(:V).assert == true
-
-
-Option Literal Shorthand
-------------------------
-
-An option and a subcommand parsed statically.
-
-    $0 = 'test'
-    @cli = Clio::Commandline.new('-V foo')
-    @cli.usage.opt('--verbose -V')
-    @cli.usage.command('foo')
-    @cli.parse
-
-Parses the option correctly.
-
-    @cli.options[:verbose].assert == true
+  cmd[0].options.assert == {}
+  cmd[1].options.assert == {:verbose=>true}
 
 QED.
 
