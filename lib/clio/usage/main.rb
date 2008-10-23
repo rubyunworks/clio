@@ -1,11 +1,11 @@
+require 'clio/usage/command'
+
 module Clio
 
-  class Commandline
-    require 'clio/commandline/usage/command'
+  module Usage
 
-    # = Usage
     #
-    # Usage specifies the toplevel "Command".
+    # Main specifies the toplevel "Command".
     #
     class Main < Command
 
@@ -99,8 +99,13 @@ module Clio
         s.flatten.join("\n")
       end
 
+      def parse(argv)
+        Parser.new(self, argv).parse #(argv)
+      end
+
       # Cache usage into a per-user cache file for reuse.
       # This can be used to greatly speed up tab completion.
+      #
       def cache
         File.open(cache_file, 'w'){ |f| f << to_yaml }
       end
@@ -123,9 +128,9 @@ module Clio
         end
       end
 
-    end #class Usage
+    end#class Main
 
-  end #class Commandline
+  end#module Usage
 
-end #module Clio
+end#module Clio
 

@@ -3,6 +3,7 @@ require 'shellwords'
 require 'facets/array/indexable'
 
 module Clio
+  require 'clio/usage'
 
   # = Commandline
   #
@@ -137,13 +138,6 @@ module Clio
   #++
 
   class Commandline
-    require 'clio/commandline/usage'
-    require 'clio/commandline/parse'
-
-    #
-    instance_methods.each do |m|
-      private m if m !~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/
-    end
 
     #
     def initialize(argv=nil, opts={}, &block)
@@ -155,26 +149,6 @@ module Clio
         #@usage = load_cache
       end
       usage(&block) if block
-    end
-
-    # TODO: rename +completion+?
-    # TODO: adding '-' is best idea?
-    def tab_completion(argv=nil)
-      argv_set(argv) if argv
-      @argv << '-'
-      parse
-      @argv.pop
-      parser.parse_errors[0][1].completion.collect{ |s| s.to_s }
-      #@argv.pop if @argv.last == '?'
-      #load_cache
-      #parse
-    end
-
-    #
-    def load_cache
-      if usage = Usage.load_cache
-        @usage = usage
-      end
     end
 
     #
@@ -207,38 +181,25 @@ module Clio
 
     #
     def parser
-      @parser ||= Parse.new(usage, @argv)
+      @parser ||= Usage::Parser.new(usage, @argv)
     end
 
     #
     def [](i)
-      #parser.parse
       parser[i]
     end
 
     #
-    def commands
-      #parser.parse
-      parser.commands
-    end
+    def commands  ; parser.commands  ; end
 
     #
-    def command
-      #parser.parse
-      parser.command
-    end
+    def command   ; parser.command   ; end
 
     #
-    def arguments
-      #parser.parse
-      parser.arguments
-    end
+    def arguments ; parser.arguments ; end
 
     #
-    def switches
-      #parser.parse
-      parser.options
-    end
+    def switches  ; parser.options   ; end
 
     alias_method :options, :switches
 
@@ -251,7 +212,6 @@ module Clio
 
     #
     def to_a
-      #parser.parse
       parser.to_a
     end
 
@@ -265,54 +225,36 @@ module Clio
       usage.to_s_help
     end
 
-    # Method missing provide passive usage and parsing.
+
+    # Commandline fully valid?
     #
-    # TODO: This reparses the commandline after every usage
-    #       change. Is there a way to do partial parsing instead?
-    def method_missing(s, *a)
-      begin
-        s = s.to_s
-        case s
-        when /[=]$/
-          n = s.chomp('=')
-          usage.option(n).type(*a)
-          #parser.parse
-          res = parser.options[n.to_sym]
-        when /[!]$/
-          n = s.chomp('!')
-          cmd = usage.commands[n.to_sym] || usage.command(n, *a)
-          res = parser.parse
-        when /[?]$/
-          n = s.chomp('?')
-          u = usage.option(n, *a)
-          res = parser.options[u.key]
-        else
-          usage.option(s, *a)
-          #parser.parse
-          res = parser.options[s.to_sym]
-        end
-      rescue ParseError => e
-        res = nil
-      end
-      return res
+    def valid?
+      parser.parse_errors.empty?
     end
 
-    #def valid?
-    #  usage.options.each do |o|
-    #    parser.option!(o.name)
-    #  end
+    # TODO: adding '-' is best idea?
     #
-    #  if usage.commands.empty?
-    #  else
-    #    cmd = usage.command[parser[0].to_sym]
-    #    return false unless cmd
-    #    
-    #  end
-    #end
+    def completion(argv=nil)
+      argv_set(argv) if argv
+      @argv << '-'
+      parse
+      @argv.pop
+      parser.parse_errors[0][1].completion.collect{ |s| s.to_s }
+      #@argv.pop if @argv.last == '?'
+      #load_cache
+      #parse
+    end
 
-  end
+    #
+    def load_cache
+      if usage = Usage.load_cache
+        @usage = usage
+      end
+    end
 
-end
+  end#class Commandline
+
+end#module Clio
 
 
 

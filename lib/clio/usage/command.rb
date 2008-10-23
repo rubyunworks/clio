@@ -1,7 +1,9 @@
+require 'clio/usage/option'
+require 'clio/usage/argument'
+
 module Clio
 
-  class Commandline
-    require 'clio/commandline/usage'
+  module Usage
 
     # = Commandline Command
     #
@@ -14,11 +16,10 @@ module Clio
     #
     class Command
       attr :parent
-
       attr :name
 
       attr :commands
-      attr :options
+      attr :options  # TODO: Combine options and switches
       attr :switches
       attr :arguments
 
@@ -281,7 +282,7 @@ module Clio
 
     end
 
-  end #class Commandline
+  end #class
 
 end #module Clio
 

@@ -1,88 +1,49 @@
-Basic Commandline Parsing
-=========================
+Basic Check of Command Class 
+============================
 
-Require commandline library.
+Require clio/command.rb.
 
-  require 'clio/commandline'
+  require 'clio/command'
 
-Normal Operation
-----------------
+Create new subclass of Clio::Command.
 
-Create new commandline object.
+  $0 = 'c0'
+  @cmd = Class.new(Clio::Command) do
+    option('o0')
+    command('c1').option('o1')
+    command('c1','c2').option('o2')
+    command('c1','c2').argument('a')
+    command('c1','c2').argument('b')
+    command('c1','c2').argument('c')
+  end
 
-    $0 = 'test'
-    @cmd = Clio::Commandline.new('--verbose')
+Command display usage string.
 
-Handles a command definition using #command.
+  @cmd.usage.to_s.assert == 'c0 [--o0] c1 [--o1] c2 [--o2] <a> <b> <c>'
 
-    @cmd.usage.command('foo')
-    @cmd.to_s.assert == 'test foo'
+Command initializes.
 
-#it "handles a command definition using #[]" do
-#  @cmd.usage['foo']
-#  @cmd.to_s.assert == 'test foo'
-#end
+  @cli = @cmd.new('--o0 c1 --o1 c2 --o2 a b c')
 
-Handles a toplevel switch option using #option.
+Command is inheritable.
 
-    @cmd.usage.option('verbose?')
-    @cmd.to_s.assert == 'test [--verbose] foo'
+  @cmd2 = Class.new(@cmd)
 
-Handles a toplevel switch option with aliases using #option.
+Inherited command works like parent.
 
-    cmd = Clio::Commandline.new('--verbose')
-    cmd.usage.option(:verbose?, :V)
-    cmd.to_s.assert == 'test [--verbose -V]'
+  @cli2 = @cmd2.new('--o0 c1 --o1 c2 --o2 a b c')
+  @cli2.parse
 
+Inherited command parsed correctly.
 
-Method Missing "Auto" Usage
----------------------------
+  @cli2.options.assert == {:o0=>true, :o1=>true, :o2=>true}
 
-Handles a toplevel option using method_missing.
+Method missing options work.
 
-    cli = Clio::Commandline.new('--verbose')
-    cli.verbose?
-    cli.to_s.assert == 'test [--verbose]'
-
-Handles a toplevel option with aliases using method_missing.
-
-    cli = Clio::Commandline.new('--verbose')
-    cli.verbose?(:V)
-    cli.to_s.assert == 'test [--verbose -V]'
-
-Returns a toplevel option value"
-
-    cli = Clio::Commandline.new('--verbose')
-    cli.verbose?(:V).assert == true
-
-
-Single Character Option
------------------------
-
-Create new Commandline object.
-
-    $0 = 'test'
-    @cmd = Clio::Commandline.new('-V')
-
-Returns a toplevel option value.
-
-    @cmd.verbose?(:V).assert == true
-
-
-Option Literal Shorthand
-------------------------
-
-An option and a subcommand parsed statically.
-
-    $0 = 'test'
-    @cli = Clio::Commandline.new('-V foo')
-    @cli.usage.opt('--verbose -V')
-    @cli.usage.command('foo')
-    @cli.parse
-
-Parses the option correctly.
-
-    @cli.options[:verbose].assert == true
+  @cli2.o0?.assert == true
+  @cli2.o1?.assert == true
+  @cli2.o2?.assert == true
+  @cli2.o3?.assert == nil
 
 QED.
 

@@ -1,34 +1,36 @@
+require 'shellwords'
+require 'clio/usage/signature'
+require 'clio/usage/interface'
+
 module Clio
 
-  class Commandline
+  module Usage
 
-    # = Parse
+    # = Parser
     #
-    # Parse the commandline according to given
-    # Usage.
+    # Parse commandline arguments according to given Usage.
     #
-    class Parse
+    class Parser
       attr :usage
       attr :argv
-      attr :index
 
       attr :signatures
 
       #
-      def initialize(usage, argv, index=0)
+      def initialize(usage, argv) #, index=0)
+        # convert to array if argv string
+        if String===argv
+          argv = Shellwords.shellwords(argv)
+        else
+          argv = argv.dup
+        end
+
         @usage  = usage
         @argv   = argv
-        @index  = index
-        reset!
-      end
 
-      #
-      def reset!
         @parsed     = false
-        @command    = nil # usage.key
-        @options    = nil
-        @arguments  = nil
         @signatures = []
+        @errors     = []
       end
 
       #
@@ -49,9 +51,15 @@ module Clio
 
       #
       def parse
-        reset!
+        @parsed     = false
+        @signatures = []
+        @errors     = []
+
         parse_command(usage, argv.dup)
-        @parsed = true
+
+        @parsed     = true
+
+        return Interface.new(@signatures, @errors)
       end
 
       # Has the commandline been parsed?
@@ -154,112 +162,19 @@ module Clio
     public
 
       #
-      def parse_errors
-        @parse_errors ||= []
+      def errors
+        @errors
       end
 
-      def valid?
-        parse unless @parsed
-        parse_errors.empty?
-      end
+      alias_method :parse_errors, :errors
 
-      #def signatures
-      #  parse unless parsed?
-      #  a = [[usage, arguments, options]]
-      #  a += command.signatures if command
-      #  a
-      #end
-
-      def [](i)
-        @signatures[i]
-      end
-
-      # Return parameters array of [*arguments, options]
-      def parameters
-        arguments + [options]
-      end
-
-      #
-      def to_a
-        parse unless parsed?
-        @signatures.collect{ |s| s.to_a }
-      end
-
-      # TODO: Join by what character?
-      def command
-        return nil if commands.empty?
-        return commands.join('/')
-      end
-
-      #
-      def commands
-        parse unless parsed?
-        @commands ||= (
-          a = []
-          @signatures[1..-1].each do |s|
-            a << s.command
-          end
-          a
-        )
-      end        
-
-      #
-      def options
-        parse unless parsed?
-        @options ||= (
-          h = {}
-          @signatures.each do |s|
-            h.merge!(s.options)
-          end
-          h
-        )
-      end
-
-      alias_method :switches, :options
-
-      #
-      def arguments
-        parse unless parsed?
-        @arguments ||= (
-          m = []
-          @signatures.each do |s|
-            m.concat(s.arguments)
-          end
-          m
-        )
-      end
-
-      # = Command Signature
-      #
-      class Signature
-        def initialize(c, a, o)
-          @signature  = [c, a, o]
-          @command    = c
-          @arguments  = a
-          @options    = o
-        end
-
-        attr :command
-        attr :arguments
-        attr :options
-        attr :signature
-
-        def to_a; @signature; end
-
-        def parameters
-          @arguments + [@options]
-        end
-
-        def inspect; "#<#{self.class}:" + @signature.inspect + ">"; end
-      end
-
-    end #class Parse
+    end #class Parser
 
     #
     class ParseError < StandardError
     end
 
-  end #class Commandline
+  end #class Usage
 
 end #module Clio
 

@@ -1,6 +1,6 @@
 module Clio
 
-  class Commandline
+  module Usage
 
     # = Commandline Option
     #
@@ -9,10 +9,10 @@ module Clio
       # Parent command.
       attr :parent
 
-      #
-      attr :key
+      # Option name.
+      attr :name
 
-      # 
+      # Alternate names for this option.
       attr :aliases
 
       # Option arguments.
@@ -33,9 +33,9 @@ module Clio
       # Help text for this option.
       attr :help
 
-      #
-      def initialize(key, parent=nil, &block)
-        @key       = clean_key(key)
+      # New Option.
+      def initialize(name, parent=nil, &block)
+        @name      = clean_name(name)
         @parent    = parent
         @aliases   = []
         @arguments = []
@@ -46,14 +46,16 @@ module Clio
         instance_eval(&block) if block
       end
 
-      def name
-        @name ||= clean_key(key).to_s
+      # Same as +name+ but given as a symbol.
+      def key
+        name.to_sym
       end
 
-      #
+      # Can this option occur multiple times in the
+      # command line?
       def multiple? ; @multiple ; end
 
-      #
+      # Is this option greedy?
       def greedy?   ; @greedy   ; end
 
       #
@@ -67,9 +69,10 @@ module Clio
         s
       end
 
+      # Is this option a boolean flag?
       def flag?; @arguments.empty?; end
 
-      #
+      # Assign an argument to the option.
       def argument(name, &block)
         arg = Argument.new(name, self)
         arg.instance_eval(&block) if block
@@ -77,7 +80,7 @@ module Clio
         arg
       end
 
-      #
+      # Specify aliases for the option.
       def aliases(*names)
         return @aliases if names.empty?
         names.each do |name|
@@ -85,20 +88,21 @@ module Clio
         end
       end
 
-      # Can the option be used multiple times?
+      # Specify if the option be used multiple times.
       def multiple(bool=nil)
         return @multiple if bool.nil?
         @multiple = bool
         self
       end
 
+      # Specify mutually exclusive options.
       def xor(*opts)
         @exclusive.concat(opts)
       end
 
       #
       #def |(other)
-      #  self.xor(other)
+      #  xor(other)
       #end
 
       #
@@ -149,14 +153,14 @@ module Clio
 
       #
       def clean_key(key)
-        key = key.to_s
-        key = key.gsub(/^[-]+/, '')
-        key.chomp('?').to_sym
+        clean_name(key).to_sym
       end
 
       #
-      def clean_name(key)
-        clean_key(key).to_s
+      def clean_name(name)
+        name = name.to_s
+        name = name.gsub(/^[-]+/, '')
+        name.chomp('?')
       end
 
       #
