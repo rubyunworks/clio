@@ -4,10 +4,10 @@ Test Subclass of Subclass of Command
 Require clio/command.rb.
 
   require 'clio/command'
+  $0 = 'c0'
 
 Create new subclass of Clio::Command.
 
-  $0 = 'c0'
   cmd_super = Class.new(Clio::Command) do
     option('o0')
     command('c1').option('o1')
