@@ -1,4 +1,7 @@
 require 'facets/kernel/deep_copy'
+#require 'shellwords'
+#require 'facets/kernel/object_class'
+#require 'facets/array/indexable'
 
 module Clio
   require 'clio/commandline'
