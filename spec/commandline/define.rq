@@ -1,37 +1,39 @@
-Command Definition and Usage Output
-===================================
+= Commandline Definition using Core Notation
 
 Require commandline library.
 
-  require 'clio/command'
+  require 'clio/commandline'
 
-Create new commandline object.
+Fake that we running an executable called 'test'.
 
     $0 = 'test'
-    @cmd = Clio::Command.new('--verbose')
 
-Handles a command definition using #command.
+Create a new commandline object.
+
+    @cmd = Clio::Commandline.new
+
+We can define a subcommand using #command on #usage.
 
     @cmd.usage.command('foo')
     @cmd.to_s.assert == 'test foo'
 
-Handles a toplevel switch option using #option.
+We can define a toplevel switch using #switch.
 
-    @cmd.usage.option('verbose?')
+    @cmd.usage.switch('verbose')
     @cmd.to_s.assert == 'test [--verbose] foo'
 
-Handles a toplevel switch option with aliases using #option.
+Switches can have aliases.
 
-    cmd = Clio::Command.new('--verbose')
-    cmd.usage.option(:verbose?, :v)
-    cmd.to_s.assert == 'test [--verbose -v]'
+    @cmd.usage.switch(:verbose, :v)
+    @cmd.to_s.assert == 'test [--verbose -v]'
 
-An option and a subcommand parsed statically.
+Let's bring it all together in one example.
 
-    cmd = Clio::Command.new('-v foo')
-    cmd.usage.opt('--verbose -v')
+    cmd = Clio::Command.new
+    cmd.usage.switch(:verbose, :v)
+    cmd.usage.switch(:force, :f)
     cmd.usage.command('foo')
-    cmd.to_s.assert == 'test [--verbose -v] foo'
+    cmd.usage.command('bar')
+    cmd.to_s.assert == 'test [--verbose -v] [--force -f] (foo | bar)'
 
 QED.
-
