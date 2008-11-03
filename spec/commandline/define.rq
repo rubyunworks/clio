@@ -23,15 +23,15 @@ Handles a toplevel switch option using #option.
 Handles a toplevel switch option with aliases using #option.
 
     cmd = Clio::Command.new('--verbose')
-    cmd.usage.option(:verbose?, :V)
-    cmd.to_s.assert == 'test [--verbose -V]'
+    cmd.usage.option(:verbose?, :v)
+    cmd.to_s.assert == 'test [--verbose -v]'
 
 An option and a subcommand parsed statically.
 
-    cmd = Clio::Command.new('-V foo')
-    cmd.usage.opt('--verbose -V')
+    cmd = Clio::Command.new('-v foo')
+    cmd.usage.opt('--verbose -v')
     cmd.usage.command('foo')
-    cmd.to_s.assert == 'test [--verbose -V] foo'
+    cmd.to_s.assert == 'test [--verbose -v] foo'
 
 QED.
 

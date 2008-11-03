@@ -6,22 +6,48 @@ require 'clio/usage'
 
 module Clio
 
-  # = Command
+  # = Commandline
   #
-  # Clio's Command class is a very versitile command line parser.
+  # Clio's Commandline class is a very versitile command line parser.
   # A Command can be used either declaritively, defining usage
   # and help information upfront; or lazily, whereby information
   # about usage is built-up as the commandline actually gets usde in
   # one's program; or you can use a mixture of the two.
   #
-  # Underlying all useage is a fluent interface for decalaring
+  #
+  # This notation is very elegant, but slightly more limited in scope.
+  # For instance, subcommands that use non-letter characters, such as ':',
+  # can not be described with this notation.
+  #
+  #   cli.usage.document('*files', '--output=FILE -o')
+  #   cli.usage('--verbose -V','--quiet -q')
+  #
+  #   cli.usage.help(
+  #     'document'     , 'generate documentation',
+  #     'validate'     , 'run tests or specifications',
+  #     '--verbose'    , 'verbose output',
+  #     '--quiet'      , 'run siltently'
+  #   )
+  #
+  #   cli.usage.document.help(
+  #     '--output', 'output directory'
+  #     'file*',    'files to document'
+  #   )
+  #
+  # This notation is slightly more limited in scope... so...
+  #
+  #   cli.usage.command(:document, '--output=FILE -o', 'files*')
+  #
+  #
+
+  # Underlying all usage is a fluent interface for decalaring
   # a commandline's structure. Here is an example of using this
   # DSL directly.
   #
-  #   cli = Clio::Command.new
+  #   cli = Clio::Commandline.new
   #   cli.usage.command(:document).help('generate documentation')
-  #   cli.usage.command(:document).opion(:output, :o).type('FILE')
-  #   cli.usage.cmd(:document).option(:output).help('output directory')
+  #   cli.usage.command(:document).option(:output, :o).type('FILE')
+  #   cli.usage.command(:document).option(:output).help('output directory')
   #   cli.usage.option(:verbose, :V).help('verbose output')
   #   cli.usage.option(:quiet, :q).help('run silently').xor(:V)
   #
@@ -40,6 +66,9 @@ module Clio
   #         type('FILE')
   #         help('output directory')
   #       end
+  #       argument('files') do
+  #         multiple
+  #       end
   #     end
   #     option(:verbose, :V) do
   #       help('verbose output')
@@ -50,53 +79,69 @@ module Clio
   #     end
   #   end
   #
-  # Clearly block notation is DRY and easier to read, but the
-  # fluent notation is important to have because it allows the
-  # Command object to easily passed and modified as needed.
+  # Clearly block notation is DRY and easier to read, but fluent
+  # notation is important to have because it allows the Commandline
+  # object to be passed around as an argument and modified easily.
   #
-  # Command uses the Usage DSL, the core methods or which can be
-  # a bit verbose. So it also provides shorthand notation to
-  # simplify# the process, which is esspecially useful when the
-  # usage is static.
+  # == Abbriviated Notation
+  #
+  # While comprehensble, the core Usage DSL can be a somewhat verbose.
+  # So abbriviated forms of these methods are provided. These methods
+  # go one step further as well, and allow for some additional arguments.
   #
   #   cli.usage do
   #     cmd('document', 'generate documentation') do
-  #       opt('--output=FILE -o', 'output directory')
+  #       opt('output=FILE -o', 'output directory')
+  #       arg('FILE*')
   #     end
-  #     opt('--verbose -V', 'verbose output') | 
-  #     opt('--quiet -q'  , 'run silently')
+  #     opt('verbose -v', 'verbose output') |
+  #     opt('quiet -q'  , 'run silently')
   #   end
   #
   # Notice the use of '|'. This allows us to define mutual exclusion
   # without resorting to #xor as was done in the first example.
   #
-  # With usage in place, call the +parse+ method to process the 
-  # actually commandline.
+  # == Shorthand Notation
   #
-  #   cli.parse
+  # As a further convenience commandline usage can be defined with a
+  # shorthand notation. This is especailly useful when the usage is
+  # statically definable.
   #
-  # If no command arguments are passed to +parse+, ARGV is used.
+  #   cli.usage do
+  #     _ 'document',             'generate documentation' do
+  #        _ '--output=FILE -o',  'output directory'
+  #        _ 'FILE*',             'files to document'
+  #     end
+  #     _ '--verbose -V',         'verbose output'
+  #     _ '--quiet -q',           'run silently'
+  #   end
+  #
+  # The shorthand notation is chainable.
+  #
+  #   cli.usage._('document')._('--output=FILE -o')._('FILE*')
+  #
+  # Interstingly, it was easy enough to alias #[] to #_ so, alternatively
+  # shorthand can be written as:
+  #
+  #   cli.usage['document']['--output=FILE -o']['FILE*']
+  #
+  # Exanding the whole example from above we get:
+  #
+  #   cli.usage['document',            'generate documention' ] \
+  #            [  '--output=FILE -o',  'output directory'     ] \
+  #            [  'FILE*',             'files to document'    ]
+  #
+  #   cli.usage['--verbose -V', 'verbose output']['--quiet -q', 'run silently']
   #
   #--
-  # Command offers one additional alternative in the form of an
-  # array structure:
-  #
-  #   cli.usage[
-  #     [ 'document', '--output=FILE -o' ],
-  #     [ '--verbose -V', '--quiet -q' ], '--force'
-  #   ]
-  #
-  #   cli['document']['--output=FILE -o']
-  #   cli['--verbose -V','--quiet -q']['--force']
-  #
   # As you can see this is very concise, but it does not allow for
-  # help information. So in this case help information has to be 
+  # help information. So in this case help information has to be
   # specified separately.
   #
   #   cli.usage.help[
   #     ['document'  , 'generate documentation'],
   #     ['validate'  , 'run tests or specifications'],
-  #     ['--verbose' , 'verbose output'], 
+  #     ['--verbose' , 'verbose output'],
   #     ['--quiet'   , 'run siltently' ]
   #   ]
   #
@@ -104,6 +149,27 @@ module Clio
   #     ['--output', 'output directory']
   #   ]
   #++
+  #
+  # == Combining Notations
+  #
+  # Since the various notations all translate to same underlying data
+  # structures, they can be mixed and matched as suites ones taste.
+  # For example we could mix Method Notation and Bracket Notation.
+  #
+  #   cli.usage.document['--output=FILE -o']['file*']
+  #   cli.usage['--verbose -V']['--quiet -q']
+  #
+  # The important thing to keep in mind when doing this is what is
+  # returned by each usage call.
+  #
+  # == Commandline Parsing
+  #
+  # With usage in place, call the +parse+ method to process the
+  # actually commandline.
+  #
+  #   cli.parse
+  #
+  # If no command arguments are passed to +parse+, ARGV is used.
   #
   #--
   # The Command class allows you to declare as little or as
@@ -130,8 +196,9 @@ module Clio
   # With the exception of help information, this means you can
   # generally just use a commandline as needed without having
   # to declare anything upfront.
-  #
   #++
+  #
+  # == Usage Cache
   #
   # Lastly, Commandline  provides a simple means to cache usage
   # information to a configuration file, which then can be used
@@ -148,20 +215,34 @@ module Clio
   # TODO: Allow a hash as argument to initialize (?)
   #++
 
-  class Command
+  class Commandline
+
+    #
+    instance_methods.each do |m|
+      private m if m !~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/
+    end
 
     class << self
 
+      def self.inherited(subclass)
+        subclass.usage = usage.deep_copy
+      end
+
       # Command usage.
       def usage
-        @usage ||= (
-          if ancestors[1] < Command
-            @usage = ancestors[1].usage.deep_copy
-          else
-            @usage = Usage.new
-          end
-        )
+        @usage ||= Usage.new
       end
+
+      def usage=(u)
+        raise ArgumentError unless u <= Usage
+        @usage = u
+      end
+
+      #    if ancestors[1] < Command
+      #      @usage = ancestors[0].usage.deep_copy
+      #    else
+      #      @usage = Usage.new
+      #    end
 
       #
       def command(*names, &block)
@@ -171,6 +252,11 @@ module Clio
       #
       def option(name, *aliases, &block)
         usage.option(name, *aliases, &block)
+      end
+
+      #
+      def switch(name, *aliases, &block)
+        usage.switch(name, *aliases, &block)
       end
 
       #
@@ -213,7 +299,8 @@ module Clio
       #else
       #  #@usage = load_cache
       #end
-      (class << self; self; end).usage(&block) if block
+      @usage = self.class.usage.deep_copy
+      @usage.instance_eval(&block) if block
     end
 
     #
@@ -239,7 +326,7 @@ module Clio
     #end
 
     def usage
-      (class << self; self; end).usage
+      @usage
     end
 
     #
@@ -318,42 +405,42 @@ module Clio
     #  end
     #end
 
-  end # class Command
+    # Method missing provide passive usage and parsing.
+    #
+    # TODO: This reparses the commandline after every query.
+    #       Need only parse if usage has change.
+    def method_missing(s, *a)
+      begin
+        s = s.to_s
+        case s
+        when /[=]$/
+          n = s.chomp('=')
+          usage.option(n).type(*a)
+          parse
+          res = @cli.options[n.to_sym]
+        when /[!]$/
+          n = s.chomp('!')
+          cmd = usage.commands[n.to_sym] || usage.command(n, *a)
+          res = parse
+        when /[?]$/
+          n = s.chomp('?')
+          u = usage.option(n, *a)
+          parse
+          res = @cli.options[u.key]
+        else
+          usage.option(s, *a)
+          parse
+          res = @cli.options[s.to_sym]
+        end
+      rescue Usage::ParseError => e
+        res = nil
+      end
+      return res
+    end
+
+  end # class Commandline
 
 end # module Clio
-
-
-=begin
-    #
-    def initialize(argv=nil, &block)
-      @cli = Commandline.new(argv, :usage=>self.class.usage, &block)
-    end
-
-    def parse     ; @cli.parse     ; end
-
-    #
-    def usage     ; @cli.usage     ; end
-
-    #
-    def command   ; @cli.command   ; end
-
-    #
-    def commands  ; @cli.commands  ; end
-
-    #
-    def options   ; @cli.options   ; end
-
-    #
-    def arguments ; @cli.arguments ; end
-
-    #
-    def [](i)     ; @cli[i]        ; end
-
-    #
-    def method_missing(s, *a, &b)
-      @cli.send(s, *a, &b)
-    end
-=end
 
 
 
