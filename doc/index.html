@@ -1,12 +1,103 @@
 <html>
 <head>
   <title>CLIO</title>
+  <style>
+    div, img, iframe, h1 { padding: 0; margin: 0; }
+    body{ padding: 1; margin: 0; background: url(ssets/images/bkg.jpg); font-family: times; color: black; }
+    img{ border: 0px solid yellow; }
+    pre{ padding: 20px; }
+    #title {
+      font-size: 42pt;
+      float: left;
+      font-style: italic;
+    }
+    #container{
+      width: 900px;
+      margin: 0 auto;
+    }
+    #menu {
+      float: right;
+      font-family: helvetica, sans-serif;
+      font-size: 14px;
+      margin-top: 24px;
+    }
+    #menu ul {
+      list-style: none;
+      float: left;
+    }
+    #menu li
+    {
+      float: left;
+      margin: 0 0.3em;
+    }
+    #main {
+      clear: both;
+      border: 2px dotted yellow;
+    }
+    #footer {
+      margin: 30 0;
+    }
+    #footer iframe {
+      width: 900px;
+      height: 200px;
+      border: 0px solid green;
+    }
+  </style>
 </head>
 <body>
+<div id="container">
+  <h1 id="title">C l i o</h1>
 
-  <h1>CLIO</h1>
+  <div id="menu">
+    <ul>
+      <li><a href="rdoc/index.html">Documentation</a></li>
+      <li><a href="http://rubyforge.org/projects/clio/">Rubyforge</a></li>
+      <li><a href="http://tigerops.org">Tigerops</a></li>
+    </ul>
+  </div>
 
-  <a href="rdoc/index.html">Documentation</a>
+  <div id="main">
+    <img src="assets/images/muse_clio.jpg" align="left"/>
 
+    <pre><code>
+      cli = Commandline.new
+
+      cli.usage.document('--output=PATH -o', '*FILES')
+      cli.usage.verbose?('-v')
+
+      cli.usage.help(
+        'document', 'generate docs',
+        '--verbose',  'do it loudly'
+      )
+
+      cli.parse('document -v -o doc/ README [A-Z]*')
+
+      cli.command   #=> "document"
+      cli.verbose?  #=> true
+
+      cli.document.options    #=> [:output => "doc/"]
+      cli.document.arguments  #=> ["README", "[A-Z]*"]
+
+      if cli.help?
+        puts Clio::String.new(cli.help) do |s|
+          s.gsub(/\A.*?$/){ |w| w.bold.underline }
+          s.gsub(/^\w+\:/){ |w| w.bold }
+          s.gsub(/-\w+/){ |w| w.blue }
+        end
+      end
+    </code></pre>
+  </div>
+
+  <div id="text" style="clear: both;">
+    <b>Figure 1.</b> <i>Clio</i> -- Clio is an advanced set of libraries for developing
+    command line intefaces in the Ruby programming lanaguage. Clio includes an advanced
+    commandline parser, a quick drop-in commandline mixin parser and a console
+    String class that makes it suprisingly easy to output beautiful console text.
+  </div>
+
+  <div id="footer">
+    <iframe src="http://tigerops.org/assets/adverts/banner-900-1.html" scrolling="no"></iframe>
+  </div>
+</div>
 </body>
 </html>
