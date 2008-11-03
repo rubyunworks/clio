@@ -129,12 +129,26 @@ module Clio
 
       #
       def to_s
-        s = []
-        s << (name.size == 1 ? "-#{name}" : "--#{name}")
-        @aliases.each do |a|
-          s << (a.to_s.size == 1 ? "-#{a}" : "--#{a}")
+        tiny = @aliases.select do |a|
+          a.to_s.size == 1
         end
-        s.join(' ')
+        tiny.unshift(name) if name.size == 1
+
+        long = @aliases.select do |a|
+          a.to_s.size > 1
+        end
+        long.unshift(name) if name.size > 1
+
+        tiny = tiny.collect{ |l| "-#{l}" }
+        long = long.collect{ |w| "--#{w}" }
+
+        if tiny.empty?
+          opts = [ '  ', *long ]
+        else
+          opts = tiny + long
+        end
+
+        opts.join(' ')
       end
 
       #

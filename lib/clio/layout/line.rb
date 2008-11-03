@@ -1,16 +1,20 @@
 module Clio
 
-  ### Draws a horizonal line.
-  class Line < Layout
+  class Layout
 
-    attr :fill
+    # Draws a horizonal line.
+    class Line < Layout
 
-    def initialize(fill='-')
-      @fill = '-'
-    end
+      attr :fill
 
-    def to_s
-      fill * screen_width
+      def initialize(fill='-')
+        @fill = '-'
+      end
+
+      def to_s
+        fill * screen_width
+      end
+
     end
 
   end

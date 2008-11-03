@@ -44,7 +44,11 @@ module Clio
       end
 
       def to_s
-        "<#{name}>"
+        if name.upcase == type
+          "<#{name}>"
+        else
+          "<#{name}:#{type}>"
+        end
       end
 
       def inspect

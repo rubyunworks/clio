@@ -2,26 +2,30 @@ require 'clio/layout'
 
 module Clio
 
-  ### List of items.
-  class List < Layout
+  class Layout
 
-    attr :items
+    # List of items.
+    class List < Layout
 
-    def initialize(*items)
-      options = Hash===items.last ? items.pop : {}
+      attr :items
 
-      @items  = items
-      @mark   = options[:mark]
-    end
+      def initialize(*items)
+        options = Hash===items.last ? items.pop : {}
 
-    def to_s
-      s = [""]
-      n = (items.size / 10).to_i + 1
-      items.each_with_index do |item, index|
-        s << "%#{n}s. %s" % [index+1, item]
+        @items  = items
+        @mark   = options[:mark]
       end
-      s << ""
-      s.join("\n")
+
+      def to_s
+        s = [""]
+        n = (items.size / 10).to_i + 1
+        items.each_with_index do |item, index|
+          s << "%#{n}s. %s" % [index+1, item]
+        end
+        s << ""
+        s.join("\n")
+      end
+
     end
 
   end

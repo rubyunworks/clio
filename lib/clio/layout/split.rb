@@ -1,100 +1,105 @@
 require 'clio/consoleutils'
+require 'clio/layout'
 
 module Clio
 
-  # TODO: name LeftRight instead?
-  class Split
+  class Layout
 
-    PAD   = ''
-    FILL  = ' '
-    RATIO = 0.8
+    # TODO: name LeftRight instead?
+    class Split < Layout
 
-    attr_accessor :left
+      PAD   = ''
+      FILL  = ' '
+      RATIO = 0.8
 
-    attr_accessor :right
+      attr_accessor :left
 
-    attr_accessor :fill
+      attr_accessor :right
 
-    attr_accessor :ratio
+      attr_accessor :fill
 
-    attr_accessor :pad
+      attr_accessor :ratio
 
-    ###
-    def initialize(left, right, options={})
-      @left    = left
-      @right   = right
+      attr_accessor :pad
 
-      @fill    = FILL
-      @ratio   = RATIO
-      @pad     = PAD
+      ###
+      def initialize(left, right, options={})
+        @left    = left
+        @right   = right
 
-      options.each do |k,v|
-        send("#{k}=",v) if respond_to?("#{k}=")
+        @fill    = FILL
+        @ratio   = RATIO
+        @pad     = PAD
+
+        options.each do |k,v|
+          send("#{k}=",v) if respond_to?("#{k}=")
+        end
       end
-    end
 
-    def print
-      print_justified(@left, @right)
-    end
-
-    def ratio=(value)
-      if value < 0
-        @ratio = 1 + value
-      else
-        @ratio = value
+      def print
+        print_justified(@left, @right)
       end
-    end
 
-    def fill=(letter)
-      case letter
-      when '', nil
-        letter = ' '
-      else
-        letter = letter[0,1]
+      def ratio=(value)
+        if value < 0
+          @ratio = 1 + value
+        else
+          @ratio = value
+        end
       end
-      @fill = letter
-    end
 
-    def to_s
-      print_justified(left, right)
-    end
+      def fill=(letter)
+        case letter
+        when '', nil
+          letter = ' '
+        else
+          letter = letter[0,1]
+        end
+        @fill = letter
+      end
 
-  private
+      def to_s
+        print_justified(left, right)
+      end
 
-    # Print a justified line with left and right entries.
-    #
-    # A fill option can be given to fill in any empty space
-    # between the two. And a ratio option can be given which defaults
-    # to 0.8 (eg. 80/20)
-    #
-    def print_justified(left, rite)
-      left_size = left.size
-      rite_size = rite.size
+    private
 
-      left = left.to_s
-      rite = rite.to_s
+      # Print a justified line with left and right entries.
+      #
+      # A fill option can be given to fill in any empty space
+      # between the two. And a ratio option can be given which defaults
+      # to 0.8 (eg. 80/20)
+      #
+      def print_justified(left, rite)
+        left_size = left.size
+        rite_size = rite.size
 
-      width = screen_width
+        left = left.to_s
+        rite = rite.to_s
 
-      l = (width * ratio).to_i
-      r = width - l
+        width = screen_width
 
-      left = left[0,l]
-      rite = rite[0,r]
+        l = (width * ratio).to_i
+        r = width - l
 
-      str = fill * width
+        left = left[0,l]
+        rite = rite[0,r]
 
-      str[0,pad.size] = pad
-      str[pad.size,left_size] = left
-      str[-(pad.size+rite_size), rite_size] = rite
-      str[-pad.size, pad.size] = pad
+        str = fill * width
 
-      Kernel.print(str)
-    end
+        str[0,pad.size] = pad
+        str[pad.size,left_size] = left
+        str[-(pad.size+rite_size), rite_size] = rite
+        str[-pad.size, pad.size] = pad
 
-    ###
-    def screen_width
-      @screen_width ||= Terminal.screen_width
+        Kernel.print(str)
+      end
+
+      ###
+      def screen_width
+        @screen_width ||= Terminal.screen_width
+      end
+
     end
 
   end

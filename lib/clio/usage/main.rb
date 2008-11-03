@@ -71,33 +71,6 @@ module Clio
       end
 =end
 
-      # Help text.
-      #
-      def to_s_help
-        s = []
-        s << "USAGE"
-        s << "  " + to_s
-        unless help.empty?
-          s << help
-          s << ''
-        end
-        unless commands.empty?
-          s << ''
-          s << 'COMMANDS'
-          s.concat(commands.collect{ |x| "  %-20s %s" % [x.key, x.help] }.sort)
-        end
-        unless arguments.empty?
-          s << ''
-          s << "ARGUMENTS"
-          s.concat(arguments.collect{ |x| "  %-20s %s" % [x, x.help] })
-        end
-        unless options.empty?
-          s << ''
-          s << 'OPTIONS'
-          s.concat(options.collect{ |x| "  %-20s %s" % [[x.key, *x.aliases].join(' '), x.help] })
-        end
-        s.flatten.join("\n")
-      end
 
       def parse(argv)
         Parser.new(self, argv).parse #(argv)

@@ -2,7 +2,7 @@ require 'clio/errors'
 
 module Clio
 
-  # = Commandable mixin
+  # = Commandable Mixin
   #
   # The Commandable mixin is a very quick and and easy
   # way to make almost any class usable via a command
@@ -50,7 +50,7 @@ module Clio
     # This is the fallback subcommand. Override this to provide
     # a fallback when no command is given on the commandline.
     def command_missing
-      raise NoMethodError
+      raise NoCommandError
     end
 
     # Override option_missing if needed.

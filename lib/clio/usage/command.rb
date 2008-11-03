@@ -5,14 +5,19 @@ module Clio
 
   module Usage
 
-    # = Commandline Command
+    # = Commandline Usage Command
     #
-    # Commands cannot have both arguments and subcommands. While it is technically
-    # parsable (an older version of Commandline allowed it), when using a command
-    # it proves too easy to accidently omit an argument and have a subcommand take
-    # its place, causing erroneous behavior. I looked through a number of other
-    # commandline tools and never once found a case of subcommands following arguments,
-    # so it was decided to purposely limit Commandline in this fashion.
+    # This is the primary Usage class; subclassed by Main and
+    # containing together Options and Arguments.
+    #
+    # Commands cannot have both arguments and subcommands. While
+    # it is technically parsable (an older version of Commandline
+    # allowed it), when using a command it proves too easy to
+    # accidently omit an argument and have a subcommand take
+    # its place, causing erroneous behavior. I looked through
+    # a number of other commandline tools and never once found a
+    # case of subcommands following arguments, so it was decided
+    # to purposely limit Commandline in this fashion.
     #
     class Command
       attr :parent
@@ -37,20 +42,32 @@ module Clio
         instance_eval(&block) if block
       end
 
-      def key
-        @name
+      def key ; @name.to_sym ; end
+
+      # METHOD MISSING
+      #-------------------------------------------------------------
+
+      def method_missing(name, *args, &blk)
+        name = name.to_s
+        case name
+        when /\?$/
+          option(name.chomp('?'), *args, &blk)
+        else
+          c = command(name, &blk)
+          args.each{ |a| c[a] }
+          c
+        end
       end
 
-=begin
-      def inspect
-        s  = "#{@key}"
-        s << " #{@options.inspect}" unless @options.empty?
-        s << " #{@commands.inspect}" unless @commands.empty?
-        s << " #{@arguments.inspect}" unless @arguments.empty?
-        s << ""
-        s
+      def help!(*args)
+        Hash[*args].each do |key, desc|
+          self[key, desc]
+        end
       end
-=end
+
+
+      # LONGHAND NOTATION
+      #-------------------------------------------------------------
 
       # Define a command.
       #
@@ -86,7 +103,7 @@ module Clio
 
       # A switch is like an option, but it is greedy.
       # When parsed it will pick-up any match subsequent
-      # the switch's parent command. In other words, 
+      # the switch's parent command. In other words,
       # switches are consumed by a command even if they
       # appear in a subcommand's arguments.
       #
@@ -99,7 +116,7 @@ module Clio
           @switches << opt
         end
         opt.instance_eval(&block) if block
-        opt       
+        opt
       end
 
       # Define an argument.
@@ -117,7 +134,7 @@ module Clio
           index, type = n1, n2
         else
           type  = n1
-          index = n2 || (@arguments.size + 1)
+          index = @arguments.size + 1
         end
         index = index - 1
 
@@ -141,17 +158,23 @@ module Clio
         @help
       end
 
-      #
-      def completion
-        if commands.empty?
-          arguments.collect{|c| c.key}
-        else
-          commands.collect{|c| c.name}
-        end
-      end
-
       # SHORTHAND NOTATION
       #-------------------------------------------------------------
+
+      # Super shorthand notation.
+      #
+      #   cli['document']['--output=FILE -o']['<files>']
+      #
+      def [](*x)
+        case x[0].to_s[0,1]
+        when '-'
+          opt(*x)
+        when '<'
+          arg(*x)
+        else
+          cmd(*x)
+        end
+      end
 
       # Command shorthand.
       #
@@ -205,12 +228,21 @@ module Clio
       #
       #   arg('PIN', 'pin number')
       #
-      # or
+      def arg(type=nil, help=nil)
+        type = type.to_s.sub(/^\</,'').chomp('>')
+        argument(type).help(help)
+      end
+
+      # QUERY METHODS
+      #-------------------------------------------------------------
+
       #
-      #   arg(1, 'PIN', 'pin number')
-      #
-      def arg(slot, type=nil, help=nil)
-        argument(slot, type).help(help)
+      def completion
+        if commands.empty?
+          arguments.collect{|c| c.key}
+        else
+          commands.collect{|c| c.name}
+        end
       end
 
       # Option defined?
@@ -231,19 +263,47 @@ module Clio
       end
 
       #
-      def ===(other)
-        name == other.to_s
+      def ===(other_name)
+        name == other_name.to_s
+      end
+
+      #
+      def inspect
+        s = ''
+        s << "#<#{self.class}:#{object_id} #{@name} "
+        s << "@arguments=#{@arguments.inspect} " unless @arguments.empty?
+        s << "@options=#{@options.inspect} "     unless @options.empty?
+        s << "@switches=#{@switches.inspect} "   unless @switches.empty?
+        s << "@help=#{@help.inspect}"            unless @help.empty?
+        #s << "@commands=#{@commands.inspect} "  unless @commands.empty?
+        s
+      end
+
+      # Full callable command name.
+      def full_name
+        if parent
+          "#{parent.full_name} #{name}"
+        else
+          "#{name}"
+        end
       end
 
       # Usage text.
       #
       def to_s
+        #s = [full_name]
         s = [name]
-        #@aliases.each do |a|
-        #  s << a #.key
-        #end
-        s.concat(options.collect{ |o| "[#{o}]" })
+
+        case options.size
+        when 0
+        when 1, 2, 3
+          s.concat(options.collect{ |o| "[#{o.to_s.strip}]" })
+        else
+          s << "[switches]"
+        end
+# switches? vs. options
         s << arguments.join(' ') unless arguments.empty?
+
         case commands.size
         when 0
         when 1
@@ -251,13 +311,44 @@ module Clio
         when 2, 3
           s << '[' + commands.join(' | ') + ']'
         else
-          s << 'COMMAND'
+          s << 'command'
         end
+
         s.flatten.join(' ')
       end
 
-      #---------------------------------
+      # Help text.
+      #
+      def to_s_help
+        s = []
+        unless help.empty?
+          s << help
+          s << ''
+        end
+        s << "Usage:"
+        s << "  " + to_s
+        unless commands.empty?
+          s << ''
+          s << 'Commands:'
+          s.concat(commands.collect{ |x| "  %-20s %s" % [x.key, x.help] }.sort)
+        end
+        unless arguments.empty?
+          s << ''
+          s << "Arguments:"
+          s.concat(arguments.collect{ |x| "  %-20s %s" % [x, x.help] })
+        end
+        unless options.empty?
+          s << ''
+          s << 'Switches:'
+          s.concat(options.collect{ |x| "  %-20s %s" % [x, x.help] })
+        end
+        s.flatten.join("\n")
+      end
 
+      # PARSE
+      #-------------------------------------------------------------
+
+      # Parse usage.
       def parse(argv, index=0)
         @parser ||= Parser.new(self, argv, index)
         @parser.parse
@@ -280,9 +371,9 @@ module Clio
         return key.chomp('?').to_sym
       end
 
-    end
+    end #class Command
 
-  end #class
+  end #module Usage
 
 end #module Clio
 

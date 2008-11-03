@@ -1,12 +1,17 @@
+require 'clio/layout'
+
 module Clio
 
-  class Stack < Layout
+  class Layout
 
-    def initialize(&block)
-      instance_eval(&block)
+    class Stack < Layout
+
+      def initialize(&block)
+        instance_eval(&block)
+      end
+
     end
 
   end
 
 end
-
