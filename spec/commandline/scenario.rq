@@ -3,12 +3,12 @@ Commandline Parses Correctly
 
 Load commandline library.
 
-    require 'clio/command'
+    require 'clio/commandline'
 
 Create a new command line object.
 
     $0 = 'c0'
-    @cli = Clio::Command.new('--o0 c1 --o1 c2 --o2 a b c')
+    @cli = Clio::Commandline.new('--o0 c1 --o1 c2 --o2 a b c')
 
 Specify usage for comamndline.
 
@@ -80,4 +80,3 @@ There are no more signatures after the second.
     @cli[3].assert == nil
 
 QED.
-

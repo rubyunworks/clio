@@ -2,8 +2,9 @@ require 'clio/usage/command'
 
 module Clio
 
-  module Usage
+  module Usage #:nodoc:
 
+    # = Main
     #
     # Main specifies the toplevel "Command".
     #
@@ -21,20 +22,17 @@ module Clio
       #   command('remote')
       #   command('remote','add')
       #
-      def command(*names, &block)
-        names = names.collect{ |n| n.to_s.strip.to_sym }
-        name, *names = *names
-        cmd = @commands.find{|c| c === name}
-        unless cmd
-          cmd = super(name)
-          #@commands << cmd
-        end
-        names.each do |n|
-          cmd = cmd.command(n)
-        end
-        cmd.instance_eval(&block) if block
-        cmd
-      end
+      #def command(name, &block)
+      #  raise "Command cannot have both arguments and subcommands (eg. #{name})." unless arguments.empty?
+      #  key = name.to_s.strip
+      #  if cmd = @commands.find{|c| c === key}
+      #  else
+      #    cmd = Command.new(key, self)
+      #    @commands << cmd
+      #  end
+      #  cmd.instance_eval(&block) if block
+      #  cmd
+      #end
 
 =begin
       #alias_method :[], :command
@@ -71,6 +69,64 @@ module Clio
       end
 =end
 
+=begin
+      # Usage text.
+      #
+      def to_s
+        #s = [full_name]
+        s = [name]
+
+        case options.size
+        when 0
+        when 1, 2, 3
+          s.concat(options.collect{ |o| "[#{o.to_s.strip}]" })
+        else
+          s << "[switches]"
+        end
+# switches? vs. options
+        s << arguments.join(' ') unless arguments.empty?
+
+        case commands.size
+        when 0
+        when 1
+          s << commands.join('')
+        when 2, 3
+          s << '[' + commands.join(' | ') + ']'
+        else
+          s << 'command'
+        end
+
+        s.flatten.join(' ')
+      end
+
+      # Help text.
+      #
+      def to_s_help
+        s = []
+        unless help.empty?
+          s << help
+          s << ''
+        end
+        s << "Usage:"
+        s << "  " + to_s
+        unless commands.empty?
+          s << ''
+          s << 'Commands:'
+          s.concat(commands.collect{ |x| "  %-20s %s" % [x.key, x.help] }.sort)
+        end
+        unless arguments.empty?
+          s << ''
+          s << "Arguments:"
+          s.concat(arguments.collect{ |x| "  %-20s %s" % [x, x.help] })
+        end
+        unless options.empty?
+          s << ''
+          s << 'Switches:'
+          s.concat(options.collect{ |x| "  %-20s %s" % [x, x.help] })
+        end
+        s.flatten.join("\n")
+      end
+=end
 
       def parse(argv)
         Parser.new(self, argv).parse #(argv)
@@ -86,7 +142,7 @@ module Clio
     private
 
       # TODO: Use XDG
-      
+
       def cache_file
         File.join(File.expand_path('~'), '.cache', 'clio', "#{name}.yaml")
       end

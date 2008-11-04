@@ -1,6 +1,6 @@
 module Clio
 
-  module Usage
+  module Usage #:nodoc:
 
     # = Commandline Option
     #
@@ -28,7 +28,7 @@ module Clio
       # Is the option greedy (true/false)? A greedy
       # option is one that is parsed from the
       # commandline no matter where it appears.
-      attr_accessor :greedy
+      #attr_accessor :greedy
 
       # Help text for this option.
       attr :help
@@ -40,7 +40,7 @@ module Clio
         @aliases   = []
         @arguments = []
         @multiple  = false
-        @greedy    = false
+        #@greedy    = false
         @excludes  = []
         @help      = ''
         instance_eval(&block) if block
@@ -56,17 +56,18 @@ module Clio
       def multiple? ; @multiple ; end
 
       # Is this option greedy?
-      def greedy?   ; @greedy   ; end
+      #def greedy?   ; @greedy   ; end
 
       #
       def inspect
-        s  = "[--#{key}"
-        s << "*" if multiple
-        s << arguments.join(',') unless arguments.empty?
-        s << aliases.join(' ') unless aliases.empty?
-        #s << " @excludes=#{@excludes.inspect}" unless @excludes.empty?
-        s << "]"
-        s
+        to_s
+        #s  = "[--#{key}"
+        #s << "*" if multiple
+        #s << "=" + arguments.join(',') unless arguments.empty?
+        #s << " " + aliases.collect{ |a| "-#{a}" } unless aliases.empty?
+        ##s << " @excludes=#{@excludes.inspect}" unless @excludes.empty?
+        #s << "]"
+        #s
       end
 
       # Is this option a boolean flag?
@@ -129,12 +130,12 @@ module Clio
 
       #
       def to_s
-        tiny = @aliases.select do |a|
+        tiny = aliases.select do |a|
           a.to_s.size == 1
         end
         tiny.unshift(name) if name.size == 1
 
-        long = @aliases.select do |a|
+        long = aliases.select do |a|
           a.to_s.size > 1
         end
         long.unshift(name) if name.size > 1
@@ -146,6 +147,10 @@ module Clio
           opts = [ '  ', *long ]
         else
           opts = tiny + long
+        end
+
+        unless arguments.empty?
+          opts.last << "=" + arguments.join(',')
         end
 
         opts.join(' ')

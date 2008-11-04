@@ -4,7 +4,7 @@ require 'clio/usage/interface'
 
 module Clio
 
-  module Usage
+  module Usage #:nodoc:
 
     # = Parser
     #
@@ -73,9 +73,9 @@ module Clio
         arguments  = []
         command    = nil
 
-        greedy = parse_greedy(usage, argv)
+        #greedy = parse_greedy(usage, argv)
 
-        options.update(greedy)
+        #options.update(greedy)
 
         until argv.empty?
           use, val = parse_option(usage, argv)
@@ -94,8 +94,8 @@ module Clio
 #p "arg: #{arg}"
             arguments << arg
           else
+            break if argv.empty?
             arg = argv.shift
-#p "cmd: #{arg}"
             use = usage.commands.find{|c| c === arg}
             if use
               parse_command(use, argv)
@@ -106,11 +106,12 @@ module Clio
               break
             end
           end
-        end      
+        end
         @signatures.unshift(Signature.new(usage.key, arguments, options))
       end
 
-      # Parse greedy options. This function loops thru ARGV and 
+=begin
+      # Parse greedy options. This function loops thru ARGV and
       # removes any matching greedy options.
       def parse_greedy(usage, argv)
         options = {}
@@ -140,6 +141,7 @@ module Clio
         argv.compact!
         return options
       end
+=end
 
       #
       def parse_option(usage, argv)

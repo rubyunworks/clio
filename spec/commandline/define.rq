@@ -25,15 +25,20 @@ We can define a toplevel switch using #switch.
 Switches can have aliases.
 
     @cmd.usage.switch(:verbose, :v)
-    @cmd.to_s.assert == 'test [--verbose -v]'
+    @cmd.to_s.assert == 'test [-v --verbose] foo'
+
+There can be mulitple subcommands.
+
+    @cmd.usage.command('foo', 'bar')
+    @cmd.to_s.assert == 'test [-v --verbose] foo bar'
 
 Let's bring it all together in one example.
 
-    cmd = Clio::Command.new
+    cmd = Clio::Commandline.new
     cmd.usage.switch(:verbose, :v)
     cmd.usage.switch(:force, :f)
     cmd.usage.command('foo')
     cmd.usage.command('bar')
-    cmd.to_s.assert == 'test [--verbose -v] [--force -f] (foo | bar)'
+    cmd.to_s.assert == 'test [-v --verbose] [-f --force] [foo | bar]'
 
 QED.

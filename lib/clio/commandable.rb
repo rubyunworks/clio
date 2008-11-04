@@ -40,6 +40,8 @@ module Clio
   # Commandable also defines #command_missing and #option_missing,
   # which you can override to provide suitable results.
   #
+  # TODO: Maybe command_missing is redundant, and method_missing would suffice?
+  #
   module Commandable
 
     # Used to invoke the command.
@@ -62,88 +64,88 @@ module Clio
       raise NoOptionError, opt
     end
 
-  class << self
+    class << self
 
-    def run(obj, argv=ARGV)
-      args = parse(obj, argv)
-      subcmd = args.shift
-      if subcmd && !obj.respond_to?("#{subcmd}=")
-        obj.send(subcmd, *args)
-      else
-        obj.command_missing
-      end
-    end
-
-    #def run(obj)
-    #  methname, args = *parse(obj)
-    #  meth = obj.method(methname)
-    #  meth.call(*args)
-    #end
-
-    #
-    def parse(obj, argv)
-      case argv
-      when String
-        require 'shellwords'
-        argv = Shellwords.shellwords(argv)
-      else
-        argv = argv.dup
-      end
-
-      argv = argv.dup
-      args, opts, i = [], {}, 0
-      while argv.size > 0
-        case opt = argv.shift
-        when /=/
-          parse_equal(obj, opt, argv)
-        when /^--/
-          parse_option(obj, opt, argv)
-        when /^-/
-          parse_flags(obj, opt, argv)
+      def run(obj, argv=ARGV)
+        args = parse(obj, argv)
+        subcmd = args.shift
+        if subcmd && !obj.respond_to?("#{subcmd}=")
+          obj.send(subcmd, *args)
         else
-          args << opt
+          obj.command_missing
         end
       end
-      return args
-    end
 
-    #
-    def parse_equal(obj, opt, argv)
-      if md = /^[-]*(.*?)=(.*?)$/.match(opt)
-        x, v = md[1], md[2]
-      else
-        raise ArgumentError, "#{x}"
-      end
-      if obj.respond_to?("#{x}=")
-        # TODO: to_b if 'true' or 'false' ?
-        obj.send("#{x}=",v)
-      else
-        obj.option_missing(x, v) # argv?
-      end
-    end
+      #def run(obj)
+      #  methname, args = *parse(obj)
+      #  meth = obj.method(methname)
+      #  meth.call(*args)
+      #end
 
-    #
-    def parse_option(obj, opt, argv)
-      x = opt[2..-1]
-      if obj.respond_to?("#{x}=")
-        obj.send("#{x}=",true)
-      else
-        obj.option_missing(x, argv)
-      end
-    end
+      #
+      def parse(obj, argv)
+        case argv
+        when String
+          require 'shellwords'
+          argv = Shellwords.shellwords(argv)
+        else
+          argv = argv.dup
+        end
 
-    #
-    def parse_flags(obj, opt, args)
-      x = opt[1..-1]
-      c = 0
-      x.split(//).each do |k|
-        if obj.respond_to?("#{k}=")
-          obj.send("#{k}=",true)
+        argv = argv.dup
+        args, opts, i = [], {}, 0
+        while argv.size > 0
+          case opt = argv.shift
+          when /=/
+            parse_equal(obj, opt, argv)
+          when /^--/
+            parse_option(obj, opt, argv)
+          when /^-/
+            parse_flags(obj, opt, argv)
+          else
+            args << opt
+          end
+        end
+        return args
+      end
+
+      #
+      def parse_equal(obj, opt, argv)
+        if md = /^[-]*(.*?)=(.*?)$/.match(opt)
+          x, v = md[1], md[2]
+        else
+          raise ArgumentError, "#{x}"
+        end
+        if obj.respond_to?("#{x}=")
+          # TODO: to_b if 'true' or 'false' ?
+          obj.send("#{x}=",v)
+        else
+          obj.option_missing(x, v) # argv?
+        end
+      end
+
+      #
+      def parse_option(obj, opt, argv)
+        x = opt[2..-1]
+        if obj.respond_to?("#{x}=")
+          obj.send("#{x}=",true)
         else
           obj.option_missing(x, argv)
         end
       end
-    end
+
+      #
+      def parse_flags(obj, opt, args)
+        x = opt[1..-1]
+        c = 0
+        x.split(//).each do |k|
+          if obj.respond_to?("#{k}=")
+            obj.send("#{k}=",true)
+          else
+            obj.option_missing(x, argv)
+          end
+        end
+      end
 
     end #class << self
 

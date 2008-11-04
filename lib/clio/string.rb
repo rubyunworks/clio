@@ -7,7 +7,16 @@ module Clio
     String.new(str)
   end
 
-  ###
+  # Clio Strings stores a regular string (@text) and
+  # a Hash mapping character index to ansicodes (@marks).
+  # For example is we has the string:
+  #
+  #   "Big Apple"
+  #
+  # And applied the color red to it, the marks hash would be:
+  #
+  #   { 0=>[:red] , 9=>[:clear] }
+  #
   class String
 
     attr :text
@@ -72,7 +81,7 @@ module Clio
     end
 
     def lr(other, options={})
-      Split(self, other, options)
+      Split.new(self, other, options)
     end
 
     ### slice
@@ -107,58 +116,37 @@ module Clio
 
     alias_method :[], :slice
 
-  end
+    # TODO: block support and \1, \2 support.
+    def sub(pattern,replacement)
+      if md = pattern.match(@text)
+        delta  = replacement.size - md.size
+        marks2 = shift_marks(md.end, delta)
+        text2  = text.sub(pattern,replacement)
+        self.class.new(text2, marks2)
+      else
+        self.class.new(text, marks)
+      end
+    end
 
-end
+    #
+    def gsub
+    end
 
+  private
 
-__END__
+    def shift_marks(index, delta)
+      new_marks = {}
+      marks.each do |i, v|
+        case i <=> index
+        when 0, -1
+          new_marks[i] = v
+        when 1
+          new_marks[i+delta] = v
+        end
+      end
+      new_marks
+    end
 
-
-require 'quarry/spec'
-
-Quarry.spec "Clio::String" do
-
-  s1 = "Hi how are you."
-  s2 = "Fine thanks."
-
-  c1 = Clio.string("Hi how are you.")
-  c2 = Clio.string("Fine thanks.")
-
-  verify "color" do
-    r = c1.color(:red)
-    e = Clio::ANSICode.red(s1)
-    e.assert == r.to_s
-  end
-
-  verify "non-in-place delegation" do
-    r = c1.upcase
-    e = s1.upcase
-    e.assert == r.to_s
-  end
-
-  verify "string addition" do
-    r = c1 + c2
-    e = s1 + s2
-    e.assert == r.to_s
-  end
-
-  verify "string single index" do
-    r = c1[0]
-    e = s1[0,1]
-    e.assert == r.to_s
-  end
-
-  verify "string size index" do
-    r = c1[0,3]
-    e = s1[0,3]
-    e.assert == r.to_s
-  end
-
-  verify "string range index" do
-    r = c1[0..3]
-    e = s1[0..3]
-    e.assert == r.to_s
   end
 
 end

@@ -1,6 +1,6 @@
 module Clio
 
-  module Usage
+  module Usage #:nodoc:
 
     # = Command Signature
     #

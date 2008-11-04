@@ -24,7 +24,7 @@ module Clio
       # TODO: Join by what character?
       def command
         return nil if commands.empty?
-        return commands.join('/')
+        return commands.join(' ')
       end
 
       #
@@ -33,11 +33,11 @@ module Clio
         @commands ||= (
           a = []
           @signatures[1..-1].each do |s|
-            a << s.command
+            a << s.command.to_s
           end
           a
         )
-      end        
+      end
 
       #
       def options

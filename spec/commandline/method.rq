@@ -33,15 +33,15 @@ and arguments.
 
     cmd = Clio::Commandline.new
     cmd.usage.doc('--output=PATH')
-    cmd.to_s.assert == 'test doc [--output]'
-    cmd.usage.doc.to_s.assert == 'doc [--output]'
+    cmd.to_s.assert == 'test doc [--output=PATH]'
+    cmd.usage.doc.to_s.assert == 'doc [--output=PATH]'
 
 An option and a subcommand parsed statically.
 
     cmd = Clio::Commandline.new
     cmd.usage.doc('--output=PATH')
     cmd.usage.verbose?(:v)
-    cmd.to_s.assert == 'test [-v --verbose] doc [--output]'
+    cmd.to_s.assert == 'test [-v --verbose] doc [--output=PATH]'
 
 We can define help for these commands and options using
 a seaprate help! call.
