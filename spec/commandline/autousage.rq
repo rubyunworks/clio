@@ -3,6 +3,7 @@
 Require Commandline library.
 
     require 'clio/commandline'
+    $0 = 'test'
 
 Handles a toplevel option using method_missing.
 
@@ -13,61 +14,31 @@ Handles a toplevel option using method_missing.
 Handles a toplevel option with aliases using method_missing.
 
     cli = Clio::Commandline.new('--verbose')
-    cli.verbose?(:V)
-    cli.to_s.assert == 'test [--verbose -V]'
+    cli.verbose?(:v)
+    cli.to_s.assert == 'test [-v --verbose]'
 
 Returns a toplevel option value"
 
     cli = Clio::Commandline.new('--verbose')
-    cli.verbose?(:V).assert == true
-
-Require commandline library.
-
-  require 'clio/command'
+    cli.verbose?(:v).assert == true
 
 Create new commandline object.
 
-    $0 = 'test'
-    cmd = Clio::Command.new('--verbose')
+    cmd = Clio::Commandline.new('--verbose')
     cmd.usage.command('foo')
     cmd.parse
 
-Handles a command definition using #command.
-
-    @cmd.usage.command('foo')
-    @cmd.to_s.assert == 'test foo'
-
-#it "handles a command definition using #[]" do
-#  @cmd.usage['foo']
-#  @cmd.to_s.assert == 'test foo'
-#end
-
-Handles a toplevel switch option using #option.
-
-    @cmd.usage.option('verbose?')
-    @cmd.to_s.assert == 'test [--verbose] foo'
-
-Handles a toplevel switch option with aliases using #option.
-
-    cmd = Clio::Command.new('--verbose')
-    cmd.usage.option(:verbose?, :V)
-    cmd.to_s.assert == 'test [--verbose -V]'
-
-
-Single Character Option
------------------------
+== Single Character Option
 
 Create new Commandline object.
 
-    @cmd = Clio::Command.new('-V')
+    @cmd = Clio::Commandline.new('-V')
 
 Returns a toplevel option value.
 
     @cmd.verbose?(:V).assert == true
 
-
-Option Literal Shorthand
-------------------------
+== Option Literal Shorthand
 
 An option and a subcommand parsed statically.
 
