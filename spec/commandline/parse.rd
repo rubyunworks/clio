@@ -58,7 +58,7 @@ Multiple subcommands.
 
   cmd = Clio::Commandline.new
   cmd.usage.command('foo').option('verbose')
-  cmd.usage.command('foo', 'bar')
+  cmd.usage.command('foo bar')
   cmd.parse('foo bar --verbose')
 
   cmd.command.assert == 'foo bar'

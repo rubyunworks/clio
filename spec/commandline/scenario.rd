@@ -1,5 +1,4 @@
-Commandline Parses Correctly
-============================
+= Commandline Parses Correctly
 
 Load commandline library.
 
@@ -14,10 +13,10 @@ Specify usage for comamndline.
 
     @cli.usage.option('o0')
     @cli.usage.command('c1').option('o1')
-    @cli.usage.command('c1','c2').option('o2')
-    @cli.usage.command('c1','c2').argument('a')
-    @cli.usage.command('c1','c2').argument('b')
-    @cli.usage.command('c1','c2').argument('c')
+    @cli.usage.command('c1 c2').option('o2')
+    @cli.usage.command('c1 c2').argument('a')
+    @cli.usage.command('c1 c2').argument('b')
+    @cli.usage.command('c1 c2').argument('c')
 
     #@cli.usage.option('o0')
     #@cliusage.argument('a0')

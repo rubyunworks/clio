@@ -42,7 +42,7 @@ An option and a subcommand parsed statically.
     cmd.usage['--verbose -v']
     cmd.usage['doc']['--output=PATH']
     cmd.usage['doc']['<file>']
-    cmd.to_s.assert == 'test [-v --verbose] doc [--output=<PATH>] <file>'
+    cmd.to_s.assert == 'test [-v --verbose] doc [--output=PATH] <file>'
 
 We can define help for these commands and options using
 a seaprate help! call.

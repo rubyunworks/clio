@@ -1,5 +1,4 @@
-Commandline Tab Completion
-==========================
+= Commandline Tab Completion
 
 Load commandline library.
 
@@ -13,11 +12,11 @@ Create a new command line object.
 Specify usage for comamndline.
 
   @cli.usage.option('o0')
-  @cli.usage.command('c1').opt('--o1=TYPE')
-  @cli.usage.command('c1','c2').option('o2')
-  @cli.usage.command('c1','c2').argument('a')
-  @cli.usage.command('c1','c2').argument('b')
-  @cli.usage.command('c1','c2').argument('c')
+  @cli.usage.command('c1').opt('--o1=TYPE -o')
+  @cli.usage.command('c1 c2').option('o2')
+  @cli.usage.command('c1 c2').argument('a')
+  @cli.usage.command('c1 c2').argument('b')
+  @cli.usage.command('c1 c2').argument('c')
 
 First lets make sure it parses okay.
 
@@ -26,7 +25,7 @@ First lets make sure it parses okay.
 Now let try some tab completion. First a command.
 
   #@cli.parse('c1 -')
-  @cli.completion('c1').assert == ['c2']
+  @cli.completion('c1').assert == ['-o --o1=TYPE', 'c2']
 
 Now an option.
 

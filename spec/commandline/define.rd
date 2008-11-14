@@ -29,7 +29,7 @@ Switches can have aliases.
 
 There can be mulitple subcommands.
 
-    @cmd.usage.command('foo', 'bar')
+    @cmd.usage.command('foo bar')
     @cmd.to_s.assert == 'test [-v --verbose] foo bar'
 
 Let's bring it all together in one example.

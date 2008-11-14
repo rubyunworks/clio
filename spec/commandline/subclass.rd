@@ -1,22 +1,28 @@
-Test Subclass of Subclass of Command
-====================================
+= Test Subclass of Subclass of Command
 
-Require clio/command.rb.
+Require clio/commandline.rb.
 
-  require 'clio/command'
+  require 'clio/commandline'
   $0 = 'c0'
 
-Create new subclass of Clio::Command.
+Create new subclass of Clio::Commandline.
 
-  cmd_super = Class.new(Clio::Command) do
+  @cmd_super = Class.new(Clio::Commandline) do
     option('o0')
     command('c1').option('o1')
-    command('c1','c2').option('o2')
-    command('c1','c2').argument('a')
-    command('c1','c2').argument('b')
-    command('c1','c2').argument('c')
+    command('c1 c2').option('o2')
+    command('c1 c2').argument('a')
+    command('c1 c2').argument('b')
+    command('c1 c2').argument('c')
   end
-  @cmd = Class.new(cmd_super)
+
+Superclass command display usage string.
+
+  @cmd_super.usage.to_s.assert == 'c0 [--o0] c1 [--o1] c2 [--o2] <a> <b> <c>'
+
+Subclass again.
+
+  @cmd = Class.new(@cmd_super)
 
 Command display usage string.
 
