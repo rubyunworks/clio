@@ -1,5 +1,6 @@
 require 'clio/ansicode'
 require 'clio/layout/split'
+require 'clio/facets/string'
 
 module Clio
 
