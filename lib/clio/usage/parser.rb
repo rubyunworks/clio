@@ -19,7 +19,7 @@ module Clio
       #
       def initialize(usage, argv) #, index=0)
         # convert to array if argv string
-        if String===argv
+        if ::String===argv
           argv = Shellwords.shellwords(argv)
         else
           argv = argv.dup
