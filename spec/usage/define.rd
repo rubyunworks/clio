@@ -31,15 +31,15 @@ Handles a toplevel switch/option using #option.
 Handles a toplevel switch/option with aliases using #option.
 
   usage = Clio::Usage.new
-  usage.option(:verbose?, :V)
-  usage.to_s.assert == 'test [--verbose -V]'
+  usage.option(:verbose?, :v)
+  usage.to_s.assert == 'test [-v --verbose]'
 
 An option and a subcommand.
 
   usage = Clio::Usage.new
-  usage.opt('--verbose -V')
+  usage.opt('--verbose -v')
   usage.command('foo')
-  usage.to_s.assert == 'test [--verbose -V] foo'
+  usage.to_s.assert == 'test [-v --verbose] foo'
 
 QED.
 
