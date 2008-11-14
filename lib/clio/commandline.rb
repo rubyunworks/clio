@@ -1,4 +1,4 @@
-require 'facets/kernel/deep_copy'
+require 'clio/facets/kernel' # for deep_copy
 require 'clio/usage'
 #require 'shellwords'
 
@@ -180,13 +180,22 @@ module Clio
 
     class << self
 
-      def self.inherited(subclass)
-        subclass.usage = usage.deep_copy
-      end
+      #def inherited(subclass)
+#p usage.to_s
+#p subclass.usage.to_s
+#        subclass.usage = self.usage.clone #deep_copy
+#p subclass.usage.to_s
+#      end
 
       # Command usage.
       def usage
-        @usage ||= Usage.new
+        @usage ||= (
+          if ancestors[1] < Commandline
+            ancestors[1].usage.dup
+          else
+            Usage.new
+          end
+        )
       end
 
       def usage=(u)
@@ -201,23 +210,27 @@ module Clio
       #    end
 
       #
-      def command(*names, &block)
-        usage.command(*names, &block)
+      def subcommand(name, help=nil, &block)
+        usage.subcommand(name, help, &block)
       end
+      alias_method :command, :subcommand
+      alias_method :cmd, :subcommand
 
       #
       def option(name, *aliases, &block)
         usage.option(name, *aliases, &block)
       end
+      alias_method :switch, :option
 
       #
-      def switch(name, *aliases, &block)
-        usage.switch(name, *aliases, &block)
+      def opt(label, help, &block)
+        usage.opt(label, help, &block)
       end
+      alias_method :swt, :opt
 
       #
-      def argument(name, &block)
-        usage.argument(name, &block)
+      def argument(*n_type, &block)
+        usage.argument(*n_type, &block)
       end
 
       #
@@ -226,24 +239,9 @@ module Clio
       end
 
       #
-      def cmd(label, help, &block)
-        usage.cmd(label, help, &block)
-      end
-
-      #
-      def opt(label, help, &block)
-        usage.opt(label, help, &block)
-      end
-
-      #
-      def swt(label, help, &block)
-        usage.swt(label, help, &block)
-      end
-
-      #
-      def arg(label, help, &block)
-        usage.arg(label, help, &block)
-      end
+      #def arg(label, help, &block)
+      #  usage.arg(label, help, &block)
+      #end
 
     end
 
@@ -255,7 +253,11 @@ module Clio
       #else
       #  #@usage = load_cache
       #end
-      @usage = self.class.usage.deep_copy
+      if self.class == Commandline
+        @usage = Usage.new
+      else
+        @usage = self.class.usage #|| Usage.new #.deep_copy
+      end
       @usage.instance_eval(&block) if block
     end
 
@@ -351,7 +353,7 @@ module Clio
     #
     def completion(argv=nil)
       argv_set(argv) if argv
-      @argv << '-'
+      @argv << "\t"
       parse
       @argv.pop
       parser.errors[0][1].completion.collect{ |s| s.to_s }

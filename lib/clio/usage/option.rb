@@ -7,7 +7,7 @@ module Clio
     class Option
 
       # Parent command.
-      attr :parent
+      #attr :parent
 
       # Option name.
       attr :name
@@ -34,16 +34,26 @@ module Clio
       attr :help
 
       # New Option.
-      def initialize(name, parent=nil, &block)
+      #def initialize(name, parent=nil, &block)
+      def initialize(name, &block)
         @name      = clean_name(name)
-        @parent    = parent
+        #@parent    = parent
         @aliases   = []
         @arguments = []
         @multiple  = false
         #@greedy    = false
-        @excludes  = []
+        @exclude   = []
         @help      = ''
         instance_eval(&block) if block
+      end
+
+      #
+      def initialize_copy(o)
+        @name    = o.name.dup
+        @aliases = o.aliases.dup
+        #@multiple = o.multiple
+        @exclude = o.exclude.dup
+        @help    = o.help.dup
       end
 
       # Same as +name+ but given as a symbol.
@@ -75,7 +85,7 @@ module Clio
 
       # Assign an argument to the option.
       def argument(name, &block)
-        arg = Argument.new(name, self)
+        arg = Argument.new(name) #, self)
         arg.instance_eval(&block) if block
         @arguments << arg
         arg
@@ -150,7 +160,8 @@ module Clio
         end
 
         unless arguments.empty?
-          opts.last << "=" + arguments.join(',')
+          args = arguments.collect{ |a| a.to_s.sub(/^[<]/,'').sub(/[>]$/,'') }
+          opts.last << "=" + args.join(',')
         end
 
         opts.join(' ')

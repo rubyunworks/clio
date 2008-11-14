@@ -5,18 +5,26 @@ module Clio
     # = Usage Argument
     #
     class Argument
-      attr :parent
+      #attr :parent
       attr :name
       attr :type
       attr :help
 
       # New Argument.
-      def initialize(name, parent=nil, &block)
+      #def initialize(name, parent=nil, &block)
+      def initialize(name, &block)
         @name      = name.to_s
-        @type      = key.to_s.upcase
-        @parent    = parent
+        @type      = name.upcase
+        #@parent    = parent
         @help      = ''
         instance_eval(&block) if block
+      end
+
+      #
+      def initialize_copy(o)
+        @name = o.name.dup
+        @type = o.type.dup
+        @help = o.help.dup
       end
 
       # Same as +name+ but given as a symbol.

@@ -13,27 +13,56 @@ module Clio
     #   usage = Usage.new
     #
     class Command
+
+      # Parent command. This is needed
+      # to support cascading options.
+      #--
+      # NOTE: If it were possible to have this it would be better.
+      #++
       attr :parent
 
+      # Name of the command.
       attr :name
 
+      # Array of subcommands.
       attr :subcommands
-      attr :options
+
+      # Array of arguments. Arguments and subcommands
+      # are mutually exclusive, ie. either @arguments
+      # or @subcommands will be empty.
+      #
+      # TODO: Could use single attribute for both subcommands
+      # and arguments and use a flag to designate which type.
       attr :arguments
 
+      # Array of options.
+      attr :options
+
+      # Help text.
       attr :help
 
+      # Widely accepted alternate term for options.
       alias_method :switches, :options
 
       #
       def initialize(name, parent=nil, &block)
-        @name       = name.to_s
-        @parent     = parent
-        @subcommands   = []
-        @options    = []
-        @arguments  = []
-        @help       = ''
+        @name        = name.to_s
+        @parent      = parent
+        @subcommands = []
+        @options     = []
+        @arguments   = []
+        @help        = ''
         instance_eval(&block) if block
+      end
+
+      #
+      def initialize_copy(c)
+        @parent      = c.parent
+        @name        = c.name.dup
+        @options     = c.options.dup
+        @arguments   = c.arguments.dup
+        @subcommands = c.subcommands.dup
+        @help        = c.help.dup
       end
 
       def key ; @name.to_sym ; end
@@ -54,6 +83,7 @@ module Clio
         end
       end
 
+      #
       def help!(*args)
         Hash[*args].each do |key, desc|
           self[key, desc]
@@ -92,6 +122,7 @@ module Clio
 
       alias_method :cmd, :subcommand
       alias_method :command, :subcommand
+
       alias_method :commands, :subcommands
 
       # Define an option.
@@ -101,7 +132,7 @@ module Clio
       def option(name, *aliases, &block)
         opt = options.find{|o| o === name}
         if not opt
-          opt = Option.new(name, self)
+          opt = Option.new(name) #, self)
           #opt.aliases(*aliases)
           @options << opt
         end
@@ -124,7 +155,7 @@ module Clio
           mult = true
           type = type[1..-1]
         end
-        name = clean_name(name)
+        name = option_name(name).to_sym
         o = option(name, *aliases)
         o.help(help) if help
         o.argument(type) if type
@@ -198,7 +229,7 @@ module Clio
           arg.instance_eval(&block) if block
         else
           if type || block
-            arg = Argument.new(type, self, &block)
+            arg = Argument.new(type, &block) #self, &block)
             arg.help(help) if help
             @arguments[index] = arg
           end
@@ -248,18 +279,20 @@ module Clio
       #
       def completion
         if subcommands.empty?
-          arguments.collect{|c| c.key}
+          options.collect{|o| o.to_s.strip } +
+          arguments.collect{|c| c.name}
         else
+          options.collect{|o| o.to_s.strip } +
           subcommands.collect{|c| c.name}
         end
       end
 
       # Option defined?
       #
-      def option?(key)
-        opt = options.find{|o| o === key}
+      def option?(name)
+        opt = options.find{|o| o === name}
         if parent && !opt
-          opt = parent.option?(key)
+          opt = parent.option?(name)
         end
         opt
         #return opt if opt
@@ -285,12 +318,13 @@ module Clio
       #
       def inspect
         s = ''
-        s << "#<#{self.class}:#{object_id} #{@name} "
-        s << "@arguments=#{@arguments.inspect} " unless @arguments.empty?
-        s << "@options=#{@options.inspect} "     unless @options.empty?
+        s << "#<#{self.class}:#{object_id} #{@name}"
+        s << " @arguments=#{@arguments.inspect} " unless @arguments.empty?
+        s << " @options=#{@options.inspect} "     unless @options.empty?
         #s << "@switches=#{@switches.inspect} "   unless @switches.empty?
-        s << "@help=#{@help.inspect}"            unless @help.empty?
+        s << " @help=#{@help.inspect}"            unless @help.empty?
         #s << "@commands=#{@commands.inspect} "  unless @commands.empty?
+        s << ">"
         s
       end
 
@@ -345,7 +379,7 @@ module Clio
         unless subcommands.empty?
           s << ''
           s << 'Commands:'
-          s.concat(subcommands.collect{ |x| "  %-20s %s" % [x.key, x.help] }.sort)
+          s.concat(subcommands.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
         end
         unless arguments.empty?
           s << ''
@@ -372,7 +406,7 @@ module Clio
     private
 
       def option_key(key)
-        name = clean_name(key).to_s
+        name = option_name(key) #.to_s
         if name.size == 1
           "-#{name}".to_sym
         else
@@ -380,10 +414,10 @@ module Clio
         end
       end
 
-      def clean_name(key)
-        key = key.to_s
-        key = key.gsub(/^[-]+/, '')
-        return key.chomp('?').to_sym
+      def option_name(name)
+        name = name.to_s
+        name = name.gsub(/^[-]+/, '')
+        return name.chomp('?') #.to_sym
       end
 
     end #class Command

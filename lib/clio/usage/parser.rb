@@ -81,7 +81,7 @@ module Clio
           use, val = parse_option(usage, argv)
           if use
 #p "use: #{use.key}, #{val}"
-            if val == '-'
+            if val == "\t"
               parse_errors << [val, use]
             elsif use.multiple?
               options[use.key] ||= []
@@ -107,7 +107,7 @@ module Clio
             end
           end
         end
-        @signatures.unshift(Signature.new(usage.key, arguments, options))
+        @signatures.unshift(Signature.new(usage.name, arguments, options))
       end
 
 =begin
@@ -145,6 +145,7 @@ module Clio
 
       #
       def parse_option(usage, argv)
+        return if argv.first =~ /^[-]+$/
         return if argv.first !~ /(^-.+|=)/
         arg = argv.shift
         name, val = *arg.split('=')
