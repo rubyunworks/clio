@@ -1,0 +1,5 @@
+---
+rubygem:
+  service: Gem
+  include: [bin, lib, meta, spec, "[A-Z]*" ]
+

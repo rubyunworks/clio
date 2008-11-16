@@ -1,0 +1,66 @@
+== 0.2.0 / 2008-11-15
+
+* 1 Major Enhancements
+
+    * commandline now has a full parser  (#251ff8fb0d6e56dd6e90d6e859e840717af004e4)
+
+* 46 Other Enhancements
+
+    * capitialized main files (#1ac75f6de90bab8a696e657b4b33f936c969bbe2)
+    * moved multicommand prototype to depot (#efe1d718e191394fa73064e4527a113374c55931)
+    * update metadata (#e852dfdcade93371694e38fcb88efe5840d22996)
+    * moved metadata to meta directory (#d24ecee1c5cf94d83f616cdc4d5c3273b7ca4490)
+    * general improvements (#3fbb584fcdb5650d403f6973410dafb249868c19)
+    * organized depot better (#a46855315ada3da50b11a44364305beb6bd3e4a5)
+    * added layouts (#a9514307f3838359706fcddb25ce1633fe63a816)
+    * added VERSION stamp file (#a60ccb2bf9943dce54d5e416ca3526fe55ddf3b5)
+    * moved admin/config to .config (#ac4d50546655d584a843d2e43d45ff2b4c652373)
+    * removed share directory (#4d2576a545a03c4478a700c245c45949fb958ec2)
+    * moved .roll to .config/roll.ini (#4634630c7a55dab317b8a0168397f05d68787333)
+    * completed reorganization (#5c979675a4a3da2af17561d5067da1a31ed1e681)
+    * added demo (#93aedb968bc48d5b879cc80a4725ca3d0864bf57)
+    * added buffer.rb (likely to be renamed in future) (#2f50a4e9244354ec8d31e30c82edd33ae858edf1)
+    * added depot directory (#aaa646fc0a6fd67c9a5c1f67aee1b553b95ab2ff)
+    * moved vender Console lib to work (#453c6b781e6202e151da202cda2fc9bc717a0256)
+    * commandline.rb overhaul (#e4b31fa76beafb9c4cfeb959a1bf97f061ef5d39)
+    * spec/ added with spec for commandline.rb (#0939ce66cd67ecb34bbc994952f56e1b1826a26a)
+    * moved temps to gen (#4ed8f849ba7e538b6f35cc02fafeb1baf3419bb6)
+    * new parse class (#d06a0b5b729a381fba7ff97865966b2b75a4d75b)
+    * defunct some parse files (#31d8a0a6dc2803135ffbbbcface8c4e1a6d418af)
+    * added demo for commandline (#3b1db619f47bac50716e41163e064ef50d8d788a)
+    * major work on commandline (#896be8f157fad51fae57e0eb0c516e6c92ecc470)
+    * major work on commandline (#68d48bfc59786181c45ab60d0f5d45a38b526e2e)
+    * copy of old facets command.rb in work for referece (#be9634e881306733210522697e38ea61e5a9b0f0)
+    * added tab_completion to commandline (#29d4166a34f953856341bbb5136c92333d3880c5)
+    * merging command and commandline (#1cb5369faa949f3a5eea46fb377a6169c3cb66b2)
+    * update specs (#6ac31050221e9ee39226720e6b494383bf756b66)
+    * moved spec/commandline to spec/command (#777e249dd3253a9bc2549483b923b5cc2b0c16f1)
+    * reorganized work directory (#b933c6897847d1c5a16cdbe2b6be03e6dfa8a503)
+    * rid library of old command libs (#d8d026c9d5d045b1bb6dffa68a4f4f1bcbf59bdf)
+    * new command.rb and support file updates (#6ecce2ab874d978be6442b9256492e6f16f282ea)
+    * renamed spec files (command -> commandline) (#d2d7e1309136cba6c50a5b1c3b9953f3950d0341)
+    * renamed command to commandline (#0e5c6448261160e0d93f0ff7e14e0b95fcf514cb)
+    * added some scrap material (#c53f17dcca865bacf6493b2b9bee24e7b2fdb459)
+    * added website (#336dd451eb6a3cd7fea1f066c7ac6ab98a73fa53)
+    * upped version to 0.0.3 (#ec6b29f90257adfb48098e715ec051d80cbeb5cc)
+    * moved demos to work space, they are to become specs (#5de9a428e404241ab1de75ee554bc391a72e0551)
+    * overall improvements to system (#f7315be5dbfa21bb2a9a9c9a43844c0d2d313184)
+    * fixed spec for autousage (#75221bec26ed965dac3ff2f15a6e8d2dc8760f4c)
+    * changed extensions of specs to .rd (#855f330ac1f0eb4eab54442f40357010c065c20c)
+    * fixed usage duplication (#eee7a8872fd8863d6fd37494c7e127d1397e17fc)
+    * copied needed facets methods (#2f649c515407eadd4c32076d4bb4360d765da8e4)
+    * clio/string.rb, fixed require (#4a519dd76be6e66454424edbe9eb790c786fc582)
+    * all specs now pass (#4b90a0b08a6a97ab29453b647ef969a7384f2d5d)
+    * avoid class with Clio::String and use ::String where needed (#471a0b1480207324ecf17ffe2943dac29fedba7e)
+
+
+== 0.0.1 / 2008-08-29
+
+* 1 Major Enhancements
+
+    * Started repository  (#90e5f60cf2f6838afd35d47fed785c3ed205b0cc)
+
+* 1 Other Enhancements
+
+    * Updated reap.yaml for BasicStats service. (#95d7c8c84e03cf9da1ecdd4fe8b34e3ff0ba396b)
+
