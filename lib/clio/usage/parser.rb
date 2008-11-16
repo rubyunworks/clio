@@ -89,10 +89,17 @@ module Clio
             else
               options[use.key] = val
             end
-          elsif arguments.size < usage.arguments.size
-            arg = argv.shift
-#p "arg: #{arg}"
-            arguments << arg
+          elsif !usage.arguments.empty?
+            usage.arguments.each do |a|
+              if a.splat
+                while argv.first && argv.first !~ /^[-]/
+                  arguments << argv.shift
+                end
+                break if argv.empty?
+              else
+                arguments << argv.shift
+              end
+            end
           else
             break if argv.empty?
             arg = argv.shift

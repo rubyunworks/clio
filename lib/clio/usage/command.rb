@@ -221,16 +221,28 @@ module Clio
         index = index - 1
         type = type.to_s.sub(/^\</,'').chomp('>')
 
+        if type[0,1] == '*'
+          type.sub!('*', '')
+          splat = true
+        elsif type[-1,1] == '*'
+          type.sub!(/[*]$/, '')
+          splat = true
+        else
+          splat = false
+        end
+
         raise "Command cannot have both arguments (eg. #{type}) and subcommands." unless subcommands.empty?
 
         if arg = @arguments[index]
           arg.type(type) if type
           arg.help(help) if help
+          arg.splat(splat) if splat
           arg.instance_eval(&block) if block
         else
           if type || block
             arg = Argument.new(type, &block) #self, &block)
             arg.help(help) if help
+            arg.splat(splat) if splat
             @arguments[index] = arg
           end
         end
