@@ -9,6 +9,7 @@ module Clio
       attr :name
       attr :type
       attr :help
+      attr :splat
 
       # New Argument.
       #def initialize(name, parent=nil, &block)
@@ -16,6 +17,7 @@ module Clio
         @name      = name.to_s
         @type      = name.upcase
         #@parent    = parent
+        @splat     = false
         @help      = ''
         instance_eval(&block) if block
       end
@@ -45,6 +47,12 @@ module Clio
         self
       end
 
+      #
+      def splat(true_or_false=nil)
+        return @splat if true_or_false.nil?
+        @splat = true_or_false
+      end
+
       # Specify help text for argument.
       def help(string=nil)
         @help.replace(string.to_s) if string
@@ -53,10 +61,12 @@ module Clio
 
       def to_s
         if name.upcase == type
-          "<#{name}>"
+          s = "<#{name}"
         else
-          "<#{name}:#{type}>"
+          s = "<#{name}:#{type}"
         end
+        s << (splat ? "...>" : ">")
+        s
       end
 
       def inspect
