@@ -50,9 +50,28 @@ string range index
     e = @s1[0..3]
     e.assert == r.to_s
 
+String addition
+
+    s1 = Clio.string("a").red
+    s2 = Clio.string("b").blue
+    s = s1 + s2
+    s.to_s.assert == Clio::ANSICode.red('a') + Clio::ANSICode.blue('b')
+
 Method #sub can replace a substring.
 
     r = @c1.sub('Hi', 'Hello')
+    r.to_s.assert == "Hello how are you."
 
-QED.
+Method #gsub! can replace many substrings.
+
+    s = Clio.string("axaxaxax")
+    s.gsub!('x', 'y')
+    s.to_s.assert == 'ayayayay'
+
+    s1 = Clio.string("axax").red
+    s2 = Clio.string("axax").blue
+    s = s1 + s2
+    s.to_s.assert == Clio::ANSICode.red('axax') + Clio::ANSICode.blue('axax')
+    s.gsub!('x', 'y')
+    s.to_s.assert == Clio::ANSICode.red('ayay') + Clio::ANSICode.blue('ayay')
 
