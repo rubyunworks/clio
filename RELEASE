@@ -1,8 +1,13 @@
-This is the initial release of Clio. While useable,
-it is still very much APLHA code. The API is still
-in flux and needs a lot more testing before I'd
-put it to gereral use.
+Clio is much cloer to a stable status. This release
+has a fairly large set of passing specifications.
 
-### 0.0.1 // 2008-08-29
+### 0.3.0 // 2008-08-29
 
+1 Major Change
+
+  * Rename Usage Main to Command and Command to Subcommand.
+
+1 Minor Change
+
+  * Fixed many small bugs.
 
