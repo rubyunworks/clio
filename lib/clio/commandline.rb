@@ -1,4 +1,3 @@
-require 'clio/facets/kernel' # for deep_copy
 require 'clio/usage'
 #require 'shellwords'
 
@@ -183,7 +182,7 @@ module Clio
       #def inherited(subclass)
 #p usage.to_s
 #p subclass.usage.to_s
-#        subclass.usage = self.usage.clone #deep_copy
+#        subclass.usage = self.usage.clone #deep copy?
 #p subclass.usage.to_s
 #      end
 
@@ -202,12 +201,6 @@ module Clio
         raise ArgumentError unless u <= Usage
         @usage = u
       end
-
-      #    if ancestors[1] < Command
-      #      @usage = ancestors[0].usage.deep_copy
-      #    else
-      #      @usage = Usage.new
-      #    end
 
       #
       def subcommand(name, help=nil, &block)
@@ -256,7 +249,7 @@ module Clio
       if self.class == Commandline
         @usage = Usage.new
       else
-        @usage = self.class.usage #|| Usage.new #.deep_copy
+        @usage = self.class.usage #|| Usage.new
       end
       @usage.instance_eval(&block) if block
     end

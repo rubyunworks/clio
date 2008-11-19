@@ -124,7 +124,7 @@ module Clio
 
       # Tab completion.
       def completion
-        arguments.collect{|c| c.key}
+        arguments.collect{|c| c.type}
       end
 
       # SHORTHAND NOTATION

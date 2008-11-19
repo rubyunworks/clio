@@ -1,4 +1,4 @@
-require 'clio/usage/main'
+require 'clio/usage/command'
 require 'clio/usage/parser'
 
 module Clio
@@ -175,7 +175,7 @@ module Clio
   module Usage
 
     def self.new(name=nil, &block)
-      Main.new(name, &block)
+      Command.new(name, &block)
     end
 
   end#module Usage
