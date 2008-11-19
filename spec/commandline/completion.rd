@@ -31,8 +31,6 @@ Now an option.
 
   @cli.completion('c1 --o1').assert == ["TYPE"]
 
-QED.
-
 
 
 

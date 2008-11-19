@@ -41,4 +41,3 @@ Let's bring it all together in one example.
     cmd.usage.command('bar')
     cmd.to_s.assert == 'test [-v --verbose] [-f --force] [foo | bar]'
 
-QED.

@@ -52,5 +52,3 @@ Parses the option correctly.
 
     @cli.options[:verbose].assert == true
 
-QED.
-

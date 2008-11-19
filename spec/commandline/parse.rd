@@ -69,4 +69,3 @@ Multiple subcommands.
   cmd[1].options.assert == {}
   cmd[2].options.assert == {:verbose=>true}
 
-QED.

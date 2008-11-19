@@ -3,6 +3,9 @@
 Require clio/commandline.rb.
 
   require 'clio/commandline'
+
+Fake a commandline command.
+
   $0 = 'c0'
 
 Create new subclass of Clio::Commandline.
@@ -51,4 +54,3 @@ Method missing options work.
   @cli2.o1?.assert == true
   @cli2.o2?.assert == true
 
-QED.

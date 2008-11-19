@@ -61,4 +61,3 @@ a seaprate help! call.
 
     cmd.usage.options[0].name.assert == 'verbose'
 
-QED.

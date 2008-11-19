@@ -78,4 +78,3 @@ There are no more signatures after the second.
 
     @cli[3].assert == nil
 
-QED.

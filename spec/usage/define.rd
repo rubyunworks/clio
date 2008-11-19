@@ -45,17 +45,17 @@ a type, or name and type. Multiple arguments can
 be defined, and are processed in the order defined.
 
   usage = Clio::Usage.new
-  usage.argument('TYPE')
-  usage.argument('alt', 'TYPE2')
-  usage.to_s.assert == 'test <TYPE> <alt:TYPE2>'
+  usage.argument('TYPE1')
+  usage.argument('name:TYPE2')
+  usage.to_s.assert == 'test <TYPE1> <name:TYPE2>'
 
 But arguments can be index to sepcify the index. Argument
 index start with 1 (not 0).
 
   usage = Clio::Usage.new
-  usage.argument(1, 'TYPE')
-  usage.argument(2, 'alt', 'TYPE2')
-  usage.to_s.assert == 'test <TYPE> <alt:TYPE2>'
+  usage.argument(1, 'TYPE1')
+  usage.argument(2, 'name:TYPE2')
+  usage.to_s.assert == 'test <TYPE1> <name:TYPE2>'
 
 Final arguments can consume all remaining arguments.
 Define this with #splat.
@@ -67,7 +67,7 @@ Define this with #splat.
 Usage cannot have both subcommands and arguments.
 
   usage = Clio::Usage.new
-  assert_raises do
+  expect ArgumentError do
     usage.subcommand('foo')
     usage.argument('bar')
   end
@@ -77,7 +77,7 @@ defined for a subcommand, since Usage.new actually
 returns and subclass of Subcommand.
 
   usage = Clio::Usage.new
-  usage.class.assert < Clio::Subcommand
+  usage.class.assert < Clio::Usage::Subcommand
 
 Bringing it all together in a .
 
@@ -101,7 +101,7 @@ aliases are separated by spaces.
 
   usage = Clio::Usage.new
   usage['--verbose -v']
-  usage.to_s.assert == 'test foo'
+  usage.to_s.assert == 'test [-v --verbose]'
 
 Arguments are defined by wrapping the type or name:type in < > brackets.
 

@@ -54,5 +54,3 @@ Method #sub can replace a substring.
 
     r = @c1.sub('Hi', 'Hello')
 
-QED.
-
