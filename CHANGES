@@ -1,10 +1,22 @@
+== 0.3.0 / 2008-11-19
+
+* 5 Other Enhancements
+
+    * improved usage specs (#2e805f40a05afcccdf59bad087b759d1fda60354)
+    * string.rb, fixed gsub (#f7449ced8d9757aefb8dedb04e65821fd174a31d)
+    * renamed Usage::Main to Usage::Command and Usage::Command to Usage::Subcommand (#42ccad02a7f5a68461e70c4ef775a8751facbddb)
+    * remove QED from end of specs (#0a820c7c44db3d1a6e7b1950152fabdaae006381)
+    * Merge: 0a820c7... f7449ce...
+      improved string spec (#b0579c898f02be2a3644e3f4bc233f9795f9a122)
+
+
 == 0.2.0 / 2008-11-15
 
 * 1 Major Enhancements
 
     * commandline now has a full parser  (#251ff8fb0d6e56dd6e90d6e859e840717af004e4)
 
-* 46 Other Enhancements
+* 52 Other Enhancements
 
     * capitialized main files (#1ac75f6de90bab8a696e657b4b33f936c969bbe2)
     * moved multicommand prototype to depot (#efe1d718e191394fa73064e4527a113374c55931)
@@ -52,6 +64,12 @@
     * clio/string.rb, fixed require (#4a519dd76be6e66454424edbe9eb790c786fc582)
     * all specs now pass (#4b90a0b08a6a97ab29453b647ef969a7384f2d5d)
     * avoid class with Clio::String and use ::String where needed (#471a0b1480207324ecf17ffe2943dac29fedba7e)
+    * updated reap configs (#361162622b25a25b5600a55f523ee80d2f719208)
+    * update README and VERSION (0.2.0) (#01d804e3789b5d58fd7e6243a11ea0ba65f96296)
+    * argument.rb, added splat option (#4d37a8906945c223100cc0d617a8ecbe9f25b863)
+    * support for argument added splat option (#8176e5cee31f2a8fa73e0f151f504a40f0a9a21a)
+    * added some website assets (#16e6b765fd606f5c09d43b52f6d0104aa55fc56f)
+    * added doc/spec to .gitignore (#1fc846f54b304da8956fecc84d9287641a5da052)
 
 
 == 0.0.1 / 2008-08-29
