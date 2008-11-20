@@ -17,16 +17,9 @@ module Clio
       attr :signatures
 
       #
-      def initialize(usage, argv) #, index=0)
-        # convert to array if argv string
-        if ::String===argv
-          argv = Shellwords.shellwords(argv)
-        else
-          argv = argv.dup
-        end
-
+      def initialize(usage) #, argv) #, index=0)
         @usage  = usage
-        @argv   = argv
+        #@argv   = argv
 
         @parsed     = false
         @signatures = []
@@ -36,6 +29,17 @@ module Clio
       #
       def name ; usage.name ; end
       def key  ; usage.key  ; end
+
+      #
+      def clean_vector(args)
+        # convert to array if argv string
+        if ::String===args
+          argv = Shellwords.shellwords(args)
+        else
+          argv = args.to_a.dup
+        end
+        #@argv = argv
+      end
 
       #
       def inspect
@@ -50,12 +54,14 @@ module Clio
       end
 
       #
-      def parse
+      def parse(args=nil)
+        argv = clean_vector(args)
+
         @parsed     = false
         @signatures = []
         @errors     = []
 
-        parse_command(usage, argv.dup)
+        parse_command(usage, argv)
 
         @parsed     = true
 

@@ -20,24 +20,36 @@ module Clio
   #
   class String
 
+    CLR = ANSICode.clear
+
     attr :text
     attr :marks
 
     def initialize(text=nil, marks=nil)
-      @text  = text  || ''
-      @marks = marks || Hash.new{ |h,k| h[k]=[] }
+      @text  = (text  || '').to_s
+      @marks = marks  || []
+      yield(self) if block_given?
     end
 
     def to_s
       s = text.dup
-      m = marks.sort{ |a,b| b[0] <=> a[0] }
-      m.each do |index, codes|
-        codes.reverse_each do |code|
-          s.insert(index, ANSICode.__send__(code))
+      m = marks.sort do |(a,b)| 
+        v = b[0] <=> a[0]
+        if v == 0
+          (b[1] == :clear or b[1] == :reset) ? -1 : 1
+        else
+          v
         end
       end
-      s
+      m.each do |(index, code)|
+        s.insert(index, ANSICode.__send__(code))
+      end
+      #s << CLR unless s =~ /#{Regexp.escape(CLR)}$/  # always end with a clear
+      s 
     end
+
+    #
+    alias_method :to_str, :to_s
 
     def size ; text.size ; end
 
@@ -56,7 +68,7 @@ module Clio
         ntext  = text + other.text
         nmarks = marks.dup
         omarks = shift_marks(0, text.size, other.marks)
-        omarks.each{ |i, c| nmarks[i].concat(c) }
+        omarks.each{ |(i, c)| nmarks << [i,c] }
       else
         ntext  = text + other.to_s
         nmarks = marks.dup
@@ -78,9 +90,9 @@ module Clio
         index, len = *args
         endex  = index+len
         new_text  = text[index, len]
-        new_marks = {}
-        marks.each do |i, v|
-          new_marks[i] = v if i >= index && i < endex
+        new_marks = []
+        marks.each do |(i, v)|
+          new_marks << [i, v] if i >= index && i < endex
         end
         self.class.new(new_text, new_marks)
       elsif args.size == 1
@@ -89,13 +101,16 @@ module Clio
         when Range
           index, endex = rng.begin, rng.end
           new_text  = text[rng]
-          new_marks = {}
-          marks.each do |i, v|
-            new_marks[i] = v if i >= index && i < endex
+          new_marks = []
+          marks.each do |(i, v)|
+            new_marks << [i, v] if i >= index && i < endex
           end
           self.class.new(new_text, new_marks)
         else
-          self.class.new(text[rng,1], {rng=>marks[rng]})
+          nm = marks.select do |(i,c)|
+            marks[0] == rng or ( marks[0] == rng + 1 && [:clear, :reset].include?(marks[1]) )
+          end
+          self.class.new(text[rng,1], nm) 
         end
       else
         raise ArgumentError
@@ -109,10 +124,11 @@ module Clio
     # won't substitue for \1, \2, etc. 
     #
     # TODO: block support.
-    def sub!(pattern,replacement)
+    def sub!(pattern, replacement=nil, &block)
       mark_changes = []
       text = @text.sub(pattern) do |s|
         index  = $~.begin(0)
+        replacement = block.call(s) if block_given?
         delta  = (replacement.size - s.size)
         mark_changes << [index, delta]
         replacement
@@ -127,46 +143,54 @@ module Clio
     end
 
     #
-    def sub(pattern,replacement)
-      dup.sub!(pattern, replacement)
+    def sub(pattern,replacement=nil, &block)
+      dup.sub!(pattern, replacement, &block)
     end
 
     #
-    def gsub!(pattern,replacement)
-      mark_changes = []
+    def gsub!(pattern, replacement=nil, &block)
+      mark_changes   = []
+      mark_additions = []
       text = @text.gsub(pattern) do |s|
-        index  = $~.begin(0)
-        delta  = (replacement.size - s.size)
+        index = $~.begin(0)
+        replacement = block.call(self.class.new(s)) if block_given?
+        if self.class===replacement
+          adj_marks = replacement.marks.map{ |(i,c)| [i+index,c] }
+          mark_additions.concat(adj_marks)
+          replacement = replacement.text
+        end
+        delta = (replacement.size - s.size)
         mark_changes << [index, delta]
         replacement
       end
       marks = @marks
-      mark_changes.each do |index, delta|
+      mark_changes.each do |(index, delta)|
         marks = shift_marks(index, delta, marks)
       end
+      marks.concat(mark_additions)
       @text  = text
       @marks = marks
       self
     end
 
     #
-    def gsub(pattern_replacement)
-      dup.gsub(pattern, replacement)
+    def gsub(pattern, replacement=nil, &block)
+      dup.gsub!(pattern, replacement, &block)
     end
 
-    ###
+    #
     def ansi(code)
       m = marks.dup
-      m[0] << code
-      m[size] << :clear
+      m.unshift([0, code])
+      m.push([size, :clear])
       self.class.new(text, m)
     end
     alias_method :color, :ansi
 
-    ###
+    #
     def ansi!(code)
-      marks[0] << ansicolor
-      marks[size] << :clear
+      marks.unshift([0, ansicolor])
+      marks.push([size, :clear])
     end
     alias_method :color!, :ansi!
 
@@ -178,6 +202,9 @@ module Clio
     def yellow   ; color(:yellow)   ; end
     def cyan     ; color(:cyan)     ; end
 
+    def bold       ; ansi(:bold)       ; end
+    def underline  ; ansi(:underline)  ; end
+
     def red!     ; color!(:red)     ; end
     def green!   ; color!(:green)   ; end
     def blue!    ; color!(:blue)    ; end
@@ -186,17 +213,20 @@ module Clio
     def yellow!  ; color!(:yellow)  ; end
     def cyan!    ; color!(:cyan)    ; end
 
+    def bold!      ; ansi!(:bold)      ; end
+    def underline! ; ansi!(:underline) ; end
+
   private
 
     #
     def shift_marks(index, delta, marks=nil)
-      new_marks = {}
-      (marks || @marks).each do |i, v|
+      new_marks = []
+      (marks || @marks).each do |(i, c)|
         case i <=> index
         when -1
-          new_marks[i] = v
+          new_marks << [i, c]
         when 0, 1
-          new_marks[i+delta] = v
+          new_marks << [i+delta, c]
         end
       end
       new_marks

@@ -62,7 +62,10 @@
     <img src="assets/images/muse_clio.jpg" align="left"/>
 
     <pre><code class="sh_ruby">
-      cli = Commandline.new
+      require 'clio/commandline'
+      require 'clio/string'
+
+      cli = Clio::Commandline.new
 
       cli.usage.document('--output=PATH -o', '*FILES')
       cli.usage.verbose?('-v')
@@ -74,20 +77,20 @@
 
       cli.parse('document -v -o doc/ README [A-Z]*')
 
-      if cli.help?
-        puts Clio::String.new(cli.help) do |s|
-          s.gsub(/\A.*?$/){ |w| w.bold.underline }
-          s.gsub(/^\w+\:/){ |w| w.bold }
-          s.gsub(/-\w+/){ |w| w.blue }
-        end
-        exit
-      end
-
       cli.command   #=> "document"
       cli.verbose?  #=> true
 
       cli.document.options    #=> [:output => "doc/"]
       cli.document.arguments  #=> ["README", "[A-Z]*"]
+
+      cli.parse('--help')
+
+      if cli.help?
+        puts Clio::String.new(cli.help){ |s|
+          s.gsub!(/^\w+\:/){ |w| w.bold.underline }
+          s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
+        }
+      end
     </code></pre>
   </div>
 

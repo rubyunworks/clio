@@ -1,7 +1,6 @@
-= Examples
-
-This is the example on the website. We put it here
-to make sure it runs.
+# = Examples
+#
+# This is the example on the website.
 
   require 'clio/commandline'
   require 'clio/string'
@@ -11,9 +10,9 @@ to make sure it runs.
   cli.usage.document('--output=PATH -o', '*FILES')
   cli.usage.verbose?('-v')
 
-  cli.usage.help(
-    'document'  , 'generate docs',
-    '--verbose' , 'do it loudly'
+  cli.usage.help!(
+    'document', 'generate docs',
+    '--verbose',  'do it loudly'
   )
 
   cli.parse('document -v -o doc/ README [A-Z]*')
@@ -21,8 +20,8 @@ to make sure it runs.
   cli.command   #=> "document"
   cli.verbose?  #=> true
 
-  cli.document.options    #=> [:output => "doc/"]
-  cli.document.arguments  #=> ["README", "[A-Z]*"]
+  cli.document!.options    #=> [:output => "doc/"]
+  cli.document!.arguments  #=> ["README", "[A-Z]*"]
 
   cli.parse('--help')
 

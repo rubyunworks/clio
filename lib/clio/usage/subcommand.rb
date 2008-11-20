@@ -422,7 +422,7 @@ module Clio
       #
       # TODO: Could help_text be called #to_str?
       #
-      def helptext
+      def help_text
         s = []
         unless help.empty?
           s << help

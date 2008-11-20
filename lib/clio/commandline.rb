@@ -255,18 +255,16 @@ module Clio
     end
 
     #
-    def argv_set(argv)
-      # reset parser
-      @parser = nil
+    def argv_set(args)
       # convert to array if string
-      if String===argv
-        argv = Shellwords.shellwords(argv)
+      if ::String===args
+        args = Shellwords.shellwords(args)
       end
       # remove anything subsequent to '--'
-      if index = argv.index('--')
-        argv = argv[0...index]
+      if index = args.index('--')
+        args = args[0...index]
       end
-      @argv = argv
+      @argv = args
     end
 
     #
@@ -299,14 +297,14 @@ module Clio
     alias_method :help, :help_text
 
     #
-    def parse(argv=nil)
-      argv_set(argv) if argv
-      @cli = parser.parse
+    def parse(args=nil)
+      argv_set(args) if args
+      @cli = parser.parse(@argv)
     end
 
     #
     def parser
-      @parser ||= Usage::Parser.new(usage, @argv)
+      @parser ||= Usage::Parser.new(usage) #, @argv)
     end
 
     #
@@ -375,21 +373,24 @@ module Clio
         when /[=]$/
           n = s.chomp('=')
           usage.option(n).type(*a)
-          parse
+          parse(@argv)
           res = @cli.options[n.to_sym]
-        when /[!]$/
-          n = s.chomp('!')
-          cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
-          res = parse
+        #when /[!]$/
+        #  n = s.chomp('!')
+        #  cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
+        #  res = parse(@argv)
         when /[?]$/
           n = s.chomp('?')
           u = usage.option(n, *a)
-          parse
+          parse(@argv)
           res = @cli.options[u.key]
         else
-          usage.option(s, *a)
-          parse
-          res = @cli.options[s.to_sym]
+          n = s.chomp('!')
+          cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
+          res = parse(@argv)
+          #usage.option(s, *a)
+          #parse
+          #res = @cli.options[s.to_sym]
         end
       rescue Usage::ParseError => e
         res = nil
