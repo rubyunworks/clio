@@ -35,41 +35,6 @@ module Clio
       #end
 
 =begin
-      #alias_method :[], :command
-
-
-      # ARRAY NOTATION
-      #-------------------------------------------------------------
-
-      #
-      def [](*args)
-        res = nil
-        head, *tail = *args
-        case head.to_s
-        when /^-/
-          x = []
-          opts = args.map do |o|
-            o = o.to_s
-            if i = o.index('=')
-              x << o[i+1..-1]
-              o[0...i]
-            else
-              o
-            end
-          end
-          x = x.uniq
-
-          res = opt(*opts)
-        else
-          args.each do |name|
-            res = command(name)
-          end
-        end
-        return res
-      end
-=end
-
-=begin
       # Usage text.
       #
       def to_s
@@ -101,7 +66,7 @@ module Clio
 
       # Help text.
       #
-      def to_s_help
+      def help_text
         s = []
         unless help.empty?
           s << help

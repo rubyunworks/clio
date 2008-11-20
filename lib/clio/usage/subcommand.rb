@@ -83,19 +83,12 @@ module Clio
         end
       end
 
-      #
-      def help!(*args)
-        Hash[*args].each do |key, desc|
-          self[key, desc]
-        end
-      end
-
-      # Define or retrieve a command.
+      # Define or retrieve a subcommand.
       #
       #   subcommand('remote')
       #
-      # A shortcut to accessing subcommands of subcommands, the following
-      # statements are equivalent:
+      # As a shortcut to accessing subcommands of subcommands, the
+      # following statements are equivalent:
       #
       #   subcommand('remote').subcommand('add')
       #
@@ -244,7 +237,9 @@ module Clio
         #  end
         #end
 
-        raise ArgumentError, "Command cannot have both arguments (eg. #{type}) and subcommands." unless subcommands.empty?
+        unless subcommands.empty?
+          raise ArgumentError, "Command cannot have both arguments (eg. #{type}) and subcommands."
+        end
 
         if arg = @arguments[index]
           arg.type(type) if type
@@ -276,10 +271,41 @@ module Clio
       #  self
       #end
 
+      # Access help description(s) for this command.
       #
-      def help(string=nil)
-        @help.replace(string.to_s) if string
-        @help
+      # If no argument is given, return this command's
+      # help description.
+      #
+      # If a single argument is given, this sets the
+      # description for this command.
+      #
+      # If multiple arguments are given, there should
+      # be an even number; the pairs of which set the
+      # help descriptions for subelements. See #help!
+      #
+      def help(*string)
+        case string.size
+        when 0
+          @help
+        when 1
+          @help.replace(string.to_s)
+          @help
+        else
+          help!(*string)
+        end
+      end
+
+      # Set the help descriptions for subelements.
+      # There should be an even number or argument, or
+      # a Hash should be passed. 
+      #
+      #   help!( "document" , "generate documents",
+      #          "--verbose", "do it loudly" )
+      #
+      def help!(*args)
+        Hash[*args.to_a.flatten].each do |key, desc|
+          self[key, desc]
+        end
       end
 
       # SHORTHAND NOTATION
@@ -348,7 +374,6 @@ module Clio
         s << "#<#{self.class}:#{object_id} #{@name}"
         s << " @arguments=#{@arguments.inspect} " unless @arguments.empty?
         s << " @options=#{@options.inspect} "     unless @options.empty?
-        #s << "@switches=#{@switches.inspect} "   unless @switches.empty?
         s << " @help=#{@help.inspect}"            unless @help.empty?
         #s << "@commands=#{@commands.inspect} "  unless @commands.empty?
         s << ">"
@@ -395,7 +420,9 @@ module Clio
 
       # Help text.
       #
-      def to_s_help
+      # TODO: Could help_text be called #to_str?
+      #
+      def helptext
         s = []
         unless help.empty?
           s << help
@@ -432,14 +459,14 @@ module Clio
 
     private
 
-      def option_key(key)
-        name = option_name(key) #.to_s
-        if name.size == 1
-          "-#{name}".to_sym
-        else
-          "--#{name}".to_sym
-        end
-      end
+      #def option_key(key)
+      #  name = option_name(key) #.to_s
+      #  if name.size == 1
+      #    "-#{name}".to_sym
+      #  else
+      #    "--#{name}".to_sym
+      #  end
+      #end
 
       def option_name(name)
         name = name.to_s

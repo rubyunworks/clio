@@ -292,9 +292,11 @@ module Clio
     end
 
     #
-    def to_s_help
-      usage.to_s_help
+    def help_text
+      usage.help_text
     end
+
+    alias_method :help, :help_text
 
     #
     def parse(argv=nil)
@@ -377,7 +379,7 @@ module Clio
           res = @cli.options[n.to_sym]
         when /[!]$/
           n = s.chomp('!')
-          cmd = usage.commands[n.to_sym] || usage.command(n, *a)
+          cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
           res = parse
         when /[?]$/
           n = s.chomp('?')
@@ -424,7 +426,7 @@ end # module Clio
 
   #p cli
   puts
-  puts cli.to_s_help
+  puts cli.help_text
 
 =end
 
@@ -457,7 +459,7 @@ end # module Clio
 
   p cli
   puts
-  puts cli.to_s_help
+  puts cli.help_text
 
 =end
 
