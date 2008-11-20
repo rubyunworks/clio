@@ -3,7 +3,7 @@
   <title>CLIO</title>
   <style>
     div, img, iframe, h1 { padding: 0; margin: 0; }
-    body{ padding: 1; margin: 0; background: url(ssets/images/bkg.jpg); font-family: times; color: black; }
+    body{ padding: 1; margin: 0; font-family: times; color: black; }
     img{ border: 0px solid yellow; }
     pre{ padding: 20px; }
     #title {
@@ -33,6 +33,7 @@
     #main {
       clear: both;
       border: 2px dotted yellow;
+      background: url(assets/images/bkg.jpg) repeat-x;
     }
     #footer {
       margin: 30 0;
@@ -60,24 +61,18 @@
   <div id="main">
     <img src="assets/images/muse_clio.jpg" align="left"/>
 
-    <pre><code>
+    <pre><code class="sh_ruby">
       cli = Commandline.new
 
       cli.usage.document('--output=PATH -o', '*FILES')
       cli.usage.verbose?('-v')
 
       cli.usage.help(
-        'document', 'generate docs',
-        '--verbose',  'do it loudly'
+        'document'  , 'generate docs',
+        '--verbose' , 'do it loudly'
       )
 
       cli.parse('document -v -o doc/ README [A-Z]*')
-
-      cli.command   #=> "document"
-      cli.verbose?  #=> true
-
-      cli.document.options    #=> [:output => "doc/"]
-      cli.document.arguments  #=> ["README", "[A-Z]*"]
 
       if cli.help?
         puts Clio::String.new(cli.help) do |s|
@@ -85,7 +80,14 @@
           s.gsub(/^\w+\:/){ |w| w.bold }
           s.gsub(/-\w+/){ |w| w.blue }
         end
+        exit
       end
+
+      cli.command   #=> "document"
+      cli.verbose?  #=> true
+
+      cli.document.options    #=> [:output => "doc/"]
+      cli.document.arguments  #=> ["README", "[A-Z]*"]
     </code></pre>
   </div>
 
