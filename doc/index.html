@@ -1,19 +1,23 @@
 <html>
 <head>
   <title>CLIO</title>
+  <LINK REL="SHORTCUT ICON" HREF="assets/images/icon.gif"/>
   <style>
     div, img, iframe, h1 { padding: 0; margin: 0; }
     body{ padding: 1; margin: 0; font-family: times; color: black; }
     img{ border: 0px solid yellow; }
-    pre{ padding: 20px; }
+    pre{ padding: 10px; }
     #title {
       font-size: 42pt;
       float: left;
-      font-style: italic;
+      padding-left: 5;
     }
     #container{
       width: 900px;
       margin: 0 auto;
+    }
+    #header {
+      margin-top: 20px;
     }
     #menu {
       float: right;
@@ -30,10 +34,12 @@
       float: left;
       margin: 0 0.3em;
     }
+    #menu a { font-weight: bold; text-decoration: none; font-style: italic; }
+    #menu a:hover { text-decoration: underline; }
     #main {
       clear: both;
       border: 2px dotted yellow;
-      background: url(assets/images/bkg.jpg) repeat-x;
+      background: url(assets/images/bkg.jpg) repeat;
     }
     #footer {
       margin: 30 0;
@@ -47,23 +53,25 @@
 </head>
 <body>
 <div id="container">
-  <h1 id="title">C l i o</h1>
 
-  <div id="menu">
-    <ul>
-      <li><a href="rdoc/index.html">Documentation</a></li>
-      <li><a href="spec/index.html">Specification</a></li>
-      <li><a href="http://rubyforge.org/projects/clio/">Rubyforge</a></li>
-      <li><a href="http://tigerops.org">Tigerops</a></li>
-    </ul>
+  <div id="header">
+    <h1 id="title">C L I O</h1>
+
+    <div id="menu">
+      <ul>
+        <li><a href="rdoc/index.html">Documentation</a></li>
+        <li><a href="spec/index.html">Specification</a></li>
+        <li><a href="http://rubyforge.org/projects/clio/">Rubyforge</a></li>
+        <li><a href="http://tigerops.org">Tigerops</a></li>
+      </ul>
+    </div>
   </div>
 
   <div id="main">
-    <img src="assets/images/muse_clio.jpg" align="left"/>
+    <img src="assets/images/muse_clio.jpg" align="left" style="margin: 10px;"/>
 
     <pre><code class="sh_ruby">
-      require 'clio/commandline'
-      require 'clio/string'
+      require 'clio'
 
       cli = Clio::Commandline.new
 
@@ -94,9 +102,11 @@
     </code></pre>
   </div>
 
+  <br/>
+
   <div id="text" style="clear: both;">
-    <b>Figure 1.</b> <i>Clio</i> -- Clio is an advanced set of libraries for developing
-    command line intefaces in the Ruby programming lanaguage. Clio includes an advanced
+    <b>Figure 1.</b> <i>Clio</i> -- Clio is an advanced library for developing
+    command line intefaces in the Ruby programming lanaguage. Clio includes an a
     commandline parser, a quick drop-in commandline mixin parser and a console
     String class that makes it suprisingly easy to output beautiful console text.
   </div>
