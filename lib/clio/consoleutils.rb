@@ -1,12 +1,12 @@
 module Clio
 
-  # = Termninal
+  # = ConsoleUtils
   #
   # ConsoleUtils provides methods that are
   # generally useful in the context of
   # creating console output.
   #
-  module Terminal
+  module ConsoleUtils
 
     module_function
 
