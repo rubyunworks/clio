@@ -1,21 +1,36 @@
 <html>
 <head>
   <title>CLIO</title>
-  <LINK REL="SHORTCUT ICON" HREF="assets/images/icon.gif"/>
+  <link REL="SHORTCUT ICON" HREF="assets/images/icon.gif"/>
+
+  <!-- shjs highligter -->
+  <script type="text/javascript" src="http://tigerops.org/assets/systems/shjs/sh_main.js"></script>
+  <script type="text/javascript" src="http://tigerops.org/assets/systems/shjs/lang/sh_ruby.js"></script>
+  <link type="text/css" rel="stylesheet" href="http://tigerops.org/assets/systems/shjs/css/sh_bright.css">
+
   <style>
+    body{
+      padding: 0; margin: 0; font-family: times; color: black;
+      background: url(assets/images/swirl.jpg) center top no-repeat;
+    }
+
     div, img, iframe, h1 { padding: 0; margin: 0; }
-    body{ padding: 1; margin: 0; font-family: times; color: black; }
+
     img{ border: 0px solid yellow; }
-    pre{ padding: 10px; }
+
+    pre.code{ padding: 10px; margin: 10px; font-size: 12px; width: 450px; float: right; }
+
     #title {
       font-size: 42pt;
       float: left;
       padding-left: 5;
     }
+
     #container{
       width: 900px;
       margin: 0 auto;
     }
+
     #header {
       margin-top: 20px;
     }
@@ -28,21 +43,30 @@
     #menu ul {
       list-style: none;
       float: left;
+      padding-right: 15px;
     }
     #menu li
     {
       float: left;
-      margin: 0 0.3em;
+      margin: 0 7px;
     }
-    #menu a { font-weight: bold; text-decoration: none; font-style: italic; }
+    #menu a { font-weight: bold; text-decoration: none; font-style: normal; }
     #menu a:hover { text-decoration: underline; }
     #main {
       clear: both;
-      border: 2px dotted yellow;
+      border: 2px dotted orange;
       background: url(assets/images/bkg.jpg) repeat;
+      height: 480px;
     }
-    #footer {
-      margin: 30 0;
+    .copyright {
+      margin: 40px 0;
+      text-align: center;
+      color: #666;
+      font-weight: bold;
+    }
+    .footer {
+      margin: 30px 0;
+      border-top: 1px solid #ccc;
     }
     #footer iframe {
       width: 900px;
@@ -51,7 +75,9 @@
     }
   </style>
 </head>
+
 <body>
+
 <div id="container">
 
   <div id="header">
@@ -67,39 +93,39 @@
     </div>
   </div>
 
-  <div id="main">
-    <img src="assets/images/muse_clio.jpg" align="left" style="margin: 10px;"/>
-
-    <pre><code class="sh_ruby">
+  <div id="main" style="position: relative;">
+    <pre class="sh_ruby code">
       require 'clio'
 
-      cli = Clio::Commandline.new
+      <b>cli</b> = Clio::Commandline.new
 
-      cli.usage.document('--output=PATH -o', '*FILES')
-      cli.usage.verbose?('-v')
+      <b>cli</b>.usage.document('--output=PATH -o', '*FILES')
+      <b>cli</b>.usage.verbose?('-v')
 
-      cli.usage.help(
+      <b>cli</b>.usage.help(
         'document'  , 'generate docs',
         '--verbose' , 'do it loudly'
       )
 
-      cli.parse('document -v -o doc/ README [A-Z]*')
+      <b>cli</b>.parse('document -v -o doc/ README [A-Z]*')
 
-      cli.command   #=> "document"
-      cli.verbose?  #=> true
+      <b>cli</b>.command   <span style="color: green">#=> "document"</span>
+      <b>cli</b>.verbose?  <span style="color: green">#=> true</span>
 
-      cli.document.options    #=> [:output => "doc/"]
-      cli.document.arguments  #=> ["README", "[A-Z]*"]
+      <b>cli</b>.document.options    <span style="color: green">#=> [:output => "doc/"]</span>
+      <b>cli</b>.document.arguments  <span style="color: green">#=> ["README", "[A-Z]*"]</span>
 
-      cli.parse('--help')
+      <b>cli</b>.parse('--help')
 
-      if cli.help?
-        puts Clio::String.new(cli.help){ |s|
+      if <b>cli</b>.help?
+        puts Clio::String.new(<b>cli</b>.help){ |s|
           s.gsub!(/^\w+\:/){ |w| w.bold.underline }
           s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
         }
       end
-    </code></pre>
+    </pre>
+
+    <img src="assets/images/muse_clio.jpg" align="left" />
   </div>
 
   <br/>
@@ -111,9 +137,27 @@
     String class that makes it suprisingly easy to output beautiful console text.
   </div>
 
-  <div id="footer">
-    <iframe src="http://tigerops.org/assets/adverts/banner-900-1.html" scrolling="no"></iframe>
+  <div class="copyright">
+    CLIO, Copyright &copy; 2005,2009 <a href="http://tigerops.org">Tiger Ops</a><br/>
+    Distributed under the terms of the LGPL version 3.
   </div>
+
+  <div class="footer" style="text-align: center;">
+    <script type="text/javascript"><!--
+    google_ad_client = "pub-1126154564663472";
+    /* TIGER 728x90 10/28/08 */
+    google_ad_slot = "2386645975";
+    google_ad_width = 728;
+    google_ad_height = 90;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+    <!-- <iframe src="http://tigerops.org/assets/adverts/banner-900-1.html" scrolling="no"></iframe> -->
+  </div>
+
 </div>
 </body>
 </html>
+
