@@ -421,6 +421,7 @@ module Clio
       # Help text.
       #
       # TODO: Could help_text be called #to_str?
+      # NOTE: There is a bit of hack here where commands are partitioned if they contain a ':'.
       #
       def help_text
         s = []
@@ -433,7 +434,9 @@ module Clio
         unless subcommands.empty?
           s << ''
           s << 'Commands:'
-          s.concat(subcommands.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
+          ss, sm = *subcommands.partition{ |x| x.name.index(':') }
+          s.concat(sm.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
+          s.concat(ss.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
         end
         unless arguments.empty?
           s << ''
