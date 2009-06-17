@@ -16,7 +16,7 @@ module Clio
   # As you might expect the fluent notation can be broken down into
   # block notation.
   #
-  #   cli = Clio::Command.new
+  #   cli = Clio::Commandline.new
   #   cli.usage do
   #     option(:verbose, :v) do
   #       help('verbose output')
@@ -302,6 +302,11 @@ module Clio
       @cli = parser.parse(@argv)
     end
 
+    # TODO: Need to reset @cli if usage changes. How?
+    #def cli
+    #  @cli ||= parser.parse(@argv)
+    #end
+
     #
     def parser
       @parser ||= Usage::Parser.new(usage) #, @argv)
@@ -362,10 +367,12 @@ module Clio
     #  end
     #end
 
+=begin
     # Method missing provide passive usage and parsing.
     #
     # TODO: This reparses the commandline after every query.
     #       Need only parse if usage has change.
+    #
     def method_missing(s, *a)
       begin
         s = s.to_s
@@ -391,6 +398,49 @@ module Clio
           #usage.option(s, *a)
           #parse
           #res = @cli.options[s.to_sym]
+        end
+      rescue Usage::ParseError => e
+        res = nil
+      end
+      return res
+    end
+=end
+
+    # Method missing provide some fluent parsing.
+    #
+    # TODO: This reparses the commandline after every query.
+    #       Need only parse if usage has change.
+    #
+    def method_missing(s, *a)
+      begin
+        s = s.to_s
+        case s
+        #when /[=]$/
+        #  n = s.chomp('=')
+        #  usage.option(n).type(*a)
+        #  parse(@argv)
+        #  res = @cli.options[n.to_sym]
+        #when /[!]$/
+        #  n = s.chomp('!')
+        #  cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
+        #  res = parse(@argv)
+        when /[?]$/
+          n = s.chomp('?')
+          if u = usage.option?(n)
+            #u = usage.option(n, *a)
+            parse(@argv)
+            res = cli.options[u.key]
+          else
+            super
+          end
+        else
+          super(s.to_sym, *a)
+        #  n = s.chomp('!')
+        #  cmd = usage.command(n, *a) #||usage.commands[n.to_sym] ||  
+        #  res = parse(@argv)
+        #  #usage.option(s, *a)
+        #  #parse
+        #  #res = @cli.options[s.to_sym]
         end
       rescue Usage::ParseError => e
         res = nil
