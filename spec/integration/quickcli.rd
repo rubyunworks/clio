@@ -91,18 +91,24 @@ Command with two options.
 
 Let try to confuse it.
 
-  cli.execute_command('c1 c2 --o1 A --o2')
-  cli.result.should == ['c2_o1 A', 'c2_o2', 'c2']
+  expect Clio::QuickCLI::NoOptionError do
+    cli.execute_command('c1 c2 --o1 A --o2')
+    cli.result.should == ['c2_o1 A', 'c2_o2', 'c2']
+  end
 
 How about a non-existenct method.
 
-  cli.execute_command('q')
-  cli.result.should == ['q']
+  expect Clio::QuickCLI::NoCommandError do
+    cli.execute_command('q')
+    cli.result.should == ['q']
+  end
 
 How about an option only.
 
-  cli.execute_command('-g')
-  cli.result.should == ['-g']
+  expect Clio::QuickCLI::MissingCommandError do
+    cli.execute_command('-g')
+    cli.result.should == ['-g']
+  end
 
 QED.
 
