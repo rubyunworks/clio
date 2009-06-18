@@ -7,16 +7,53 @@ module Clio
   # creating console output.
   #
   module ConsoleUtils
-
     module_function
 
     # Convenient method to get simple console reply.
+    #
+    #   ask("Are you good?") do |answer| 
+    #     raise AnswerRetry unless answer =~ /(yes|no|y|n)/i
+    #     answer
+    #   end
+    #
+    def ask(question, answers=nil, &validate)
+      ans = nil
+      until ans
+        $stdout << "#{question} "
+        $stdout << "[#{answers}] " if answers  # TODO: support this?
+        $stdout.flush
+        until inp = $stdin.gets ; sleep 1 ; end  # replace with better routine
+        inp.strip!
+        if validate
+          begin
+            ans = validate[inp] || inp
+          rescue AnswerRetry => err
+            puts err.message || "Invalid entry, please try again."
+          rescue AnswerTerminate => err
+            puts err.message || "Invalid entry."
+            exit -1
+          end
+        else
+          ans = inp
+        end
+      end
+      ans
+    end
 
-    def ask(question, answers=nil)
-      print "#{question}"
-      print " [#{answers}] " if answers
-      until inp = $stdin.gets ; sleep 1 ; end
-      inp
+    #
+    class AnswerRetry < Exception
+      def initialize(msg=nil)
+        super(msg); @message = msg
+      end
+      def message ; @message ; end
+    end
+
+    #
+    class AnswerTerminate < Exception
+      def initialize(msg=nil)
+        super(msg); @message = msg
+      end
+      def message ; @message ; end
     end
 
     # Convenience method for puts. Use this instead of
@@ -98,4 +135,10 @@ module Clio
   end
 
 end
+
+# TODO: do this?
+class Object
+  include Clio::ConsoleUtils
+end
+
 
