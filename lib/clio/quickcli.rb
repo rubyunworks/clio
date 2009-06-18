@@ -79,15 +79,33 @@ module Clio
   #
   class QuickCLI
 
+    class NoOptionError < ::NoMethodError # ArgumentError ?
+      def initialize(name, *arg)
+        super("unknown option -- #{name}", name, *args)
+      end
+    end
+
+    class NoCommandError < ::NoMethodError
+      def initialize(name, *args)
+        super("unknown command -- #{name}", name, *args)
+      end
+    end
+
+    class MissingCommandError < ::ArgumentError
+      def initialize(*args)
+        super("missing command", *args)
+      end
+    end
+
     # Used to invoke the command.
     def execute_command(argv=ARGV)
-      Commandable.run(self, argv)
+      QuickCLI.run(self, argv)
     end
 
     # This is the fallback subcommand. Override this to provide
     # a fallback when no command is given on the commandline.
     def command_missing
-      raise NoCommandError
+      raise MissingCommandError
     end
 
     # Override option_missing if needed.
@@ -105,7 +123,11 @@ module Clio
         args = parse(obj, argv)
         subcmd = args.shift
         if subcmd && !obj.respond_to?("#{subcmd}=")
-          obj.send(subcmd, *args)
+          begin
+            obj.send(subcmd, *args)
+          rescue NoMethodError
+            raise NoCommandError, subcmd
+          end
         else
           obj.command_missing
         end
@@ -126,16 +148,17 @@ module Clio
         else
           argv = argv.dup
         end
+
         argv = argv.dup
         args, opts, i = [], {}, 0
         while argv.size > 0
           case opt = argv.shift
           when /=/
-            parse_equal(obj, opt, argv)
+            parse_equal(obj, opt, argv, args)
           when /^--/
-            parse_option(obj, opt, argv)
+            parse_option(obj, opt, argv, args)
           when /^-/
-            parse_flags(obj, opt, argv)
+            parse_flags(obj, opt, argv, args)
           else
             args << opt
           end
@@ -144,7 +167,7 @@ module Clio
       end
 
       #
-      def parse_equal(obj, opt, argv)
+      def parse_equal(obj, opt, argv, args)
         if md = /^[-]*(.*?)=(.*?)$/.match(opt)
           x, v = md[1], md[2]
         else
@@ -154,6 +177,8 @@ module Clio
           obj.send("_#{x}",v)
         elsif obj.respond_to?("__#{x}")
           obj.send("__#{x}",v)
+        elsif obj.respond_to?("#{args.join('_')}_#{x}")
+          obj.send("#{args.join('_')}_#{x}",v)
         else
           obj.option_missing(x, v) # argv?
         end
@@ -166,10 +191,19 @@ module Clio
       end
 
       #
-      def parse_option(obj, opt, argv)
+      def parse_option(obj, opt, argv, args)
         x = opt[2..-1]
         if obj.respond_to?("__#{x}")
           m = obj.method("__#{x}")
+          if m.arity >= 0
+            a = []
+            m.arity.times{ a << argv.shift }
+            m.call(*a)
+          else
+            m.call
+          end
+        elsif obj.respond_to?("#{args.join('_')}_#{x}")
+          m = obj.method("#{args.join('_')}_#{x}")
           if m.arity >= 0
             a = []
             m.arity.times{ a << argv.shift }
@@ -188,7 +222,7 @@ module Clio
       end
 
       #
-      def parse_flags(obj, opt, args)
+      def parse_flags(obj, opt, argv, args)
         x = opt[1..-1]
         c = 0
         x.split(//).each do |k|
