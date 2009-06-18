@@ -1,9 +1,10 @@
 require 'clio/ansicode'
 require 'clio/layout/split'
-require 'clio/facets/string'
+#require 'clio/facets/string'
 
 module Clio
 
+  # Create a new Clio String object.
   def self.string(str)
     String.new(str)
   end
@@ -25,12 +26,15 @@ module Clio
     attr :text
     attr :marks
 
+    # New Clio::String
     def initialize(text=nil, marks=nil)
       @text  = (text  || '').to_s
       @marks = marks  || []
       yield(self) if block_given?
     end
 
+    # Convert Clio::String object to normal String.
+    # This converts the intental markup codes to ANSI code.
     def to_s
       s = text.dup
       m = marks.sort do |(a,b)| 
@@ -48,20 +52,21 @@ module Clio
       s 
     end
 
-    #
+    # Clio::String is a type of String.
     alias_method :to_str, :to_s
 
+    # The size of the base text.
     def size ; text.size ; end
 
-    ###
+    # Upcase the string.
     def upcase  ; self.class.new(text.upcase, marks) ; end
     def upcase! ; text.upcase! ; end
 
-    ###
+    # Downcase the string.
     def downcase  ; self.class.new(text.upcase, marks) ; end
     def downcase! ; text.upcase! ; end
 
-    ###
+    # Add one Clio::String to another, or to a regular String.
     def +(other)
       case other
       when String
@@ -76,15 +81,17 @@ module Clio
       self.class.new(ntext, nmarks)
     end
 
+    #
     def |(other)
       Split.new(self, other)
     end
 
+    #
     def lr(other, options={})
       Split.new(self, other, options)
     end
 
-    ### slice
+    # slice
     def slice(*args)
       if args.size == 2
         index, len = *args
@@ -117,6 +124,7 @@ module Clio
       end
     end
 
+    #
     alias_method :[], :slice
 
     # This is more limited than the normal String method.
@@ -142,7 +150,7 @@ module Clio
       self
     end
 
-    #
+    # See #sub!.
     def sub(pattern,replacement=nil, &block)
       dup.sub!(pattern, replacement, &block)
     end
@@ -173,7 +181,7 @@ module Clio
       self
     end
 
-    #
+    # See #gsub!.
     def gsub(pattern, replacement=nil, &block)
       dup.gsub!(pattern, replacement, &block)
     end
