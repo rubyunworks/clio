@@ -7,7 +7,7 @@ module Clio
   end
 
   class NoCommandError < ::NoMethodError
-    def initialize(name, *arg)
+    def initialize(name, *args)
       super("unknown subcommand -- #{name}", name, *args)
     end
   end
