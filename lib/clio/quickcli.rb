@@ -1,5 +1,3 @@
-require 'clio/errors'
-
 module Clio
 
   # = Command
