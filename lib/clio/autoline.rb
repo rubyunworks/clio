@@ -47,7 +47,7 @@ module Clio
 
     #
     instance_methods.each do |m|
-      private m if m !~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/ && !CPM.include?(m)
+      private m unless m =~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/ || CPM.include?(m.to_s) || CPM.include?(m.to_sym)
     end
 
     # Method missing provide passive usage and parsing.
