@@ -172,11 +172,6 @@ module Clio
 
   class Commandline
 
-    #
-    instance_methods.each do |m|
-      private m if m !~ /^(__|instance_|object_|send$|class$|inspect$|respond_to\?$)/
-    end
-
     class << self
 
       #def inherited(subclass)
