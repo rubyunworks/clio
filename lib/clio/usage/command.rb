@@ -8,6 +8,8 @@ module Clio
     #
     # This is the toplevel "main" command.
     #
+    # TODO: Subcommand is Command's superclass?
+    #       Err... there's got to be a cleaner way.
     class Command < Subcommand
 
       # New Usage.
@@ -94,7 +96,7 @@ module Clio
 =end
 
       def parse(argv)
-        Parser.new(self, argv).parse #(argv)
+        Parser.new(self).parse(argv)  #, argv).parse
       end
 
       # Cache usage into a per-user cache file for reuse.
