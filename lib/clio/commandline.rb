@@ -369,11 +369,16 @@ module Clio
       cli.to_a
     end
 
+    def errors
+      cli.errors
+    end
+
     # Commandline fully valid?
     #
     def valid?
       @cli.valid?
     end
+
 
     # TODO: adding '-' is best idea?
     #
@@ -387,6 +392,7 @@ module Clio
       #load_cache
       #parse
     end
+
 
     #
     #def load_cache
