@@ -67,21 +67,21 @@ module Clio
 
       def key ; @name.to_sym ; end
 
-      # METHOD MISSING
-      #-------------------------------------------------------------
-
-      def method_missing(key, *args, &blk)
-        key = key.to_s
-        case key
-        when /\?$/
-          option(key.chomp('?'), *args, &blk)
-        else
-          #k = full_name ? "#{full_name} #{key}" : "#{key}"
-          c = command(key, &blk)
-          args.each{ |a| c[a] }
-          c
-        end
-      end
+#      # METHOD MISSING
+#      #-------------------------------------------------------------
+#
+#      def method_missing(key, *args, &blk)
+#        key = key.to_s
+#        case key
+#        when /\?$/
+#          option(key.chomp('?'), *args, &blk)
+#        else
+#          #k = full_name ? "#{full_name} #{key}" : "#{key}"
+#          c = command(key, &blk)
+#          args.each{ |a| c[a] }
+#          c
+#        end
+#      end
 
       # Define or retrieve a subcommand.
       #

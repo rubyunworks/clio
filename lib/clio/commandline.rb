@@ -13,24 +13,24 @@ module Clio
   #
   # = Underlying Notation
   #
-  # The underlying domain lanauge for crating commandline interfaces.
+  # The underlying domain lanauge for creating commandline interfaces.
   #
   #   cli = Clio::Commandline.new
   #   cli.usage do
-  #     option(:verbose, :v) do
-  #       help('verbose output')
+  #     option :verbose, :v do
+  #       help 'verbose output'
   #     end
-  #     option(:quiet, :q) do
-  #       help('run silently')
-  #       xor(:V)
+  #     option :quiet, :q  do
+  #       help 'run silently'
+  #       xor  :v
   #     end
-  #     command(:document) do
-  #       help('generate documentation')
-  #       option(:output, :o) do
-  #         type('FILE')
-  #         help('output directory')
+  #     command :document do
+  #       help 'generate documentation'
+  #       option :output, :o do
+  #         type 'FILE'
+  #         help 'output directory'
   #       end
-  #       argument('FILE') do
+  #       argument 'FILE' do
   #         multiple
   #       end
   #     end
@@ -38,8 +38,8 @@ module Clio
   #
   # Clearly block notation is DRY and easier to read, but sometimes a Commandline
   # object may need to be passed around and have commands and arguments modified
-  # "on the fly". For this a *fluent* notation is useful. Therefore the block
-  # notation can just as easily be used fluently.
+  # "on the fly". Because the block notation does not use hash arguments,
+  # a *fluent* notation can just as easily be used.
   #
   #   cli = Clio::Commandline.new
   #   cli.usage.option(:verbose, :v).help('verbose output')
@@ -57,10 +57,12 @@ module Clio
   #
   # The core notation can be somewhat verbose. As a further convenience
   # commandline usage can be defined with a brief <i>bracket shorthand</i>
-  # that resembles the general notations. A simple example:
+  # that resembles the standard notation used by command line parsers.
+  # A simple example:
   #
   #   cli.usage['document']['--output=FILE -o']['FILE*']
   #
+  # The bracket notation can take a seocnd argument to set help text.
   # Using a little creativity to improve readabilty we can convert the
   # whole example from above using this notation.
   #
@@ -106,6 +108,7 @@ module Clio
   #       FILE*              files to document
   #   }
   #
+  #--
   # == Method Notation
   #
   # Lastly, Commandline supports a *method-missing* notation. This notation is supported becuase
@@ -114,8 +117,9 @@ module Clio
   # limited in it's scope. For instance, subcommands that use non-alphanumeic characters, such as ':',
   # can not be described with this notation.
   #
-  #   cli.usage.document('*files', '--output=FILE -o')
-  #   cli.usage('--verbose -V','--quiet -q')
+  #   cli.usage.document('*files').output=('FILE', :o)
+  #   cli.usage.verbose?(:V)
+  #   cli.quiet?(:q)
   #
   #   cli.usage.help(
   #     'document'     , 'generate documentation',
@@ -128,6 +132,7 @@ module Clio
   #     '--output', 'output directory'
   #     'file*',    'files to document'
   #   )
+  #++
   #
   # == Combining Notations
   #
@@ -135,7 +140,7 @@ module Clio
   # structures, they can be mixed and matched as suites ones taste.
   # For example we could mix Method Notation and Bracket Notation.
   #
-  #   cli.usage.document['--output=FILE -o']['file*']
+  #   cli.usage.command(:document)['--output=FILE -o']['file*']
   #   cli.usage['--verbose -V']['--quiet -q']
   #
   # The important thing to keep in mind when doing this is what is
@@ -166,7 +171,7 @@ module Clio
   # per the content of the command line. You can add aliases as
   # parameters to this call as well.
   #
-  #   cli = Clio::Commandline.auto_new('-f', :auto=>true)
+  #   cli = Clio::Commandline.new('-f', :auto=>true)
   #   cli.force?(:f)  #=> true
   #
   # Once set, you do not need to specify the alias again:

@@ -73,6 +73,7 @@ module Clio
   # without resorting to #xor as was done in the first example.
   #++
   #
+  #--
   # = Method Notation
   #
   # This notation is very elegant, but slightly more limited in scope.
@@ -93,6 +94,7 @@ module Clio
   #     '--output', 'output directory'
   #     'file*',    'files to document'
   #   )
+  #++
   #
   # This notation is slightly more limited in scope... so...
   #
@@ -166,7 +168,7 @@ module Clio
   # structures, they can be mixed and matched as suites ones taste.
   # For example we could mix Method Notation and Bracket Notation.
   #
-  #   usage.document['--output=FILE -o']['file*']
+  #   usage.command(:document)['--output=FILE -o']['file*']
   #   usage['--verbose -V']['--quiet -q']
   #
   # The important thing to keep in mind when doing this is what is
