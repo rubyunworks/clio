@@ -13,8 +13,7 @@ module Clio
   #
   # = Underlying Notation
   #
-  # As you might expect the fluent notation can be broken down into
-  # block notation.
+  # The underlying domain lanauge for crating commandline interfaces.
   #
   #   cli = Clio::Commandline.new
   #   cli.usage do
@@ -31,46 +30,34 @@ module Clio
   #         type('FILE')
   #         help('output directory')
   #       end
-  #       argument('files') do
+  #       argument('FILE') do
   #         multiple
   #       end
   #     end
   #   end
   #
-  # Clearly block notation is DRY and easier to read, but fluent
-  # notation is important to have because it allows the Commandline
-  # object to be passed around as an argument and modified easily.
+  # Clearly block notation is DRY and easier to read, but sometimes a Commandline
+  # object may need to be passed around and have commands and arguments modified
+  # "on the fly". For this a *fluent* notation is useful. Therefore the block
+  # notation can just as easily be used fluently.
   #
-  # == Method Notation
+  #   cli = Clio::Commandline.new
+  #   cli.usage.option(:verbose, :v).help('verbose output')
+  #   cli.usage.option(:quiet, :q).help('run silently').xor(:V)
+  #   cli.usage.command(:document).help('generate documentation')
+  #   cli.usage.command(:document).option(:output, :o).type('FILE').help('output directory')
+  #   cli.usage.command(:document).argument('FILE').multiple
   #
-  # This notation is very elegant, but slightly more limited in scope.
-  # For instance, subcommands that use non-letter characters, such as ':',
-  # can not be described with this notation.
+  # Some of these methods can take additional arguments using a *literal help* notation,
+  # such that additional method calls need not be made. For example,
   #
-  #   cli.usage.document('*files', '--output=FILE -o')
-  #   cli.usage('--verbose -V','--quiet -q')
-  #
-  #   cli.usage.help(
-  #     'document'     , 'generate documentation',
-  #     'validate'     , 'run tests or specifications',
-  #     '--verbose'    , 'verbose output',
-  #     '--quiet'      , 'run siltently'
-  #   )
-  #
-  #   cli.usage.document.help(
-  #     '--output', 'output directory'
-  #     'file*',    'files to document'
-  #   )
-  #
-  # This notation is slightly more limited in scope... so...
-  #
-  #   cli.usage.command(:document, '--output=FILE -o', 'files*')
+  #   cli.usage.command(:document, '--output=FILE -o', 'FILE*')
   #
   # == Bracket Shorthand Notation
   #
   # The core notation can be somewhat verbose. As a further convenience
-  # commandline usage can be defined with a brief <i>bracket shorthand</i>.
-  # This is especailly useful when the usage is simple and statically defined.
+  # commandline usage can be defined with a brief <i>bracket shorthand</i>
+  # that resembles the general notations. A simple example:
   #
   #   cli.usage['document']['--output=FILE -o']['FILE*']
   #
@@ -103,6 +90,45 @@ module Clio
   #
   # A little more verbose, but a bit more intutive.
   #
+  # == Literal Help Notation
+  #
+  # Coming soon...
+  #
+  # Finally this leads us to literal *help* notation. When a commands
+  # options are static and known from the start, this is certainly
+  # the most obvious choice. 
+  #
+  #   cli.usage %{
+  #     --verbose -V         verbose output
+  #     --quiet -q           run silently
+  #     document             generate documention
+  #       --output=FILE -o   output directory
+  #       FILE*              files to document
+  #   }
+  #
+  # == Method Notation
+  #
+  # Lastly, Commandline supports a *method-missing* notation. This notation is supported becuase
+  # access to the final parsed commandline is usually with the same method-based notation
+  # (as opposed to using #[] calls). In this sense it is very elegant, but it is slightly more
+  # limited in it's scope. For instance, subcommands that use non-alphanumeic characters, such as ':',
+  # can not be described with this notation.
+  #
+  #   cli.usage.document('*files', '--output=FILE -o')
+  #   cli.usage('--verbose -V','--quiet -q')
+  #
+  #   cli.usage.help(
+  #     'document'     , 'generate documentation',
+  #     'validate'     , 'run tests or specifications',
+  #     '--verbose'    , 'verbose output',
+  #     '--quiet'      , 'run siltently'
+  #   )
+  #
+  #   cli.usage.document.help(
+  #     '--output', 'output directory'
+  #     'file*',    'files to document'
+  #   )
+  #
   # == Combining Notations
   #
   # Since the various notations all translate to same underlying
@@ -113,7 +139,7 @@ module Clio
   #   cli.usage['--verbose -V']['--quiet -q']
   #
   # The important thing to keep in mind when doing this is what is
-  # returned by each type of usage call.
+  # returned by each type of call.
   #
   # == Commandline Parsing
   #
@@ -150,7 +176,8 @@ module Clio
   # With the exception of help information, this means you can
   # generally just use a commandline as needed without having
   # to declare anything upfront.
-  #++
+  #
+  #--
   #
   # == Usage Cache
   #
@@ -159,7 +186,6 @@ module Clio
   # again the next time the same command is used. This allows
   # Commandline to provide high-performane tab completion.
   #
-  #--
   # == Coming Soon
   #
   # In the future Commandline will be able to generate Manpage
@@ -168,7 +194,7 @@ module Clio
   # TODO: Allow option setter methods (?)
   # TODO: Allow a hash as argument to initialize (?)
   #++
-
+  #
   class Commandline
 
     class << self
