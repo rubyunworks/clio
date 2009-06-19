@@ -43,3 +43,5 @@ A subcommand with an option.
   cli[0].options.assert == {}
   cli[1].options.assert == {:verbose=>true}
 
+QED.
+

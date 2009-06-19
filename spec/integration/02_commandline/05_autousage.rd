@@ -2,29 +2,29 @@
 
 Require Commandline library.
 
-    require 'clio/autoline'
+    require 'clio/commandline'
     $0 = 'test'
 
 Handles a toplevel option using method_missing.
 
-    cli = Clio::AutoCommandline.new('--verbose')
+    cli = Clio::Commandline.new('--verbose', :auto=>true)
     cli.verbose?
     cli.to_s.assert == 'test [--verbose]'
 
 Handles a toplevel option with aliases using method_missing.
 
-    cli = Clio::AutoCommandline.new('--verbose')
+    cli = Clio::Commandline.new('--verbose', :auto=>true)
     cli.verbose?(:v)
     cli.to_s.assert == 'test [-v --verbose]'
 
 Returns a toplevel option value"
 
-    cli = Clio::AutoCommandline.new('--verbose')
+    cli = Clio::Commandline.new('--verbose', :auto=>true)
     cli.verbose?(:v).assert == true
 
 Create new commandline object.
 
-    cmd = Clio::AutoCommandline.new('--verbose')
+    cmd = Clio::Commandline.new('--verbose', :auto=>true)
     cmd.usage.command('foo')
     cmd.parse
 
@@ -32,7 +32,7 @@ Create new commandline object.
 
 Create new Commandline object.
 
-    @cmd = Clio::AutoCommandline.new('-V')
+    @cmd = Clio::Commandline.new('-V', :auto=>true)
 
 Returns a toplevel option value.
 
@@ -43,7 +43,7 @@ Returns a toplevel option value.
 An option and a subcommand parsed statically.
 
     $0 = 'test'
-    @cli = Clio::AutoCommandline.new('-V foo')
+    @cli = Clio::Commandline.new('-V foo', :auto=>true)
     @cli.usage.opt('--verbose -V')
     @cli.usage.command('foo')
     @cli.parse
@@ -51,4 +51,6 @@ An option and a subcommand parsed statically.
 Parses the option correctly.
 
     @cli.options[:verbose].assert == true
+
+QED.
 
