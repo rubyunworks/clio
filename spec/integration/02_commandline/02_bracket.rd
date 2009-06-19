@@ -1,4 +1,4 @@
-= Command Definition using Bracket Notation
+== Bracket Notation
 
 Require commandline library.
 

@@ -1,4 +1,4 @@
-= Test Subclass of Subclass of Command
+== Subclass of Subclass of Commandline
 
 Require clio/commandline.rb.
 

@@ -1,6 +1,6 @@
 = Clio::Usage
 
-== Create a Usage object.
+== Create a Usage Object
 
 Require usage library.
 

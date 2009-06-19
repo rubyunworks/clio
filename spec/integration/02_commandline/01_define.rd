@@ -1,4 +1,6 @@
-= Commandline Definition using Core Notation
+= Commandline Definition
+
+== Core Notation
 
 Require commandline library.
 

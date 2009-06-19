@@ -1,4 +1,4 @@
-= Commandline Tab Completion
+== Commandline Tab Completion
 
 Load commandline library.
 

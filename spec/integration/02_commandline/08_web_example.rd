@@ -1,4 +1,4 @@
-= Examples
+== Full Example
 
 This is the example on the website. We put it here
 to make sure it runs.

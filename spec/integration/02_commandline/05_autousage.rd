@@ -1,4 +1,4 @@
-= Method Missing "Auto" Usage
+== Method Missing "Auto" Usage
 
 Require Commandline library.
 

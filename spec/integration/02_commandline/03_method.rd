@@ -1,4 +1,4 @@
-= Command Definition using Method Notation
+== Method Notation
 
 Require commandline library.
 
