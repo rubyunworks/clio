@@ -11,14 +11,14 @@
   <style>
     body{
       padding: 0; margin: 0; font-family: times; color: black;
-      background: url(assets/images/swirl.jpg) center top no-repeat;
+      /* background: url(assets/images/swirl.jpg) center top no-repeat; */
     }
 
     div, img, iframe, h1 { padding: 0; margin: 0; }
 
     img{ border: 0px solid yellow; }
 
-    pre.code{ padding: 10px; margin: 10px; font-size: 12px; width: 450px; float: right; }
+    p.intro{ padding: 10px; margin: 10px; font-size: 24pt; width: 450px; float: right; }
 
     #title {
       font-size: 42pt;
@@ -56,7 +56,7 @@
       clear: both;
       border: 2px dotted orange;
       background: url(assets/images/bkg.jpg) repeat;
-      height: 480px;
+      height: 500px;
     }
     .copyright {
       margin: 40px 0;
@@ -67,6 +67,7 @@
     .footer {
       margin: 30px 0;
       border-top: 1px solid #ccc;
+      padding-top: 30px;
     }
     #footer iframe {
       width: 900px;
@@ -94,47 +95,101 @@
   </div>
 
   <div id="main" style="position: relative;">
+    <p class="intro">
+      <i>Clio</i> is an advanced library for developing
+      command line intefaces in the Ruby programming lanaguage. Clio includes an advances
+      commandline parser, a quick base-class commandline parser, easy methods for 
+      getting use input and a console
+      String class that makes it suprisingly easy to output beautiful console text.
+    <p>
+    <img src="assets/images/muse_clio.jpg" align="left"/>
+  </div>
+
+  <div>
+    <p>The advanced parser can be used in a number of ways. The highest-level approach
+    involves specifiying ones commandline in a help text like string.<p> 
+
     <pre class="sh_ruby code">
       require 'clio'
 
-      <b>cli</b> = Clio::Commandline.new
+      use = Clio::Usage.new %{
+        --verbose -v          do it loudly
 
-      <b>cli</b>.usage.document('--output=PATH -o', '*FILES')
-      <b>cli</b>.usage.verbose?('-v')
+        document              generate documents
+          --output=PATH -o    where to put it
+          *FILES
+      }
+    </pre>
 
-      <b>cli</b>.usage.help(
-        'document'  , 'generate docs',
-        '--verbose' , 'do it loudly'
+    <p>This syntax can be broken down further into the underlying ... </p>
+
+    <pre>
+      use = Clio::Usage.new
+      use['--verbose -v']
+      use['document']['--output=PATH -o']['*FILES']
+
+      use.help(
+        'document', 'generate docs',
+        '--verbose', 'do it loudly'
       )
 
-      <b>cli</b>.parse('document -v -o doc/ README [A-Z]*')
+      use['document'].help(
+        'output', 'where to put it'
+      ) 
+    </pre>
 
-      <b>cli</b>.command   <span style="color: green">#=> "document"</span>
-      <b>cli</b>.verbose?  <span style="color: green">#=> true</span>
+    <p>This then can be broken down fruther to the underlying DSL that 
+    Clio uses to create all usage specifications.</p>
 
-      <b>cli</b>.document.options    <span style="color: green">#=> [:output => "doc/"]</span>
-      <b>cli</b>.document.arguments  <span style="color: green">#=> ["README", "[A-Z]*"]</span>
+    <pre>
+      use = Clio::Usage.new do
+        command :document do
+          help 'generate docs'
+          option :output, :o do
+            type 'PATH'
+            help 'where to put it' 
+          end
+          argument 'FILES' do
+            multiple
+          end
+        end
+        option(:verbose, :v) do
+          help 'do it loudly'
+        end
+      end
+    </pre>
 
-      <b>cli</b>.parse('--help')
+    <p>Once specified, it's time to parse and utilize the results.</p>
+ 
+    <pre>
+      cli = use.parse('document -v -o doc/ README [A-Z]*')
 
-      if <b>cli</b>.help?
-        puts Clio::String.new(<b>cli</b>.help){ |s|
+      cli.command    <span style="color: green">#=> "document"</span>
+      cli.options    <span style="color: green">#=> {:output => "doc/", :verbose=>true}</span>
+      cli.arguments  <span style="color: green">#=> ["README", "[A-Z]*"]</span>
+
+      cli.verbose?   <span style="color: green">#=> true</span>
+    </pre>
+
+    <p>What to output some really nice help text. Let's use Clio::String to spruce it up.</p>
+
+    <pre>
+      cli.parse('--help')
+
+      if cli.help?
+        puts Clio::String.new(cli.help){ |s|
           s.gsub!(/^\w+\:/){ |w| w.bold.underline }
           s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
         }
       end
     </pre>
 
-    <img src="assets/images/muse_clio.jpg" align="left" />
   </div>
 
-  <br/>
-
   <div id="text" style="clear: both;">
-    <b>Figure 1.</b> <i>Clio</i> -- Clio is an advanced library for developing
-    command line intefaces in the Ruby programming lanaguage. Clio includes an a
-    commandline parser, a quick drop-in commandline mixin parser and a console
-    String class that makes it suprisingly easy to output beautiful console text.
+  </div>
+
+  
   </div>
 
   <div class="copyright">
