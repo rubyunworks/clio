@@ -176,8 +176,69 @@ module Clio
   #
   module Usage
 
-    def self.new(name=nil, &block)
-      Command.new(name, &block)
+    BLANK        = /^\s*$/
+    COMMAND      = /^\w/   # NOT GOOD ENOUGH
+
+    #LONG_OPTION  = /^--/
+    #SHORT_OPTION = /^-\S/
+
+    #
+    def self.new(text=nil, opts={}, &block)
+      if text
+        parse_help_text(text)
+      elsif block
+        Command.new(opts[:name], &block)
+      end
+    end
+
+    #
+    def self.parse_help_text(text)
+      command = Command.new
+
+      text = text.sub(/\A\s*?\n/, '')
+
+      use = command
+      tab = indent_length(text)
+      use_stack = []
+      tab_stack = []
+
+      text.each_line do |line|
+        next if BLANK =~ line
+
+        # at least 4 spaces divide help from element
+        cmd, help = *line.strip.split('    ')
+        cmd, help = cmd.to_s.strip, help.to_s.strip
+
+        i = indent_length(line)
+#p '#1', i, tab, use
+        if i < tab
+          until i >= tab
+            use = use_stack.pop
+            tab = tab_stack.pop
+          end
+        end
+#p '#2', use
+        u = use[cmd, help]
+#p '#3', u
+        if Subcommand === u
+          use = u
+          tab = i
+          use_stack << u
+          tab_stack << i
+        end
+
+        #if ARGS =~ cmd
+        #  use = use_stack.pop
+        #  tab_stack.pop
+        #end
+      end
+
+      return command
+    end
+
+    #
+    def self.indent_length(line)
+      /^(\s+)\S/.match(line)[1].length
     end
 
   end#module Usage
