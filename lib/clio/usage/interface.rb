@@ -10,59 +10,80 @@ module Clio
     #
     class Interface
 
-      attr :signatures
+      #attr :signatures
+
+      attr :commands
+
+      attr :arguments
+
+      attr :options
+
       attr :errors
 
-      alias_method :parse_errors, :errors
+      alias_method :switches, :options
+
+      #alias_method :parse_errors, :errors
 
       #
-      def initialize(signatures=[], errors=[])
-        @signatures = signatures
+      #def initialize(signatures=[], errors=[])
+      def initialize(commands, options, arguments, errors=[])
+        @binary    = commands[0]
+        @commands  = commands[1..-1]
+        @options   = options
+        @arguments = arguments
+
+        #@signatures = signatures
         @errors     = errors
       end
 
-      # TODO: Join by what character?
+      #def inspect; "#<#{self.class}:" + @signature.inspect + ">"; end
+
+      # TODO: join by what character?
       def command
         return nil if commands.empty?
         return commands.join(' ')
       end
 
-      #
-      def commands
-        #parse unless parsed?
-        @commands ||= (
-          a = []
-          @signatures[1..-1].each do |s|
-            a << s.command.to_s
-          end
-          a
-        )
-      end
+#      #
+#      def commands
+#        #parse unless parsed?
+#        @commands ||= (
+#          a = []
+#          @signatures[1..-1].each do |s|
+#            a << s.command.to_s
+#          end
+#          a
+#        )
+#      end
 
-      #
-      def options
-        #parse unless parsed?
-        @options ||= (
-          h = {}
-          @signatures.each do |s|
-            h.merge!(s.options)
-          end
-          h
-        )
-      end
-      alias_method :switches, :options
 
-      #
-      def arguments
-        #parse unless parsed?
-        @arguments ||= (
-          m = []
-          @signatures.each do |s|
-            m.concat(s.arguments)
-          end
-          m
-        )
-      end
+#      #
+#      def options
+#        #parse unless parsed?
+#        @options ||= (
+#          h = {}
+#          @signatures.each do |s|
+#            h.merge!(s.options)
+#          end
+#          h
+#        )
+#      end
+#      alias_method :switches, :options
+
+
+#      #
+#      def arguments
+#        #parse unless parsed?
+#        @arguments ||= (
+#          m = []
+#          @signatures.each do |s|
+#            m.concat(s.arguments)
+#          end
+#          m
+#        )
+#      end
+
+
 
       # Return parameters array of [*arguments, options]
       def parameters
@@ -86,13 +107,20 @@ module Clio
 
       # Index on each subcommand, with 0 being the toplevel command.
       def [](i)
-        @signatures[i]
+        case i
+        when Numeric
+          @arguments[i]
+        else
+          @options[i]
+        end
+        #@signatures[i]
       end
 
       #
       def to_a
         #parse unless parsed?
-        @signatures.collect{ |s| s.to_a }
+        #@signatures.collect{ |s| s.to_a }
+        parameters
       end
 
       #

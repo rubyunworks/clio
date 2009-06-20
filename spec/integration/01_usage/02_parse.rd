@@ -40,8 +40,10 @@ A subcommand with an option.
   cli.commands.assert == ['foo']
   cli.options.assert == {:verbose=>true}
 
-  cli[0].options.assert == {}
-  cli[1].options.assert == {:verbose=>true}
+Numeric index returns arguments.
+
+  #cli[0].options.assert == {}
+  #cli[1].options.assert == {:verbose=>true}
 
 QED.
 

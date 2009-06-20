@@ -1,5 +1,5 @@
 require 'shellwords'
-require 'clio/usage/signature'
+#require 'clio/usage/signature'
 require 'clio/usage/interface'
 
 module Clio
@@ -12,18 +12,18 @@ module Clio
     #
     class Parser
       attr :usage
-      attr :argv
+      #attr :argv
 
-      attr :signatures
+      #attr :signatures
 
       #
       def initialize(usage) #, argv) #, index=0)
         @usage  = usage
         #@argv   = argv
 
-        @parsed     = false
-        @signatures = []
-        @errors     = []
+        #@parsed     = false
+        #@signatures = []
+        #@errors     = []
       end
 
       #
@@ -42,30 +42,35 @@ module Clio
       end
 
       #
-      def inspect
-        s = "<" + signatures.inspect + ">"
-        s
-        #s  = "#<#{self.class}"
-        #s << " @options=#{@options.inspect}" unless @options.empty?
-        #s << " @arguments=#{@arguments.inspect}" unless @arguments.empty?
-        #s << " @subcommand=#{@subcommand}>" if @subcommand
-        #s << ">"
-        #s
-      end
+      #def inspect
+      #  s  = "#<#{self.class}"
+      #  s << " @options=#{@options.inspect}" unless @options.empty?
+      #  s << " @arguments=#{@arguments.inspect}" unless @arguments.empty?
+      #  s << " @subcommand=#{@subcommand}>" if @subcommand
+      #  s << ">"
+      #  s
+      #end
 
       #
       def parse(args=nil)
         argv = clean_vector(args)
 
         @parsed     = false
-        @signatures = []
-        @errors     = []
+
+        #@signatures = []
+
+        @commands  = []
+        @options   = {}
+        @arguments = []
+
+        @errors    = []
 
         parse_command(usage, argv)
 
         @parsed     = true
 
-        return Interface.new(@signatures, @errors)
+        return Interface.new(@commands, @options, @arguments, @errors)
+        #return Interface.new(@signatures, @errors)
       end
 
       # Has the commandline been parsed?
@@ -75,9 +80,9 @@ module Clio
 
       # TODO: clean-up parsing
       def parse_command(usage, argv)
-        options    = {}
-        arguments  = []
-        command    = nil
+        op = {}
+        ar = []
+        cm = nil
 
         #greedy = parse_greedy(usage, argv)
 
@@ -90,20 +95,20 @@ module Clio
             if val == "\t"
               parse_errors << [val, use]
             elsif use.multiple?
-              options[use.key] ||= []
-              options[use.key] << val
+              op[use.key] ||= []
+              op[use.key] << val
             else
-              options[use.key] = val
+              op[use.key] = val
             end
           elsif !usage.arguments.empty?
             usage.arguments.each do |a|
               if a.splat
                 while argv.first && argv.first !~ /^[-]/
-                  arguments << argv.shift
+                  ar << argv.shift
                 end
                 break if argv.empty?
               else
-                arguments << argv.shift
+                ar << argv.shift
               end
             end
           else
@@ -114,13 +119,19 @@ module Clio
               parse_command(use, argv)
               break
             else
-              parse_errors << [arg, usage]
+#arguments << arg
+              errors << [arg, usage]
               #raise ParseError, "unknown command or argument #{a} for #{usage.key} command"
               break
             end
           end
         end
-        @signatures.unshift(Signature.new(usage.name, arguments, options))
+
+        @commands.unshift(usage.name)
+        @options.update(op)
+        @arguments.concat(ar)
+
+        #@signatures.unshift(Signature.new(usage.name, arguments, options))
       end
 
 =begin
@@ -158,8 +169,11 @@ module Clio
 
       #
       def parse_option(usage, argv)
+        # if the current arg is '--' then this is a stopping point.
         return if argv.first =~ /^[-]+$/
+        # if not an option then move on.
         return if argv.first !~ /(^-.+|=)/
+
         arg = argv.shift
         name, val = *arg.split('=')
         if use = usage.option?(name)
@@ -170,7 +184,7 @@ module Clio
           end
           #options[use.name] = val
         else
-          parse_errors << [arg, usage.key]
+          errors << [arg, usage.key]
         end
         return use, val
       end
@@ -182,7 +196,7 @@ module Clio
         @errors
       end
 
-      alias_method :parse_errors, :errors
+      #alias_method :parse_errors, :errors
 
     end #class Parser
 
@@ -193,5 +207,4 @@ module Clio
   end #class Usage
 
 end #module Clio
-
 

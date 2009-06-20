@@ -1,79 +1,35 @@
 module Clio
 
-  # = Command
+  # = QuickCLI
   #
-  # Command is Clio's low-level command option parser solution.
-  # Despite being low-level, it is actually quite easy to used
-  # and integrates will with Ruby.
+  #   class MyCLI < Clio::QuickCLI
   #
-  # The Command class does not to try overly determine your needs via a
-  # declarative options DSL, rather it just makes it easy for you to 
-  # process options into a command class. It does this primarily by
-  # using a simple method naming trick. Methods with names starting
-  # with underscores (eg. _n or __name) are treated as options.
-  #
-  # Clio::Command encourages the command pattern (hence the name). So one
-  # class does one thing and one thing only. This helps ensure a robust
-  # design, albeit at the expense of churning a quick all-in-one solution.
-  #
-  # For a quicker solution to command line parsing have a look at
-  # Clio::Commandable or Clio::Commandline.
-  #
-  # Although it is low-level it does provide a single high-level "DSL"
-  # command for describing usage. This is purely a descriptive measure,
-  # and has no barring on the functionality. It is provided to ease 
-  # the creation of help and command completion output.
-  #
-  # Simply specify:
-  #
-  #    usage :optname, "options description", :type=>"TYPE", :default=>"DEFAULT"
-  #
-  # Here is an example of usage.
-  #
-  #   MainCommand < Clio::Command
-  #
-  #     usage :quiet, "keep it quiet?",   :type=>:BOOLEAN, :default=>:FALSE
-  #     usage :file,  "what file to use", :type=>:FILE, :alias => :f
-  #
-  #     # boolean flag
-  #     def __quiet
-  #       @quiet = true
+  #     # Global flag option.
+  #     def debug?
+  #       @debug = true
   #     end
   #
-  #     # required option
-  #     def __file(fname)
-  #       @file = fname
+  #     def remote
+  #       ...
   #     end
   #
-  #     # one letter shortcut
-  #     alias _f __flag
+  #     def remote_verbose?
   #
-  #     # run command
-  #     def call(*args)
-  #       subcommand = args.shift
-  #       case subcommand
-  #       when 'show'
-  #         puts File.read(@file)
-  #       when 'rshow'
-  #         puts File.read(@file).reverse
-  #       else
-  #         puts "Unknown subcommand"
-  #       end
+  #     end
+  #
+  #     def remote_force?
+  #
+  #     end
+  #
+  #     def remote_add(name, branch)
+  #
+  #     end
+  #
+  #     def remote_show(name)
+  #
   #     end
   #
   #   end
-  #
-  #   MainCommand.run
-  #
-  # You can chain subcommands together via a case statement like
-  # that given above. Eg.
-  #
-  #       case subcommand
-  #       when 'build'
-  #         BuildCommand.run(args)
-  #       ...
-  #
-  # TODO: Support passing a string or *args, opts in place of ARGV.
   #
   class QuickCLI
 
@@ -171,12 +127,10 @@ module Clio
         else
           raise ArgumentError, "#{x}"
         end
-        if obj.respond_to?("_#{x}")
-          obj.send("_#{x}",v)
-        elsif obj.respond_to?("__#{x}")
-          obj.send("__#{x}",v)
-        elsif obj.respond_to?("#{args.join('_')}_#{x}")
-          obj.send("#{args.join('_')}_#{x}",v)
+        if obj.respond_to?("#{x}=")
+          obj.send("#{x}=", v)
+        elsif obj.respond_to?("#{args.join('_')}_#{x}=")
+          obj.send("#{args.join('_')}_#{x}=", v)
         else
           obj.option_missing(x, v) # argv?
         end
@@ -188,11 +142,23 @@ module Clio
         #end
       end
 
-      #
+      # TODO: Should we allow more than one argument (ie. arity)
       def parse_option(obj, opt, argv, args)
-        x = opt[2..-1]
-        if obj.respond_to?("__#{x}")
-          m = obj.method("__#{x}")
+        x = opt[2..-1] # remove '--'
+        if obj.respond_to?("#{x}=")
+          m.call(argv.shift)
+        elsif obj.respond_to?("#{args.join('_')}_#{x}=")
+          m = obj.method("#{args.join('_')}_#{x}=")
+          #if m.arity >= 0
+          #  a = []
+          #  m.arity.times{ a << argv.shift }
+          #  m.call(*a)
+          #else
+          #  m.call
+          #end
+          m.call(argv.shift)
+        elsif obj.respond_to?("#{x}?")
+          m = obj.method("#{x}?")
           if m.arity >= 0
             a = []
             m.arity.times{ a << argv.shift }
@@ -200,8 +166,8 @@ module Clio
           else
             m.call
           end
-        elsif obj.respond_to?("#{args.join('_')}_#{x}")
-          m = obj.method("#{args.join('_')}_#{x}")
+        elsif obj.respond_to?("#{args.join('_')}_#{x}?")
+          m = obj.method("#{args.join('_')}_#{x}?")
           if m.arity >= 0
             a = []
             m.arity.times{ a << argv.shift }
@@ -219,12 +185,13 @@ module Clio
         #end
       end
 
-      #
+      # TODO: this needs some thought concerning character spliting and arguments
       def parse_flags(obj, opt, argv, args)
         x = opt[1..-1]
         c = 0
         x.split(//).each do |k|
-          if m = obj.method("_#{k}")
+          if obj.respond_to?("#{k}?")
+            m = obj.method("#{k}?")
             a = []
             m.arity.times{ a << argv.shift }
             m.call(*a)

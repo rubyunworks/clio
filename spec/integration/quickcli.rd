@@ -21,11 +21,11 @@ Setup an example CLI subclass.
       @result << "c1"
     end
 
-    def c1_o1(value)
+    def c1_o1=(value)
       @result << "c1_o1 #{value}"
     end
 
-    def c1_o2(value)
+    def c1_o2=(value)
       @result << "c1_o2 #{value}"
     end
 
@@ -33,15 +33,15 @@ Setup an example CLI subclass.
       @result << "c2"
     end
 
-    def c2_o1(value)
+    def c2_o1=(value)
       @result << "c2_o1 #{value}"
     end
 
-    def c2_o2
+    def c2_o2?
       @result << "c2_o2"
     end
 
-    def _g
+    def g?
       @result << "g"
     end
   end

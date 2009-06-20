@@ -2,33 +2,46 @@
 #
 # This is the example on the website.
 
-  require 'clio/commandline'
-  require 'clio/string'
+require 'clio/usage'
+require 'clio/string'
 
-  cli = Clio::Commandline.new
+use = Clio::Usage.new
 
-  cli.usage.document('--output=PATH -o', '*FILES')
-  cli.usage.verbose?('-v')
+use['document']['--output=PATH -o']
+use['document']['<*files>']
+use['show']['<*files>']
+use['wack']['<*files>']
+use['hump']['<*files>']
 
-  cli.usage.help!(
-    'document', 'generate docs',
-    '--verbose',  'do it loudly'
-  )
+use['--verbose -v']
+use['--help -h']
 
-  cli.parse('document -v -o doc/ README [A-Z]*')
+use.help(
+  'document' , 'generate docs',
+  '--verbose', 'do it loudly'
+)
 
-  cli.command   #=> "document"
-  cli.verbose?  #=> true
+cli = use.parse('document -v -o doc/ README [A-Z]*')
 
-  cli.document!.options    #=> [:output => "doc/"]
-  cli.document!.arguments  #=> ["README", "[A-Z]*"]
+cli.command   #=> "document"
+cli.verbose?  #=> true
 
-  cli.parse('--help')
+p cli.options
+p cli.arguments
+p cli.errors
 
-  if cli.help?
-    puts Clio::String.new(cli.help){ |s|
-      s.gsub!(/^\w+\:/){ |w| w.bold.underline }
-      s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
-    }
-  end
+#cli.document.options    #=> [:output => "doc/"]
+#cli.document.arguments  #=> ["README", "[A-Z]*"]
+
+cli = use.parse('document --help')
+
+puts use.command(cli.command).help
+
+if cli.help?
+  puts Clio::String.new(use.help_text){ |s|
+    s.gsub!(/^\w+\:/){ |w| w.bold.underline }
+    s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
+  }
+end
+
 
