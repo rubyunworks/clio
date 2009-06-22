@@ -1,6 +1,6 @@
 module Clio
 
-  module Usage
+  class Usage
 
     # = Command Interface (toplevel signature)
     #

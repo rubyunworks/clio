@@ -4,7 +4,7 @@ require 'clio/usage/interface'
 
 module Clio
 
-  module Usage #:nodoc:
+  class Usage #:nodoc:
 
     # = Parser
     #

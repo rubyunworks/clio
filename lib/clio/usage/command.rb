@@ -1,3 +1,5 @@
+raise "DEFUNCT"
+
 require 'clio/usage/subcommand'
 
 module Clio
@@ -95,36 +97,7 @@ module Clio
       end
 =end
 
-      def parse(argv)
-        Parser.new(self).parse(argv)  #, argv).parse
-      end
-
-      # Cache usage into a per-user cache file for reuse.
-      # This can be used to greatly speed up tab completion.
-      #
-      def cache
-        File.open(cache_file, 'w'){ |f| f << to_yaml }
-      end
-
-    private
-
-      # TODO: Use XDG
-
-      def cache_file
-        File.join(File.expand_path('~'), '.cache', 'clio', "#{name}.yaml")
-      end
-
-      def self.cache_file
-        File.join(File.expand_path('~'), '.cache', 'clio', "#{name}.yaml")
-      end
-
-      def self.load_cache
-        if File.file?(cache_file)
-          YAML.load(File.new(cache_file))
-        end
-      end
-
-    end#class Main
+    end#class
 
   end#module Usage
 

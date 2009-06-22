@@ -3,14 +3,9 @@ require 'clio/usage/argument'
 
 module Clio
 
-  module Usage #:nodoc:
+  class Usage #:nodoc:
 
-    # = Commandline Usage Command
-    #
-    # This is the heart of usage; subclassed by Main and
-    # containing together Options and Arguments.
-    #
-    #   usage = Usage.new
+    # = Usage Command
     #
     class Subcommand
 

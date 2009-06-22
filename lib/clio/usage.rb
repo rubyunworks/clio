@@ -1,4 +1,4 @@
-require 'clio/usage/command'
+require 'clio/usage/subcommand'
 require 'clio/usage/parser'
 
 module Clio
@@ -74,6 +74,7 @@ module Clio
   #++
   #
   #--
+  #
   # = Method Notation
   #
   # This notation is very elegant, but slightly more limited in scope.
@@ -94,6 +95,7 @@ module Clio
   #     '--output', 'output directory'
   #     'file*',    'files to document'
   #   )
+  #
   #++
   #
   # This notation is slightly more limited in scope... so...
@@ -118,7 +120,7 @@ module Clio
   #        [  'FILE*',             'files to document'    ]
   #
   # Alternately the help information can be left out and defined in
-  # a seprate set of usage calls.
+  # a separate set of usage calls.
   #
   #   usage['--verbose -V']['--quiet -q'] \
   #        ['document']['--output=FILE -o']['FILE*']
@@ -135,7 +137,9 @@ module Clio
   #     'FILE',     'files to docment'
   #   )
   #
-  # A little more verbose, but a bit more intutive.
+  # A little more verbose, but also a bit more intuitive.
+  #
+  #--
   #
   # == "Alien" Notation
   #
@@ -162,6 +166,8 @@ module Clio
   #     alias_method :_, :[]
   #   end
   #
+  #++
+  #
   # == Combining Notations
   #
   # Since the various notations all translate to same underlying
@@ -174,7 +180,7 @@ module Clio
   # The important thing to keep in mind when doing this is what is
   # returned by each type of usage call.
   #
-  module Usage
+  class Usage
 
     BLANK        = /^\s*$/
     COMMAND      = /^\w/   # NOT GOOD ENOUGH
@@ -182,32 +188,86 @@ module Clio
     #LONG_OPTION  = /^--/
     #SHORT_OPTION = /^-\S/
 
+    instance_methods.each{ |m| private m unless m =~ /^__/ }
+
+    attr :main
+
     #
-    def self.new(text=nil, opts={}, &block)
-      if text
-        parse_help_text(text)
-      elsif block
-        Command.new(opts[:name], &block)
+    def initialize(usage=nil, &block)
+      raise ArgumentError if usage && block
+      case usage
+      when nil
+        @main = Subcommand.new(name, &block)
+      when Subcommand
+        @main = usage
+      else
+        @main = Usage.parse_usage(name, usage)
       end
     end
 
     #
-    def self.parse_help_text(text)
-      command = Command.new
+    def method_missing(s, *a, &b)
+      @main.send(s, *a, &b)
+    end
 
-      text = text.sub(/\A\s*?\n/, '')
+    #
+    #def copyright(text=nil)
+    #  @copyright = text
+    #end
+
+    #
+    def parse(argv)
+      Parser.new(@main).parse(argv)  #, argv).parse
+    end
+
+    # Cache usage into a per-user cache file for reuse.
+    # This can be used to greatly speed up tab completion.
+    #
+    def cache
+      File.open(cache_file, 'w'){ |f| f << to_yaml }
+    end
+
+    # TODO
+    def name
+      File.basename($0)
+    end
+
+    private #-----------------------------------------------------------------
+
+      # TODO: Use XDG
+
+      def cache_file
+        File.join(File.expand_path('~'), '.cache', 'clio', "#{name}.yaml")
+      end
+
+      def self.cache_file
+        File.join(File.expand_path('~'), '.cache', 'clio', "#{name}.yaml")
+      end
+
+      def self.load_cache
+        if File.file?(cache_file)
+          YAML.load(File.new(cache_file))
+        end
+      end
+
+
+    #
+    def self.parse_usage(name, text)
+      cmd = Subcommand.new(name)
+
+      txt = text.sub(/\A\s*?\n/, '')
 
       use = command
-      tab = indent_length(text)
+      tab = indent_length(txt)
       use_stack = []
       tab_stack = []
 
-      text.each_line do |line|
+      txt.each_line do |line|
         next if BLANK =~ line
 
         # at least 4 spaces divide help from element
-        cmd, help = *line.strip.split('    ')
-        cmd, help = cmd.to_s.strip, help.to_s.strip
+        opt, help = *line.strip.split('    ')
+        opt, help = opt.to_s.strip, help.to_s.strip
 
         i = indent_length(line)
 #p '#1', i, tab, use
@@ -218,7 +278,7 @@ module Clio
           end
         end
 #p '#2', use
-        u = use[cmd, help]
+        u = use[opt, help]
 #p '#3', u
         if Subcommand === u
           use = u
@@ -227,13 +287,13 @@ module Clio
           tab_stack << i
         end
 
-        #if ARGS =~ cmd
+        #if ARGS =~ opt
         #  use = use_stack.pop
         #  tab_stack.pop
         #end
       end
 
-      return command
+      return cmd
     end
 
     #
