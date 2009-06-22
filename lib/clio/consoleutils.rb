@@ -9,6 +9,9 @@ module Clio
   module ConsoleUtils
     module_function
 
+    DEFAULT_WIDTH = ENV['COLUMNS'] || 80
+
+
     # Convenient method to get simple console reply.
     #
     #   ask("Are you good?") do |answer| 
@@ -82,24 +85,31 @@ module Clio
       return inp
     end
 
-    # Console screen width (taken from progress bar)
+    # Console screen width.
     #
-    # TODO: Don't know how portable #screen_width is.
-
     def screen_width(out=STDERR)
-      default_width = ENV['COLUMNS'] || 80
-      begin
-        tiocgwinsz = 0x5413
-        data = [0, 0, 0, 0].pack("SSSS")
-        if out.ioctl(tiocgwinsz, data) >= 0 then
-          rows, cols, xpixels, ypixels = data.unpack("SSSS")
-          if cols >= 0 then cols else default_width end
-        else
-          default_width
+      @width ||= (
+        w = nil
+        begin
+          tiocgwinsz = 0x5413
+          data = [0, 0, 0, 0].pack("SSSS")
+          if out.ioctl(tiocgwinsz, data) >= 0 then
+            rows, cols, xpixels, ypixels = data.unpack("SSSS")
+            w = cols if cols >= 0
+          end
+        rescue Exception
         end
-      rescue Exception
-        default_width
-      end
+        unless w
+          begin
+            require 'curses'
+            Curses.init_screen
+            w = Curses.cols
+            Curses.close_screen
+          rescue
+          end
+        end
+        w || DEFAULT_WITDH
+      )
     end
 
     # Print a justified line with left and right entries.
@@ -107,7 +117,7 @@ module Clio
     # A fill option can be given to fill in any empty space
     # between the two. And a ratio option can be given which defaults
     # to 0.8 (eg. 80/20)
-
+    #
     def print_justified(left, right, options={})
       fill  = options[:fill] || '.'
       fill  = ' ' if fill == ''
