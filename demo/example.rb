@@ -7,19 +7,14 @@ require 'clio/string'
 
 use = Clio::Usage.new
 
-use['document']['--output=PATH -o']
+use['document', 'generate docs']['--output=PATH -o']
 use['document']['<*files>']
 use['show']['<*files>']
 use['wack']['<*files>']
 use['hump']['<*files>']
 
-use['--verbose -v']
+use['--verbose -v', 'say it loudly']
 use['--help -h']
-
-use.help(
-  'document' , 'generate docs',
-  '--verbose', 'do it loudly'
-)
 
 cli = use.parse('document -v -o doc/ README [A-Z]*')
 
@@ -30,12 +25,18 @@ p cli.options
 p cli.arguments
 p cli.errors
 
+puts '---'
+
 #cli.document.options    #=> [:output => "doc/"]
 #cli.document.arguments  #=> ["README", "[A-Z]*"]
 
 cli = use.parse('document --help')
 
-puts use.command(cli.command).help
+#puts use.command(cli.command).help
+
+puts use.help.brief
+
+puts '---'
 
 if cli.help?
   puts Clio::String.new(use.help_text){ |s|

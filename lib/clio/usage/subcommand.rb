@@ -1,5 +1,6 @@
 require 'clio/usage/option'
 require 'clio/usage/argument'
+require 'clio/usage/help'
 
 module Clio
 
@@ -34,7 +35,7 @@ module Clio
       attr :options
 
       # Help text.
-      attr :help
+      attr :desc
 
       # Widely accepted alternate term for options.
       alias_method :switches, :options
@@ -46,7 +47,7 @@ module Clio
         @subcommands = []
         @options     = []
         @arguments   = []
-        @help        = ''
+        @description = ''
         instance_eval(&block) if block
       end
 
@@ -57,7 +58,7 @@ module Clio
         @options     = c.options.dup
         @arguments   = c.arguments.dup
         @subcommands = c.subcommands.dup
-        @help        = c.help.dup
+        @description = c.desc.dup
       end
 
       def key ; @name.to_sym ; end
@@ -89,7 +90,7 @@ module Clio
       #
       #   subcommand('remote add')
       #
-      def subcommand(name, help=nil, &block)
+      def subcommand(name, desc=nil, &block)
         name, names = *name.to_s.strip.split(/\s+/)
         if names
           names = [name, *names]
@@ -103,7 +104,7 @@ module Clio
             subcommands << cmd
           end
         end
-        cmd.help(help) if help
+        cmd.desc(desc) if desc
         cmd.instance_eval(&block) if block
         cmd
       end
@@ -135,7 +136,7 @@ module Clio
       #
       #   opt('--output=FILE -o', 'output directory')
       #
-      def opt(name, help=nil)
+      def opt(name, desc=nil)
         name, *aliases = name.split(/\s+/)
         name, type = *name.split('=')
         mult = false
@@ -145,7 +146,7 @@ module Clio
         end
         name = option_name(name).to_sym
         o = option(name, *aliases)
-        o.help(help) if help
+        o.desc(desc) if desc
         o.argument(type) if type
         o.multiple(mult)
         self
@@ -175,7 +176,7 @@ module Clio
       #
       #   swt('--output=FILE -o', 'output directory')
       #
-      #def swt(name, help=nil)
+      #def swt(name, desc=nil)
       #  name, *aliases = name.split(/\s+/)
       #  name, type = *name.split('=')
       #  mult = false
@@ -185,7 +186,7 @@ module Clio
       #  end
       #  name = clean_name(name)
       #  o = switch(name, *aliases)
-      #  o.help(help) if help
+      #  o.desc(desc) if desc
       #  o.argument(type) if type
       #  o.multiple(mult)
       #  self
@@ -204,7 +205,7 @@ module Clio
       def argument(*n_type, &block)
         index = Integer===n_type[0] ? n_type.shift : @arguments.size + 1
         type  = n_type.shift
-        help  = n_type.shift
+        desc  = n_type.shift
 
         index = index - 1
         type = type.to_s.sub(/^\</,'').chomp('>')
@@ -239,14 +240,14 @@ module Clio
         if arg = @arguments[index]
           arg.type(type) if type
           #arg.name(name) if name
-          arg.help(help) if help
+          arg.desc(desc) if desc
           arg.splat(splat) if splat
           arg.instance_eval(&block) if block
         else
           if type || block
             arg = Argument.new(type, &block) #self, &block)
             #arg.name(name) if name
-            arg.help(help) if help
+            arg.desc(desc) if desc
             arg.splat(splat) if splat
             @arguments[index] = arg
           end
@@ -260,13 +261,13 @@ module Clio
       #
       #   arg('PIN', 'pin number')
       #
-      #def arg(type=nil, help=nil)
+      #def arg(type=nil, desc=nil)
       #  type = type.to_s.sub(/^\</,'').chomp('>')
-      #  argument(type).help(help)
+      #  argument(type).desc(desc)
       #  self
       #end
 
-      # Access help description(s) for this command.
+      # Access or set description(s) for this command.
       #
       # If no argument is given, return this command's
       # help description.
@@ -276,28 +277,29 @@ module Clio
       #
       # If multiple arguments are given, there should
       # be an even number; the pairs of which set the
-      # help descriptions for subelements. See #help!
+      # help descriptions for subelements. See #desc!
       #
-      def help(*string)
+      def description(*string)
         case string.size
         when 0
-          @help
+          @description
         when 1
-          @help.replace(string.to_s)
-          @help
+          @description.replace(string.to_s)
+          @description
         else
-          help!(*string)
+          desc!(*string)
         end
       end
+      alias_method :desc, :description
 
-      # Set the help descriptions for subelements.
+      # Set the desc descriptions for subelements.
       # There should be an even number or argument, or
       # a Hash should be passed. 
       #
-      #   help!( "document" , "generate documents",
+      #   desc!( "document" , "generate documents",
       #          "--verbose", "do it loudly" )
       #
-      def help!(*args)
+      def desc!(*args)
         Hash[*args.to_a.flatten].each do |key, desc|
           self[key, desc]
         end
@@ -369,7 +371,7 @@ module Clio
         s << "#<#{self.class}:#{object_id} #{@name}"
         s << " @arguments=#{@arguments.inspect} " unless @arguments.empty?
         s << " @options=#{@options.inspect} "     unless @options.empty?
-        s << " @help=#{@help.inspect}"            unless @help.empty?
+        s << " @description=#{@description.inspect}"            unless @description.empty?
         #s << "@commands=#{@commands.inspect} "  unless @commands.empty?
         s << ">"
         s
@@ -395,7 +397,7 @@ module Clio
         when 1, 2, 3
           s.concat(options.collect{ |o| "[#{o.to_s.strip}]" })
         else
-          s << "[switches]"  # switches? vs. options
+          s << "[SWITCHES]"  # switches? vs. options
         end
 
         s << arguments.join(' ') unless arguments.empty?
@@ -407,12 +409,13 @@ module Clio
         when 2, 3
           s << '[' + subcommands.join(' | ') + ']'
         else
-          s << 'command'
+          s << 'COMMAND'
         end
 
         s.flatten.join(' ')
       end
 
+=begin
       # Help text.
       #
       # TODO: Could help_text be called #to_str?
@@ -420,30 +423,58 @@ module Clio
       #
       def help_text
         s = []
-        unless help.empty?
-          s << help
+        unless desc.empty?
+          s << desc
           s << ''
         end
-        s << "Usage:"
+        s << "USAGE:"
         s << "  " + to_s
         unless subcommands.empty?
           s << ''
-          s << 'Commands:'
+          s << 'COMMANDS:'
           ss, sm = *subcommands.partition{ |x| x.name.index(':') }
-          s.concat(sm.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
-          s.concat(ss.collect{ |x| "  %-20s %s" % [x.name, x.help] }.sort)
+          s.concat(sm.collect{ |x| "  %-20s %s" % [x.name, x.desc] }.sort)
+          s.concat(ss.collect{ |x| "  %-20s %s" % [x.name, x.desc] }.sort)
         end
         unless arguments.empty?
           s << ''
-          s << "Arguments:"
-          s.concat(arguments.collect{ |x| "  %-20s %s" % [x, x.help] })
+          s << "ARGUMENTS:"
+          s.concat(arguments.collect{ |x| "  %-20s %s" % [x, x.desc] })
         end
         unless options.empty?
           s << ''
-          s << 'Switches:'
-          s.concat(options.collect{ |x| "  %-20s %s" % [x, x.help] })
+          s << 'SWITCHES:'
+          s.concat(options.collect{ |x| "  %-20s %s" % [x, x.desc] })
         end
         s.flatten.join("\n")
+      end
+=end
+
+      #
+      def help
+        @help ||= (
+          h = Help.new
+
+          h.name((name + ' - ' + desc).chomp(' - '))
+
+          h.synopsis(to_s)
+
+          table = subcommands.map{ |x| [x.name, x.desc] }
+          h.command_table(table)
+
+          table = options.map{ |x| [x.to_s, x.desc] }
+          h.switch_table(table)
+
+          table = arguments.map{ |x| [x.to_s, x.desc] }
+          h.argument_table(table)
+
+          h
+        )
+      end
+
+      #
+      def help_text
+        help.to_s
       end
 
       # PARSE

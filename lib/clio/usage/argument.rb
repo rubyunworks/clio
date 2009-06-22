@@ -9,7 +9,7 @@ module Clio
       #attr :parent
       #attr :name
       attr :type
-      attr :help
+      attr :desc
       attr :splat
 
       # New Argument.
@@ -17,7 +17,7 @@ module Clio
         @type      = type
         #@name      = type.downcase if type.upcase != type
         @splat     = false
-        @help      = ''
+        @desc      = ''
         instance_eval(&block) if block
       end
 
@@ -25,7 +25,7 @@ module Clio
       def initialize_copy(o)
         #@name = o.name.dup
         @type = o.type.dup
-        @help = o.help.dup
+        @desc = o.desc.dup
       end
 
       # Same as +name+ but given as a symbol.
@@ -58,11 +58,12 @@ module Clio
         @splat = true_or_false
       end
 
-      # Specify help text for argument.
-      def help(string=nil)
-        @help.replace(string.to_s) if string
-        @help
+      # Specify desc text for argument.
+      def desc(string=nil)
+        @desc.replace(string.to_s) if string
+        @desc
       end
+      alias_method :description, :desc
 
       def to_s
         s = "<#{type}"

@@ -31,7 +31,7 @@ module Clio
       #attr_accessor :greedy
 
       # Help text for this option.
-      attr :help
+      attr :desc
 
       # New Option.
       #def initialize(name, parent=nil, &block)
@@ -43,7 +43,7 @@ module Clio
         @multiple  = false
         #@greedy    = false
         @exclude   = []
-        @help      = ''
+        @desc      = ''
         instance_eval(&block) if block
       end
 
@@ -53,7 +53,7 @@ module Clio
         @aliases = o.aliases.dup
         #@multiple = o.multiple
         @exclude = o.exclude.dup
-        @help    = o.help.dup
+        @desc    = o.desc.dup
       end
 
       # Same as +name+ but given as a symbol.
@@ -117,10 +117,11 @@ module Clio
       #end
 
       #
-      def help(string=nil)
-        @help.replace(string.to_s) if string
-        @help
+      def desc(string=nil)
+        @desc.replace(string.to_s) if string
+        @desc
       end
+      alias_method :description, :desc
 
       # Tab completion.
       def completion
@@ -134,8 +135,8 @@ module Clio
       #
       #   arg('PIN', 'pin number')
       #
-      def arg(slot, help=nil)
-        argument(slot).help(help)
+      def arg(slot, desc=nil)
+        argument(slot).desc(desc)
       end
 
       #
