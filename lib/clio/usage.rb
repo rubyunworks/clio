@@ -257,7 +257,7 @@ module Clio
 
       txt = text.sub(/\A\s*?\n/, '')
 
-      use = command
+      use = cmd
       tab = indent_length(txt)
       use_stack = []
       tab_stack = []

@@ -473,8 +473,8 @@ module Clio
       end
 
       #
-      def help_text
-        help.to_s
+      def help_text(opts={})
+        help.to_s(opts)
       end
 
       # PARSE

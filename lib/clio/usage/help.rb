@@ -4,8 +4,12 @@ module Clio
 
     class Help
 
-      UPPER_SECTIONS = [ 'name', 'synopsis', 'description', 'options', 'commands', 'arguments' ]
+      WINDOWS = RUBY_PLATFORM.split('-').any? { |part| part =~ /mswin\d*/i }
+
+      UPPER_SECTIONS = [ 'name', 'synopsis', 'description', 'options', 'arguments', 'commands' ]
       LOWER_SECTIONS = [ 'author', 'copyright' ]
+
+      INDENT = 4
 
       #
       def initialize() #usage)
@@ -74,7 +78,8 @@ module Clio
         return @sections['options'] = text if text
         @sections['options'] ||= (
           s = @options_table.map do |(c, d)|
-            "%-20s\n%s" % [c, d.sub(/^/, '    ')]
+            x = "%-20s\n%s" % [c, d.sub(/^/, '    ')]
+            x.rstrip
           end
           s.empty? ? nil : s.join("\n\n").rstrip
         )
@@ -93,22 +98,24 @@ module Clio
 
       # Returns Manpage like help text. All sections of this
       # text can be replaced with manual entries.
-      def to_s
+      def to_s(opts={})
         return @override if @override
+
         s = ''
         UPPER_SECTIONS.each do |title|
           body = send(title)
-          s << title.upcase + "\n" + format(body) + "\n\n" if body
+          s << title.upcase + "\n" + indent(body) + "\n\n" if body
         end
         (@sections.keys - UPPER_SECTIONS - LOWER_SECTIONS).each do |title, body|
           body = send(title)
-          s << title.upcase + "\n" + format(body) + "\n\n" if body
+          s << title.upcase + "\n" + indent(body) + "\n\n" if body
         end
         LOWER_SECTIONS.each do |title, body|
           body = send(title)
-          s << title.upcase + "\n" + format(body) + "\n\n" if body
+          s << title.upcase + "\n" + indent(body) + "\n\n" if body
         end
-        s 
+        s = ansi_format(s, opts)
+        s
       end
 
       # Returns very concise help text.
@@ -121,9 +128,17 @@ module Clio
         s.join("\n")
       end
 
-      #
-      def format(text)
-        text.gsub(/^/, "    ")
+      # Indent each line of a +text+.
+      def indent(text)
+        text.gsub(/^/, " " * INDENT)
+      end
+
+      # Apply ANSI formating to the help output.
+      def ansi_format(str, opts={})
+        if opts[:bold]
+          str.gsub!(/^\w+/){ |w| bold + w + normal }
+          str.gsub!(/[-]{1,2}\w+/){ |w| bold + w + normal }
+        end
       end
 
       # If a section is not specifically defined, this will add it as a custom section.
@@ -133,6 +148,20 @@ module Clio
         else
           @sections[s.to_s.downcase] = a.join
         end
+      end
+
+    private
+
+      def bold
+        WINDOWS ? "" : "\e[1m"
+      end
+      
+      def underline
+        WINDOWS ? "" : "\e[4m"
+      end
+      
+      def normal
+        WINDOWS ? "" : "\e[0m"
       end
 
     end #class Help

@@ -15,6 +15,7 @@ use['hump']['<*files>']
 
 use['--verbose -v', 'say it loudly']
 use['--help -h']
+use['--where=PATH -w', 'where do you want to do with this']
 
 cli = use.parse('document -v -o doc/ README [A-Z]*')
 
@@ -38,11 +39,13 @@ puts use.help.brief
 
 puts '---'
 
-if cli.help?
-  puts Clio::String.new(use.help_text){ |s|
-    s.gsub!(/^\w+\:/){ |w| w.bold.underline }
-    s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
-  }
-end
+puts use.help_text(:bold=>true)
+
+#if cli.help?
+#  puts Clio::String.new(use.help_text){ |s|
+#    s.gsub!(/^\w+/){ |w| w.bold.underline }
+#    s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
+# }
+#end
 
 
