@@ -3,6 +3,8 @@
   <title>CLIO</title>
   <link REL="SHORTCUT ICON" HREF="assets/images/icon.gif"/>
 
+  <script type="text/javascript" src="assets/scripts/jquery.js"></script>
+
   <!-- shjs highligter -->
   <script type="text/javascript" src="http://tigerops.org/assets/systems/shjs/sh_main.js"></script>
   <script type="text/javascript" src="http://tigerops.org/assets/systems/shjs/lang/sh_ruby.js"></script>
@@ -12,69 +14,59 @@
     body{
       padding: 0; margin: 0; font-family: times; color: black;
       /* background: url(assets/images/swirl.jpg) center top no-repeat; */
+      background: url(assets/images/bkg.jpg) repeat;
+      font-size: 10pt;
     }
 
     div, img, iframe, h1 { padding: 0; margin: 0; }
 
     img{ border: 0px solid yellow; }
-
-    p.intro{ padding: 10px; margin: 10px; font-size: 24pt; width: 450px; float: right; }
-
-    #title {
-      font-size: 42pt;
-      float: left;
-      padding-left: 5;
+    pre{ padding-top: 15px; }
+    p.intro {
+      padding: 10px 0 10px 10px; margin: 10px 0 10px 10px; font-size: 20pt; width: 500px; float: right; 
     }
 
-    #container{
-      width: 900px;
-      margin: 0 auto;
-    }
+    #title { font-size: 42pt; float: left; padding-left: 5; }
 
-    #header {
-      margin-top: 20px;
-    }
+    #container { width: 900px; margin: 0 auto; }
+
+    #header { margin-top: 20px; }
+
     #menu {
       float: right;
       font-family: helvetica, sans-serif;
       font-size: 14px;
       margin-top: 24px;
+      margin-right: 30px;
     }
     #menu ul {
       list-style: none;
       float: left;
       padding-right: 15px;
     }
-    #menu li
-    {
-      float: left;
-      margin: 0 7px;
-    }
+    #menu li { float: left; margin: 0 7px; }
     #menu a { font-weight: bold; text-decoration: none; font-style: normal; }
     #menu a:hover { text-decoration: underline; }
+
     #main {
       clear: both;
-      border: 2px dotted orange;
-      background: url(assets/images/bkg.jpg) repeat;
-      height: 500px;
+      border: 0px dotted orange;
+      height: 380px;
     }
-    .copyright {
-      margin: 40px 0;
-      text-align: center;
-      color: #666;
-      font-weight: bold;
-    }
-    .footer {
-      margin: 30px 0;
-      border-top: 1px solid #ccc;
-      padding-top: 30px;
-    }
-    #footer iframe {
-      width: 900px;
-      height: 200px;
-      border: 0px solid green;
-    }
+
+    #overview p { font-family: sans-serif; }
+
+    .copyright { margin: 40px 0; text-align: center; color: #666; font-weight: bold; }
+    .footer { margin: 30px 0; border-top: 1px solid #ccc; padding-top: 30px; }
   </style>
+
+  <script>
+    $(document).ready(function(){
+      /* $.toc('#content h1,h2,h3,h4').appendTo('.toc'); */
+      $('pre').addClass('sh_ruby');
+      sh_highlightDocument();
+    });
+  </script>
 </head>
 
 <body>
@@ -86,26 +78,33 @@
 
     <div id="menu">
       <ul>
-        <li><a href="rdoc/index.html">Documentation</a></li>
-        <li><a href="spec/index.html">Specification</a></li>
+        <li><a href="http://wiki.github.com/trans/clio">Wiki</a></li>
+        <li><a href="rdoc/index.html">RDocs</a></li>
+        <li><a href="spec/index.html">Specs</a></li>
+        <li><a href="http://github.com/trans/clio/tree/master">Github</a></li>
         <li><a href="http://rubyforge.org/projects/clio/">Rubyforge</a></li>
         <li><a href="http://tigerops.org">Tigerops</a></li>
       </ul>
     </div>
   </div>
 
+  <br style="clear: both;"/>
+
   <div id="main" style="position: relative;">
     <p class="intro">
       <i>Clio</i> is an advanced library for developing
       command line intefaces in the Ruby programming lanaguage. Clio includes an advances
-      commandline parser, a quick base-class commandline parser, easy methods for 
-      getting use input and a console
-      String class that makes it suprisingly easy to output beautiful console text.
+      commandline parser, a quick base-class commandline parser, easy to use methods for 
+      getting user input and an ANSI String class that makes it suprisingly easy to output
+      beautiful console text.
     <p>
-    <img src="assets/images/muse_clio.jpg" align="left"/>
+    <img src="assets/images/muse_clio.jpg" align="left" style="height: 350px;"/>
   </div>
 
-  <div>
+<!--
+  <div id="overview usage">
+    <h2>Usage</h2>
+
     <p>The advanced parser can be used in a number of ways. The highest-level approach
     involves specifiying ones commandline in a help text like string.<p> 
 
@@ -113,7 +112,7 @@
       require 'clio'
 
       use = Clio::Usage.new %{
-        --verbose -v          do it loudly
+        --verbose -v          give details
 
         document              generate documents
           --output=PATH -o    where to put it
@@ -121,63 +120,74 @@
       }
     </pre>
 
-    <p>This syntax can be broken down further into the underlying ... </p>
+    <p>Clio parses this syntax into <i>bracket notation</i>. </p>
 
-    <pre>
+    <pre class="sh_ruby code">
       use = Clio::Usage.new
+
+      use['--verbose -v', 'give details']
+      use['document', 'generate docs']['--output=PATH -o', 'where to put it']['*FILES']
+    </pre>
+
+    <p>This notation can be used manually. If you take this approach, you might like to
+    define the help text yourself too.</p>
+
+    <pre class="sh_ruby code">
+      use = Clio::Usage.new
+
       use['--verbose -v']
       use['document']['--output=PATH -o']['*FILES']
 
-      use.help(
-        'document', 'generate docs',
-        '--verbose', 'do it loudly'
-      )
-
-      use['document'].help(
-        'output', 'where to put it'
-      ) 
+      use.help.text = %{
+        #{$0} [--verbose] document [--output DIR] FILE1 [FILE2...]
+      }
     </pre>
 
-    <p>This then can be broken down fruther to the underlying DSL that 
-    Clio uses to create all usage specifications.</p>
+    <p>Clio further translates bracket notation into the underlying DSL that 
+    Clio ultimately uses to define all usage specifications.</p>
 
-    <pre>
+    <pre class="sh_ruby code">
       use = Clio::Usage.new do
-        command :document do
-          help 'generate docs'
-          option :output, :o do
+        option 'verbose', 'v' do
+          desc 'give details'
+        end
+
+        command 'document' do
+          desc 'generate docs'
+
+          option 'output', 'o' do
             type 'PATH'
             help 'where to put it' 
           end
+
           argument 'FILES' do
             multiple
           end
-        end
-        option(:verbose, :v) do
-          help 'do it loudly'
         end
       end
     </pre>
 
     <p>Once specified, it's time to parse and utilize the results.</p>
  
-    <pre>
+    <pre class="sh_ruby code">
       cli = use.parse('document -v -o doc/ README [A-Z]*')
 
-      cli.command    <span style="color: green">#=> "document"</span>
-      cli.options    <span style="color: green">#=> {:output => "doc/", :verbose=>true}</span>
-      cli.arguments  <span style="color: green">#=> ["README", "[A-Z]*"]</span>
+      cli.command    #=> "document"
+      cli.options    #=> {:output => "doc/", :verbose=>true}
+      cli.arguments  #=> ["README", "[A-Z]*"]
 
-      cli.verbose?   <span style="color: green">#=> true</span>
+      cli.verbose?   #=> true
     </pre>
 
     <p>What to output some really nice help text. Let's use Clio::String to spruce it up.</p>
 
-    <pre>
+    <pre class="sh_ruby code">
       cli.parse('--help')
 
       if cli.help?
-        puts Clio::String.new(cli.help){ |s|
+        text = cli.help.to_s
+
+        puts Clio::String.new(text){ |s|
           s.gsub!(/^\w+\:/){ |w| w.bold.underline }
           s.gsub!(/[-]{1,2}\w+/){ |w| w.blue }
         }
@@ -185,11 +195,9 @@
     </pre>
 
   </div>
+-->
 
   <div id="text" style="clear: both;">
-  </div>
-
-  
   </div>
 
   <div class="copyright">
