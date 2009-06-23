@@ -1,8 +1,8 @@
 module Clio
 
-  # = QuickCLI
+  # = Base
   #
-  #   class MyCLI < Clio::QuickCLI
+  #   class MyCLI < Clio::Base
   #
   #     # Global flag option.
   #     def debug?
@@ -31,7 +31,7 @@ module Clio
   #
   #   end
   #
-  class QuickCLI
+  class Base
 
     class NoOptionError < ::NoMethodError # ArgumentError ?
       def initialize(name, *arg)
